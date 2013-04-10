@@ -1,4 +1,10 @@
-/*
+#include <iostream>
+#include <fstream>
+
+
+using namespace std;
+
+
 class assembler{
 public:
 
@@ -41,21 +47,21 @@ private:
 
 }
 
-assembler::read{
-	
-}
-
-assembler::parse{
-
-}
-
-assembler::opcode{
-
-}
-
-assembler::checkError{
+assembler::readParse(string filename){
+	//simply read in the file
+	ifstream file;
+  	file.open (filename);
+	//parsing ignore   !  exclamation  treat as comments
 
 }
 
 
-*/
+assembler::opcode(vector<string> opcodeText){
+
+}
+
+assembler::checkError(int currentLine, int testLimit){
+	//compare the lines left, so we don't overshoot our program's limit
+}
+
+
