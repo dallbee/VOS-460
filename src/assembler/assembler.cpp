@@ -1,3 +1,12 @@
+// TODO
+// - test parser
+// - opCodes vector to a map with value => id
+// - finish builder
+// - extend for overflow, less, equal, greater, carry
+// - add error checks to invalid commands/arguments
+// - extend opcodes.lst to allow for carries
+// - finish function documentation
+
 #include "assembler.h"
 #include <vector>
 #include <string>
@@ -5,7 +14,6 @@
 #include <fstream>
 #include <iterator>
 #include <algorithm>
-#include <stdlib.h>
 using namespace std;
 
 /**
@@ -52,6 +60,13 @@ void Assembler::build(const string &sourcePath)
 	instruction operation;
 	while (getline(sourceFile, line)) {
 		operation = parse(line);
+		// Check operation validity
+
+		// Check argument 0 range
+
+		// Check argument 1 range
+
+
 	}
 }
 
@@ -98,45 +113,3 @@ Assembler::instruction Assembler::parse(const string &line)
 
 	return inst;
 }
-
-
-
-
-
-/* Opcodes for reference
-
-	int loadi	//0000 OPcode mask
-	int loadi	//0000 OPcode mask
-	int store	//0001 OPcode mask
-	int add
-	int addi
-	int addc
-	int addci
-	int sub
-	int subi
-	int subc
-	int subci
-	int and
-	int andi
-	int xor
-	int xori
-	int compl
-	int shl
-	int shla
-	int shr
-	int shra
-	int compr
-	int compri
-	int getstat
-	int putstat
-	int jump
-	int jumpl
-	int jumpe
-	int jumpg
-	int call
-	int return
-	int read
-	int write
-	int halt		//11000 OP/code mask
-	int noop 	//11001 OPcode mask
-*/
