@@ -2,6 +2,6 @@
 
 int main()
 {	
-	std::cin()
+	std::cout << "Hello";
 	return 0;
 }
