@@ -4,5 +4,5 @@
 
 class OS {
 public:
-	OS()
-}
+	OS();
+};

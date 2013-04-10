@@ -18,4 +18,4 @@ assembler.o:
 	$(CC) $(CFLAGS) -o $(TARGETDIR)/assembler.o -c $(SRCDIR)/assembler/assembler.cpp
 
 clean:
-	$(RM) $(TARGET)
+	rm -f $(TARGETDIR)/*
