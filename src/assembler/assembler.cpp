@@ -1,9 +1,11 @@
 #include "assembler.h"
 #include <vector>
 #include <string>
+#include <sstream>
 #include <fstream>
 #include <iterator>
 #include <algorithm>
+#include <stdlib.h>
 using namespace std;
 
 /**
@@ -12,13 +14,13 @@ using namespace std;
  *
  * @param opListPath The path to the opcode listing to be used for assembly.
  */
-Assembler::Assembler(string opListPath)
+Assembler::Assembler(const string &opListPath)
 {
 	// Load opcodes file to a vector
 	ifstream opListFile(opListPath.c_str());
 	copy(istream_iterator<string>(opListFile),
-          istream_iterator<string>(),
-          back_inserter(this->opCodes));
+	  istream_iterator<string>(),
+	  back_inserter(this->opCodes));
 
 	// Verify data existence
 	if  (this->opCodes.empty()) {
@@ -43,9 +45,58 @@ Assembler::Assembler(string opListPath)
  * @param sourcePath The path to the program that will be assembled
  * @return void
  */
-void Assembler::build(string sourcePath)
+void Assembler::build(const string &sourcePath)
 {
+	ifstream sourceFile(sourcePath.c_str());
+	string line;
+	instruction operation;
+	while (getline(sourceFile, line)) {
+		operation = parse(line);
+	}
+}
 
+/**
+ * [Assembler::parse description]
+ * @param  line
+ * @return
+ */
+Assembler::instruction Assembler::parse(const string &line)
+{
+	instruction inst;
+	inst.arg0 = 0;
+	inst.arg1 = 0;
+	int size = min(line.find_first_of("!"), line.size() - 1);
+	int start = 0;
+	int end = 0;
+
+	// Extract the command
+	if (size > 0) {
+		start = line.find_first_not_of("\t ");
+		end = line.find_first_of("\t ", start);
+		inst.command = line.substr(start, end - start);
+	}
+
+	// Extract the first argument, if it exists
+	if (size > end) {
+		start = line.find_first_of("0123456789", end);
+		if (start < 0) {
+			return inst;
+		}
+		end = line.find_first_not_of("0123456789", start);
+		istringstream(line.substr(start, end - start)) >> inst.arg0;
+	}
+
+	// Extract the second argument, if it exists
+	if (size > end) {
+		start = line.find_first_of("0123456789", end);
+		if (start < 0) {
+			return inst;
+		}
+		end = line.find_first_not_of("0123456789", start);
+		istringstream(line.substr(start, end - start)) >> inst.arg1;
+	}
+
+	return inst;
 }
 
 

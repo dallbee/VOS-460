@@ -8,9 +8,15 @@ using namespace std;
 
 class Assembler {
 public:
-	Assembler(string opListPath);
-	void build(string sourcePath);
+	Assembler(const string &opListPath);
+	void build(const string &sourcePath);
 private:
 	vector<string> opCodes;
 	vector<string> immediateOpCodes;
+	struct instruction {
+		string command;
+		int arg0;
+		int arg1;
+	};
+	static instruction parse(const string &line);
 };
