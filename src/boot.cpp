@@ -1,7 +1,7 @@
 #include <iostream>
 #include "os/os.h"
-#include "virtualMachine.h"
-#include "assembler.h"
+#include "kernel/virtualMachine.h"
+#include "assembler/assembler.h"
 
 int main()
 {	
