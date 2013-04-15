@@ -2,7 +2,8 @@
 #define ASSEMBLER_H
 #endif
 
-#include <vector>
+#include <map>
+#include <set>
 #include <string>
 using namespace std;
 
@@ -11,8 +12,8 @@ public:
 	Assembler(const string &opListPath);
 	void build(const string &sourcePath);
 private:
-	vector<string> opCodes;
-	vector<string> immediateOpCodes;
+	map<string, int> opCodes;
+	set<string> immediateOpCodes;
 	struct instruction {
 		string command;
 		int arg0;

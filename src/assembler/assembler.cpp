@@ -14,6 +14,7 @@
 #include <fstream>
 #include <iterator>
 #include <algorithm>
+#include <map>
 using namespace std;
 
 /**
@@ -24,26 +25,24 @@ using namespace std;
  */
 Assembler::Assembler(const string &opListPath)
 {
-	// Load opcodes file to a vector
+	// Load opcodes file to a map, immediate opcodes into a set
 	ifstream opListFile(opListPath.c_str());
-	copy(istream_iterator<string>(opListFile),
-	  istream_iterator<string>(),
-	  back_inserter(this->opCodes));
+	istream_iterator<string> it (opListFile);
+	istream_iterator<string> end;
+	char immediate;
+	string opCode;
+	for (int i = 0; it != end; ++i, ++it) {
+		immediate = it->at(it->size() - 1);
+		opCode = it->substr(0, it->size() - 2);
+		if(immediate == '1') {
+			this->immediateOpCodes.insert(opCode);
+		}
+		this->opCodes.insert(pair<string, int>(opCode, i));
+	}
 
 	// Verify data existence
 	if  (this->opCodes.empty()) {
-		throw "Operation codes file empty or not found";
-	}
-
-	// Build list of opcodes with immediate addressing capability into a vector
-	char immediate;
-	vector<string>::iterator i = this->opCodes.begin();
-	for (; i != this->opCodes.end(); ++i) {
-		immediate = i->at(i->size() - 1);
-		i->erase(i->size() - 2);
-		if(immediate == '1') {
-			this->immediateOpCodes.push_back(*i);
-		}
+		throw "Could not read data in from operation codes file";
 	}
 }
 
