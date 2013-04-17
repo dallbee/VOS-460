@@ -56,25 +56,30 @@ Assembler::Assembler(const string &opListPath)
  */
 void Assembler::build(const string &sourcePath)
 {
-	int object;
+	int object, lineNumber = 0;
 	instruction op = {"", 0};
 	ifstream sourceFile(sourcePath.c_str());
-	istream_iterator<string> it (sourceFile), end;
 	ofstream programFile("test.o");
 
 	// Parse source file and build assembly file
-	for (int i = 0; it != end; ++i, ++it) {
-		op = parse(*it);
+	for (string line; getline(sourceFile, line); ++lineNumber) {
+		op = parse(line);
 
-		// Check for invalid immediate instructions
-		if (op.immediate and immediates.find(op.command) != immediates.end()) {
-			throw string(op.command) + ": Illegal immediate instruction";
+		// Check for invalid instructions
+		if (opCodes.find(op.command) == opCodes.end()) {
+			string message = "Illegal instruction";
+			throw parseError(lineNumber, message, line).c_str();
 		}
 
-		object = ((opCodes[op.command] << 2 & 0) << 1 & op.immediate) << 8 & op.value;
-		cout << op.command << ":" << opCodes[op.command] << endl;
+		// Check for invalid immediate instructions
+		if (op.immediate and immediates.find(op.command) == immediates.end()) {
+			string message = "Illegal immediate instruction";
+			throw parseError(lineNumber, message, line).c_str();
+		}
+
+		object = ((opCodes[op.command] << 2 | 0) << 1 | op.immediate) << 8 | op.value;
 		programFile << object;
-		cout << "LINE: " << *it << endl;
+		cout << "LINE: " << object << endl;
 	}
 }
 
@@ -85,7 +90,7 @@ void Assembler::build(const string &sourcePath)
  */
 Assembler::instruction Assembler::parse(const string &line)
 {
-	instruction inst = {"", 0};
+	instruction op = {"", 0};
 	int size = min(line.find_first_of("!"), line.size() - 1);
 	int start = 0;
 	int end = 0;
@@ -94,28 +99,45 @@ Assembler::instruction Assembler::parse(const string &line)
 	if (size > 0) {
 		start = line.find_first_not_of("\t ");
 		end = line.find_first_of("\t ", start);
-		inst.command = line.substr(start, end - start);
+		op.command = line.substr(start, end - start);
+
+		// Set immediate bit and remove from command
+		if (op.command[op.command.size() - 1] == 'i') {
+			op.command.erase(op.command.size() - 1);
+			op.immediate = 1;
+		}
 	}
+
+	
+
 
 	// Extract the first argument, if it exists
 	if (size > end) {
 		start = line.find_first_of("0123456789", end);
 		if (start < 0) {
-			return inst;
+			return op;
 		}
 		end = line.find_first_not_of("0123456789", start);
-		//istringstream(line.substr(start, end - start)) >> inst.arg0;
+		//istringstream(line.substr(start, end - start)) >> op.arg0;
 	}
 
 	// Extract the second argument, if it exists
 	if (size > end) {
 		start = line.find_first_of("0123456789", end);
 		if (start < 0) {
-			return inst;
+			return op;
 		}
 		end = line.find_first_not_of("0123456789", start);
-		//istringstream(line.substr(start, end - start)) >> inst.arg1;
+		//istringstream(line.substr(start, end - start)) >> op.arg1;
 	}
 
-	return inst;
+	return op;
+}
+
+string Assembler::parseError(int lineNumber, string msg, string line)
+{
+	stringstream ss;
+	ss << lineNumber;
+	string error = "On line: " + ss.str() + ", " + msg + ": \"" + line + "\"";
+	return error;
 }

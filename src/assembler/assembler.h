@@ -21,4 +21,5 @@ private:
 		int value;
 	};
 	static instruction parse(const string &line);
+	static string parseError(int lineNumber, string msg, string line);
 };
