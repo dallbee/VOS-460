@@ -1,9 +1,6 @@
 // TODO
-// - test parser
-// - opCodes vector to a map with value => id
+// - Finish parser
 // - finish builder
-// - extend for overflow, less, equal, greater, carry
-// - add error checks to invalid commands/arguments
 // - extend opcodes.lst to allow for carries
 // - finish function documentation
 
@@ -14,30 +11,35 @@
 #include <fstream>
 #include <iterator>
 #include <algorithm>
+#include <iostream>
 #include <map>
 using namespace std;
 
 /**
  * Construct object and load opcodes file into vectors opCodes and
- * immediateOpCodes.
+ * immediates.
  *
  * @param opListPath The path to the opcode listing to be used for assembly.
  */
 Assembler::Assembler(const string &opListPath)
 {
-	// Load opcodes file to a map, immediate opcodes into a set
-	ifstream opListFile(opListPath.c_str());
-	istream_iterator<string> it (opListFile);
-	istream_iterator<string> end;
 	char immediate;
 	string opCode;
+	ifstream opListFile(opListPath.c_str());
+	istream_iterator<string> it (opListFile), end;
+
+	// Load opcodes file into memory
 	for (int i = 0; it != end; ++i, ++it) {
 		immediate = it->at(it->size() - 1);
 		opCode = it->substr(0, it->size() - 2);
+
+		// Build set of opCodes capable of immediate addressing
 		if(immediate == '1') {
-			this->immediateOpCodes.insert(opCode);
+			immediates.insert(opCode);
 		}
-		this->opCodes.insert(pair<string, int>(opCode, i));
+
+		// Build map of generic opCodes
+		opCodes.insert(pair<string, int>(opCode, i));
 	}
 
 	// Verify data existence
@@ -54,18 +56,25 @@ Assembler::Assembler(const string &opListPath)
  */
 void Assembler::build(const string &sourcePath)
 {
+	int object;
+	instruction op = {"", 0};
 	ifstream sourceFile(sourcePath.c_str());
-	string line;
-	instruction operation;
-	while (getline(sourceFile, line)) {
-		operation = parse(line);
-		// Check operation validity
+	istream_iterator<string> it (sourceFile), end;
+	ofstream programFile("test.o");
 
-		// Check argument 0 range
+	// Parse source file and build assembly file
+	for (int i = 0; it != end; ++i, ++it) {
+		op = parse(*it);
 
-		// Check argument 1 range
+		// Check for invalid immediate instructions
+		if (op.immediate and immediates.find(op.command) != immediates.end()) {
+			throw string(op.command) + ": Illegal immediate instruction";
+		}
 
-
+		object = ((opCodes[op.command] << 2 & 0) << 1 & op.immediate) << 8 & op.value;
+		cout << op.command << ":" << opCodes[op.command] << endl;
+		programFile << object;
+		cout << "LINE: " << *it << endl;
 	}
 }
 
@@ -76,9 +85,7 @@ void Assembler::build(const string &sourcePath)
  */
 Assembler::instruction Assembler::parse(const string &line)
 {
-	instruction inst;
-	inst.arg0 = 0;
-	inst.arg1 = 0;
+	instruction inst = {"", 0};
 	int size = min(line.find_first_of("!"), line.size() - 1);
 	int start = 0;
 	int end = 0;
@@ -97,7 +104,7 @@ Assembler::instruction Assembler::parse(const string &line)
 			return inst;
 		}
 		end = line.find_first_not_of("0123456789", start);
-		istringstream(line.substr(start, end - start)) >> inst.arg0;
+		//istringstream(line.substr(start, end - start)) >> inst.arg0;
 	}
 
 	// Extract the second argument, if it exists
@@ -107,7 +114,7 @@ Assembler::instruction Assembler::parse(const string &line)
 			return inst;
 		}
 		end = line.find_first_not_of("0123456789", start);
-		istringstream(line.substr(start, end - start)) >> inst.arg1;
+		//istringstream(line.substr(start, end - start)) >> inst.arg1;
 	}
 
 	return inst;

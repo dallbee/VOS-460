@@ -7,7 +7,8 @@ using namespace std;
 int main()
 {
 	try {
-		Assembler("../src/assembler/opcodes.lst");
+		Assembler test ("../src/assembler/opcodes.lst");
+		test.build("test.asm");
 	} catch(const char* error) {
 		printf ("Assembler Error: %s \n", error);
 	}

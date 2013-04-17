@@ -13,11 +13,12 @@ public:
 	void build(const string &sourcePath);
 private:
 	map<string, int> opCodes;
-	set<string> immediateOpCodes;
+	set<string> immediates;
 	struct instruction {
 		string command;
-		int arg0;
-		int arg1;
+		int rd;
+		int immediate;
+		int value;
 	};
 	static instruction parse(const string &line);
 };
