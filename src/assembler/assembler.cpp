@@ -53,7 +53,7 @@ Assembler::Assembler(const string &opListPath)
  */
 void Assembler::build(const string &sourcePath)
 {
-	int object = 0, lineNumber = 0;
+	int object = 0, lineNumber = 1;
 	instruction op = {"", 0};
 	ifstream sourceFile(sourcePath.c_str());
 	ofstream programFile("test.o");
@@ -78,7 +78,10 @@ void Assembler::build(const string &sourcePath)
 		programFile << object;
 
 		//for debugging, feel free to delete -Taylor
-		printf ("line %i :  %i \n", lineNumber+1, object);
+		printf("Struct:\n");
+		printf("\tCommand -> %s\n", op.command.c_str());
+		printf("\tImmediate -> %i\n", op.immediate);
+		printf("\tCode-> %i\n\n", opCodes[op.command]);
 	}
 }
 
@@ -143,7 +146,7 @@ Assembler::instruction Assembler::parse(const string &line)
 string Assembler::parseError(int lineNumber, string msg, string line)
 {
 	stringstream ss;
-	ss << lineNumber + 1; //Added it to be +1 since editors list lines in +1 -Taylor
+	ss << lineNumber;
 	string error = "On line: " + ss.str() + ", " + msg + ": \"" + line + "\"";
 	return error;
 }
