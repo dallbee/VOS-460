@@ -110,7 +110,6 @@ Assembler::instruction Assembler::parse(const string &line)
 	// Extract the first argument, if it exists
 	if (size > end) {
 		start = line.find_first_of("0123456789", end);
-		printf ("%u \n", op);
 		if (start < 0) {
 			return op;
 		}
@@ -144,7 +143,7 @@ Assembler::instruction Assembler::parse(const string &line)
 string Assembler::parseError(int lineNumber, string msg, string line)
 {
 	stringstream ss;
-	ss << lineNumber + 1;
+	ss << lineNumber + 1; //Added it to be +1 since editors list lines in +1 -Taylor
 	string error = "On line: " + ss.str() + ", " + msg + ": \"" + line + "\"";
 	return error;
 }
