@@ -14,6 +14,7 @@ public:
 	Assembler(const string &opListPath);
 	void build(const string &sourcePath);
 private:
+	unsigned lineNumber;
 	map<string, int> opCodes;
 	set<string> immediates;
 	set<string> rdSet;
@@ -26,6 +27,7 @@ private:
 		unsigned rs;
 		unsigned value;
 	};
+	unsigned format(instruction &op);
 	static instruction parse(const string &line);
 	static string parseError(int lineNumber, string msg, string line);
 };

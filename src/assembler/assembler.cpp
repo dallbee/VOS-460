@@ -1,5 +1,6 @@
 // TODO
-// Build could be cleaned up for clarity
+// Add exception handling to format
+// Clean up format for clarity
 
 #include "assembler.h"
 #include <map>
@@ -56,7 +57,8 @@ Assembler::Assembler(const string &opListPath)
  */
 void Assembler::build(const string &sourcePath)
 {
-	unsigned object = 0, lineNumber = 1;
+	lineNumber = 1;
+	unsigned object = 0;
 	instruction op = {"", 0};
 	ifstream sourceFile(sourcePath.c_str());
 	ofstream programFile("test.o");
@@ -82,26 +84,34 @@ void Assembler::build(const string &sourcePath)
 			throw parseError(lineNumber, message, line).c_str();
 		}
 
-		if (rdSet.find(op.command) == rdSet.end()) {
+		object = format(op);
+		programFile << object << endl;
+	}
+}
+
+/**
+ * Takes in an instruction and formats the instruction into decimal object code
+ *
+ * @param op The instruction to format
+ * @return unsigned
+ */
+unsigned Assembler::format(instruction &op) {
+	if (rdSet.find(op.command) == rdSet.end()) {
 			op.value = op.arg0;
 
+	} else {
+		op.rd = op.arg0;
+
+		if (op.immediate or op.command == "load") {
+			op.value = op.arg1;
 		} else {
-			op.rd = op.arg0;
-
-			if (op.immediate or op.command == "load") {
-				op.value = op.arg1;
-			} else {
-				op.rs = op.arg1;
-			}
+			op.rs = op.arg1;
 		}
-
-		op.value |= op.rs << 6;
-
-		object = ((opCodes[op.command] << 2 | op.rd) << 1 | op.immediate) << 8 | op.value;
-		programFile << object << endl;
-		printf("%u   %u   %u   %u   %u\n", opCodes[op.command], op.rd, op.immediate, op.rs, op.value);
-		//printf("[Operation]: %s, [Immediate]: %u, [Parameter]: %u, [Parameter]: %u\n", op.command.c_str(), op.immediate, op.rd, op.value);
 	}
+
+	op.value |= op.rs << 6;
+
+	return ((opCodes[op.command] << 2 | op.rd) << 1 | op.immediate) << 8 | op.value;
 }
 
 /**
