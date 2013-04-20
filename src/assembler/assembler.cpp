@@ -1,6 +1,10 @@
-// TODO
-// Add exception handling to format
-// Clean up format for clarity
+/**
+ * Implementation of the Assembler class
+ *
+ * @authors Dylan Allbee, Taylor Sanchez
+ * @version 1.0
+ * @date 20 April, 2013
+ */
 
 #include "assembler.h"
 #include <map>
@@ -57,14 +61,13 @@ Assembler::Assembler(const string &opListPath)
  */
 void Assembler::build(const string &sourcePath)
 {
-	lineNumber = 1;
 	unsigned object = 0;
 	instruction op = {"", 0};
 	ifstream sourceFile(sourcePath.c_str());
 	ofstream programFile("test.o");
 
 	// Parse source file and build assembly file
-	for (string line; getline(sourceFile, line); ++lineNumber) {
+	for (lineNumber = 1; getline(sourceFile, line); ++lineNumber) {
 		op = parse(line);
 
 		// Pass upon no instruction
@@ -79,7 +82,7 @@ void Assembler::build(const string &sourcePath)
 		}
 
 		// Check for invalid immediate instructions
-		if (op.immediate and immediates.find(op.command) == immediates.end()) {
+		if (op.i and immediates.find(op.command) == immediates.end()) {
 			string message = "Illegal immediate instruction";
 			throw parseError(lineNumber, message, line).c_str();
 		}
@@ -95,23 +98,39 @@ void Assembler::build(const string &sourcePath)
  * @param op The instruction to format
  * @return unsigned
  */
-unsigned Assembler::format(instruction &op) {
+unsigned Assembler::format(instruction &op)
+{
+	// Command does not contain RD argument
 	if (rdSet.find(op.command) == rdSet.end()) {
 			op.value = op.arg0;
-
 	} else {
 		op.rd = op.arg0;
 
-		if (op.immediate or op.command == "load") {
+		// Second argument is an address/constant
+		if (op.i or op.command == "load") {
 			op.value = op.arg1;
 		} else {
 			op.rs = op.arg1;
 		}
 	}
 
-	op.value |= op.rs << 6;
+	// Check that register source is within range
+	if (op.rs > 3) {
+		string message = "Register source value out of range";
+		throw parseError(lineNumber, message, line).c_str();
+	}
 
-	return ((opCodes[op.command] << 2 | op.rd) << 1 | op.immediate) << 8 | op.value;
+	// Check that register destination is within range
+	if (op.rd > 3) {
+		string message = "Register destination value out of range";
+		throw parseError(lineNumber, message, line).c_str();
+	}
+
+	op.value |= op.rs << 6; // Build RS the last 8 bits of the command
+	op.value &= 0xFF;
+
+	// Build and return the entire command
+	return ((opCodes[op.command] << 2 | op.rd) << 1 | op.i) << 8 | op.value;
 }
 
 /**
@@ -138,7 +157,7 @@ Assembler::instruction Assembler::parse(const string &line)
 	// Set immediate bit and remove from command
 	if (op.command[op.command.size() - 1] == 'i') {
 		op.command.erase(op.command.size() - 1);
-		op.immediate = 1;
+		op.i = 1;
 	}
 
 	// Extract the first argument, if it exists
@@ -146,7 +165,6 @@ Assembler::instruction Assembler::parse(const string &line)
 		start = line.find_first_not_of("\t ", end);
 		end = line.find_first_of("\t \r\n", start);
 		istringstream(line.substr(start, end - start)) >> op.arg0;
-		op.arg0 &= INT_MASK;
 	}
 
 	// Extract the second argument, if it exists
@@ -154,7 +172,6 @@ Assembler::instruction Assembler::parse(const string &line)
 		start = line.find_first_not_of("\t ", end);
 		end = line.find_first_of("\t \r\n", start);
 		istringstream(line.substr(start, end - start)) >> op.arg1;
-		op.arg1 &= INT_MASK;
 	}
 
 	return op;

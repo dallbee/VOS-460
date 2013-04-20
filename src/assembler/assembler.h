@@ -14,16 +14,17 @@ public:
 	Assembler(const string &opListPath);
 	void build(const string &sourcePath);
 private:
+	string line;
 	unsigned lineNumber;
 	map<string, int> opCodes;
 	set<string> immediates;
 	set<string> rdSet;
 	struct instruction {
 		string command;
-		unsigned immediate;
 		unsigned arg0;
 		unsigned arg1;
 		unsigned rd;
+		unsigned i;
 		unsigned rs;
 		unsigned value;
 	};
