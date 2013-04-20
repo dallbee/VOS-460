@@ -9,6 +9,7 @@
 #include <fstream>
 #include <iterator>
 #include <algorithm>
+#include <stdio.h>
 using namespace std;
 
 /**
@@ -45,7 +46,7 @@ Assembler::Assembler(const string &opListPath)
 }
 
 /**
- * Load source file line by line and assemble object code.
+ * Load source file line by line and assemble opcode field of object code.
  *
  * @param sourcePath The path to the program that will be assembled
  * @return void
@@ -75,12 +76,15 @@ void Assembler::build(const string &sourcePath)
 
 		object = ((opCodes[op.command] << 2 | 0) << 1 | op.immediate) << 8 | op.value;
 		programFile << object;
+
+		//for debugging, feel free to delete -Taylor
+		printf ("line %i :  %i \n", lineNumber+1, object);
 	}
 }
 
 /**
  * Splits an assembly instruction into its command and parameters
- * 
+ *
  * @param line The source code instruction to be interpereted.
  * @return Assembler::instruction
  */
@@ -97,17 +101,16 @@ Assembler::instruction Assembler::parse(const string &line)
 		start = line.find_first_not_of("\t ");
 		end = line.find_first_of("\t ", start);
 		op.command = line.substr(start, end - start);
-
-		// Set immediate bit and remove from command
-		if (op.command[op.command.size() - 1] == 'i') {
-			op.command.erase(op.command.size() - 1);
-			op.immediate = 1;
-		}
 	}
-
+	// Set immediate bit and remove from command
+	if (op.command[op.command.size() - 1] == 'i') {
+		op.command.erase(op.command.size() - 1);
+		op.immediate = 1;
+	}
 	// Extract the first argument, if it exists
 	if (size > end) {
 		start = line.find_first_of("0123456789", end);
+		printf ("%u \n", op);
 		if (start < 0) {
 			return op;
 		}
@@ -125,13 +128,14 @@ Assembler::instruction Assembler::parse(const string &line)
 		//istringstream(line.substr(start, end - start)) >> op.arg1;
 	}
 
+
 	return op;
 }
 
 /**
  * Formats parsing errors in a consistant and human readable way.
  * Ex: On line 5, Invalid Instruction: "add 2 172"
- * 
+ *
  * @param lineNumber The line of which the error occurred
  * @param msg The error message to display
  * @param line The contents of the line in question
@@ -140,7 +144,7 @@ Assembler::instruction Assembler::parse(const string &line)
 string Assembler::parseError(int lineNumber, string msg, string line)
 {
 	stringstream ss;
-	ss << lineNumber;
+	ss << lineNumber + 1;
 	string error = "On line: " + ss.str() + ", " + msg + ": \"" + line + "\"";
 	return error;
 }
