@@ -2,7 +2,7 @@
  * Implementation of the Assembler class
  *
  * @authors Dylan Allbee, Taylor Sanchez
- * @version 1.0
+ * @version 1.1
  * @date 20 April, 2013
  */
 
@@ -145,12 +145,12 @@ Assembler::instruction Assembler::parse(const string &line)
 	int start = 0, end = 0;
 
 	// Get the size of the instruction without comments
-	int size = min(line.find_first_of("!"), line.size() - 1);
+	int size = min(line.find_first_of("!"), line.size());
 
 	// Extract the command
 	if (size > 0) {
 		start = line.find_first_not_of("\t ");
-		end = line.find_first_of("\t \r\n", start);
+		end = min(line.find_first_of("\t ", start), line.size());
 		op.command = line.substr(start, end - start);
 	}
 
@@ -163,14 +163,14 @@ Assembler::instruction Assembler::parse(const string &line)
 	// Extract the first argument, if it exists
 	if (size > end) {
 		start = line.find_first_not_of("\t ", end);
-		end = line.find_first_of("\t \r\n", start);
+		end = min(line.find_first_of("\t ", start), line.size());
 		istringstream(line.substr(start, end - start)) >> op.arg0;
 	}
 
 	// Extract the second argument, if it exists
 	if (size > end) {
 		start = line.find_first_not_of("\t ", end);
-		end = line.find_first_of("\t \r\n", start);
+		end = min(line.find_first_of("\t ", start), line.size());
 		istringstream(line.substr(start, end - start)) >> op.arg1;
 	}
 

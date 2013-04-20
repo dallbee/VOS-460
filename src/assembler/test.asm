@@ -6,3 +6,6 @@ add 0 3 		! 4288
 addi 0 -56 		! 4552
 jump 10       	! produces runtime error    	 32778
 halt	 		! 49152
+halt
+halt
+halt
