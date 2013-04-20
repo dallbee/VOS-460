@@ -1,6 +1,5 @@
 // TODO
-// - Needs to handle different instruction types
-// - Needs to handle blank lines
+// - Needs to be fixed for jumps.
 
 #include "assembler.h"
 #include <map>
@@ -62,6 +61,11 @@ void Assembler::build(const string &sourcePath)
 	for (string line; getline(sourceFile, line); ++lineNumber) {
 		op = parse(line);
 
+		// Check for no instruction
+		if (op.command.empty()) {
+			continue;
+		}
+
 		// Check for invalid instructions
 		if (opCodes.find(op.command) == opCodes.end()) {
 			string message = "Illegal instruction";
@@ -74,14 +78,10 @@ void Assembler::build(const string &sourcePath)
 			throw parseError(lineNumber, message, line).c_str();
 		}
 
-		object = ((opCodes[op.command] << 2 | 0) << 1 | op.immediate) << 8 | op.value;
-		programFile << object;
+		object = ((opCodes[op.command] << 2 | op.rd) << 1 | op.immediate) << 8 | op.value;
+		programFile << object << endl;
 
-		//for debugging, feel free to delete -Taylor
-		printf("Struct:\n");
-		printf("\tCommand -> %s\n", op.command.c_str());
-		printf("\tImmediate -> %i\n", op.immediate);
-		printf("\tCode-> %i\n\n", opCodes[op.command]);
+		printf("[Operation]: %s, [Immediate]: %u, [Parameter]: %u, [Parameter]: %u\n", op.command.c_str(), op.immediate, op.rd, op.value);
 	}
 }
 
@@ -102,34 +102,31 @@ Assembler::instruction Assembler::parse(const string &line)
 	// Extract the command
 	if (size > 0) {
 		start = line.find_first_not_of("\t ");
-		end = line.find_first_of("\t ", start);
+		end = line.find_first_of("\t \r\n", start);
 		op.command = line.substr(start, end - start);
 	}
+
 	// Set immediate bit and remove from command
 	if (op.command[op.command.size() - 1] == 'i') {
 		op.command.erase(op.command.size() - 1);
 		op.immediate = 1;
 	}
+
 	// Extract the first argument, if it exists
 	if (size > end) {
-		start = line.find_first_of("0123456789", end);
-		if (start < 0) {
-			return op;
-		}
-		end = line.find_first_not_of("0123456789", start);
-		//istringstream(line.substr(start, end - start)) >> op.arg0;
+		start = line.find_first_not_of("\t ", end);
+		end = line.find_first_of("\t \r\n", start);
+		istringstream(line.substr(start, end - start)) >> op.rd;
+		op.value &= INT_MASK;
 	}
 
 	// Extract the second argument, if it exists
 	if (size > end) {
-		start = line.find_first_of("0123456789", end);
-		if (start < 0) {
-			return op;
-		}
-		end = line.find_first_not_of("0123456789", start);
-		//istringstream(line.substr(start, end - start)) >> op.arg1;
+		start = line.find_first_not_of("\t ", end);
+		end = line.find_first_of("\t \r\n", start);
+		istringstream(line.substr(start, end - start)) >> op.value;
+		op.value &= INT_MASK;
 	}
-
 
 	return op;
 }
