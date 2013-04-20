@@ -1,5 +1,5 @@
 // TODO
-// - Needs to be fixed for jumps.
+// Build could be cleaned up for clarity
 
 #include "assembler.h"
 #include <map>
@@ -19,19 +19,23 @@ using namespace std;
  */
 Assembler::Assembler(const string &opListPath)
 {
-	char immediate;
-	string opCode;
+	string opCode, flags;
 	ifstream opListFile(opListPath.c_str());
 	istream_iterator<string> it (opListFile), end;
 
 	// Load opcodes file into memory
 	for (int i = 0; it != end; ++i, ++it) {
-		immediate = it->at(it->size() - 1);
-		opCode = it->substr(0, it->size() - 2);
+		opCode = it->substr(0, it->find(':'));
+		flags = it->substr(it->find(':') + 1, it->length() - it->find(':'));
 
 		// Build set of opCodes capable of immediate addressing
-		if(immediate == '1') {
+		if (flags.find('i') != string::npos) {
 			immediates.insert(opCode);
+		}
+
+		// Build a set of opCodes with register destinations
+		if (flags.find('r') != string::npos) {
+			rdSet.insert(opCode);
 		}
 
 		// Build map of generic opCodes
@@ -39,7 +43,7 @@ Assembler::Assembler(const string &opListPath)
 	}
 
 	// Verify data existence
-	if  (this->opCodes.empty()) {
+	if (this->opCodes.empty()) {
 		throw "Could not read data in from operation codes file";
 	}
 }
@@ -52,7 +56,7 @@ Assembler::Assembler(const string &opListPath)
  */
 void Assembler::build(const string &sourcePath)
 {
-	int object = 0, lineNumber = 1;
+	unsigned object = 0, lineNumber = 1;
 	instruction op = {"", 0};
 	ifstream sourceFile(sourcePath.c_str());
 	ofstream programFile("test.o");
@@ -61,7 +65,7 @@ void Assembler::build(const string &sourcePath)
 	for (string line; getline(sourceFile, line); ++lineNumber) {
 		op = parse(line);
 
-		// Check for no instruction
+		// Pass upon no instruction
 		if (op.command.empty()) {
 			continue;
 		}
@@ -78,10 +82,25 @@ void Assembler::build(const string &sourcePath)
 			throw parseError(lineNumber, message, line).c_str();
 		}
 
+		if (rdSet.find(op.command) == rdSet.end()) {
+			op.value = op.arg0;
+
+		} else {
+			op.rd = op.arg0;
+
+			if (op.immediate or op.command == "load") {
+				op.value = op.arg1;
+			} else {
+				op.rs = op.arg1;
+			}
+		}
+
+		op.value |= op.rs << 6;
+
 		object = ((opCodes[op.command] << 2 | op.rd) << 1 | op.immediate) << 8 | op.value;
 		programFile << object << endl;
-
-		printf("[Operation]: %s, [Immediate]: %u, [Parameter]: %u, [Parameter]: %u\n", op.command.c_str(), op.immediate, op.rd, op.value);
+		printf("%u   %u   %u   %u   %u\n", opCodes[op.command], op.rd, op.immediate, op.rs, op.value);
+		//printf("[Operation]: %s, [Immediate]: %u, [Parameter]: %u, [Parameter]: %u\n", op.command.c_str(), op.immediate, op.rd, op.value);
 	}
 }
 
@@ -116,16 +135,16 @@ Assembler::instruction Assembler::parse(const string &line)
 	if (size > end) {
 		start = line.find_first_not_of("\t ", end);
 		end = line.find_first_of("\t \r\n", start);
-		istringstream(line.substr(start, end - start)) >> op.rd;
-		op.value &= INT_MASK;
+		istringstream(line.substr(start, end - start)) >> op.arg0;
+		op.arg0 &= INT_MASK;
 	}
 
 	// Extract the second argument, if it exists
 	if (size > end) {
 		start = line.find_first_not_of("\t ", end);
 		end = line.find_first_of("\t \r\n", start);
-		istringstream(line.substr(start, end - start)) >> op.value;
-		op.value &= INT_MASK;
+		istringstream(line.substr(start, end - start)) >> op.arg1;
+		op.arg1 &= INT_MASK;
 	}
 
 	return op;

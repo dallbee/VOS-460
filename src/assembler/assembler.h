@@ -16,11 +16,15 @@ public:
 private:
 	map<string, int> opCodes;
 	set<string> immediates;
+	set<string> rdSet;
 	struct instruction {
 		string command;
-		unsigned int immediate;
-		unsigned int rd;
-		unsigned int value;
+		unsigned immediate;
+		unsigned arg0;
+		unsigned arg1;
+		unsigned rd;
+		unsigned rs;
+		unsigned value;
 	};
 	static instruction parse(const string &line);
 	static string parseError(int lineNumber, string msg, string line);
