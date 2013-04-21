@@ -1,5 +1,5 @@
-load:ri
-store:r
+load:ril
+store:rl
 add:ri
 addc:ri
 sub:ri

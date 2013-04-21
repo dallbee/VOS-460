@@ -19,6 +19,7 @@ private:
 	map<string, int> opCodes;
 	set<string> immediates;
 	set<string> rdSet;
+	set<string> loads;
 	struct instruction {
 		string command;
 		unsigned arg0;
@@ -26,7 +27,6 @@ private:
 		unsigned rd;
 		unsigned i;
 		unsigned rs;
-		unsigned neg;
 		unsigned value;
 	};
 	unsigned format(instruction &op);

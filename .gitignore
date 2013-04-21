@@ -12,6 +12,3 @@
 *.lai
 *.la
 *.a
-
-#Mac Generated folder
-.DS_Store
