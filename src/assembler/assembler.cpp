@@ -135,11 +135,7 @@ unsigned Assembler::format(instruction &op)
 	op.value &= 0xFF;
 
 	// Build and return the entire command
-<<<<<<< HEAD
-	return (((opCodes[op.command] << 2 | op.rd) << 1 | op.i) << 8 | op.value;
-=======
 	return ((opCodes[op.command] << 2 | op.rd) << 1 | op.i) << 8 | op.value;
->>>>>>> parent of 2c1d9e1... Bugfix, negatives were ignored
 }
 
 /**
