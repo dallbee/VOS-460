@@ -26,6 +26,7 @@ private:
 		unsigned rd;
 		unsigned i;
 		unsigned rs;
+		unsigned neg;
 		unsigned value;
 	};
 	unsigned format(instruction &op);

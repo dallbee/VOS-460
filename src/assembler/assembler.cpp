@@ -130,7 +130,7 @@ unsigned Assembler::format(instruction &op)
 	op.value &= 0xFF;
 
 	// Build and return the entire command
-	return ((opCodes[op.command] << 2 | op.rd) << 1 | op.i) << 8 | op.value;
+	return (((opCodes[op.command] << 2 | op.rd) << 1 | op.i) << 1 | op.neg) << 7 | op.value;
 }
 
 /**
@@ -167,11 +167,25 @@ Assembler::instruction Assembler::parse(const string &line)
 		istringstream(line.substr(start, end - start)) >> op.arg0;
 	}
 
+	// Check for a negative on second argument
+	if (size > end){
+		start = line.find_first_not_of("\t ", end);
+		end = min(line.find_first_not_of("-", start), line.size());
+		if (line.substr(start, end - start) == "-"){
+			op.neg = 1;
+		};
+	}
+
 	// Extract the second argument, if it exists
 	if (size > end) {
 		start = line.find_first_not_of("\t ", end);
 		end = min(line.find_first_of("\t ", start), line.size());
 		istringstream(line.substr(start, end - start)) >> op.arg1;
+		// Applies two's complement of second argument
+		if (op.neg){
+			op.arg1 = (~op.arg1 + 1);
+		}
+
 	}
 
 	return op;
