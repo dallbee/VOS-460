@@ -92,6 +92,11 @@ Assembler::instruction Assembler::parse(const string &line)
 	// Get the size of the instruction without comments
 	int size = min(line.find_first_of("!"), line.size() - 1);
 
+	// Convert instruction to lowercase
+	for (int i = 0; i != size; ++i) {
+		line[i] = tolower(line[i]);
+	}
+
 	// Extract the command
 	if (size > 0) {
 		start = line.find_first_not_of("\t ");
