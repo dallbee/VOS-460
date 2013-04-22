@@ -1,0 +1,33 @@
+Phase 2 Notes
+.st file is for stack
+	input output when not running
+
+stack pointer (sp) = 256 no stack exists
+
+list<PCB *> jobs; //point to PCB, read outloud right to left
+jobs-> ||---->||---->||
+	  PCB0    PCB1   PCB2
+
+Suggest everything private in PCB.
+	Just list of items, and a few others.
+
+Make OS a friend of PCB class.
+	No other class needs PCB class access.
+
+Make sure ot have queue<PCB *> readyQ, waitQ;
+	Queue of pointers to PCB
+
+VM returns status to OS when using PCB, if not completed or going to wait Queue
+
+
+For Read/Write, IO ops:
+FIRST: process whose IO operation completes goes to Ready Queue
+	need to simulate interrupt
+	in PCB interupt time 128 (another variable to have in PCB)
+		simulation: Compare current time to int time, to see if ready
+		check as many as you can.
+Read it from .in file, which is the keyboard
+	.out file is the monitor
+
+Throughput = number of processes completed per unit time
+

@@ -1,0 +1,60 @@
+Base is location of where the program starts
+Limit is the length of the program
+
+Currently, each program will start at 0, and Limit will be the length of the program
+	Currently, we only care about the 5 LSB of our Status Register, as we don't use full capability at the momment.
+
+Status Register:
+	V			L			E		G		C
+	oVerFlow	Less 	Equal 	Greater Carry
+
+If(temp & 0x10000)   If true when adding it means that we have a carry.
+hex -> 0x10000 = 0001 0000 0000 0000 0000 0000  <- individual bits
+
+Set all don't cares to 0!!!!!
+d = dont care, or in our case 0.
+
+
+
+Opcode: is 5 bits, or 32 possibilities.
+RegisterDestination:
+Immediate: Single bit, if high we are using a Constant, if Low we are using an Address
+RegisterSource:
+
+Opcode + Immediate means 6 bits or 64 instruction possibilities.
+
+ADDR/CONST: 8 bits, 0 to 255 for addresses. Constants are -128 to 127.
+
+
+
+Add with Carry, split your 32 bit numbers into two 16 bit parts each.
+	Add the LSB 16 bits
+
+	Add the MSB 16 bits together with Carry from LSBs
+
+	Check for last Carry
+	Remember it is 16 bit numbers that are 2 compliment. MSB is negative indicator.
+
+
+class: ALU
+	functions: for each Instruction type?
+
+a=7;
+b=~a;		//inverst all 32 bits, not just the 16 bits
+b=b++;
+cout << b;	//-7
+
+
+call: very similar to jump
+	Save PC and Registers, and Status Register to a stack.
+	So you come back from return, and pop the status back from the stack, and you are where you left off.
+
+
+	Start stack pointer at 256, not 255. 256 means it is empty. Decrement stack then put new data on it. So PC is 255, SR is 254, R0-R4 253-250
+
+
+
+
+
+
+
