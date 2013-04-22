@@ -22,8 +22,8 @@ private:
 	set<string> loads;
 	struct instruction {
 		string command;
-		unsigned arg0;
-		unsigned arg1;
+		int arg0;
+		int arg1;
 		unsigned rd;
 		unsigned i;
 		unsigned rs;
