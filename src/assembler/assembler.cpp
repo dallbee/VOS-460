@@ -46,6 +46,7 @@ Assembler::Assembler(const string &opListPath)
 		// Build a set of opCodes that do some form of loading
 		if (flags.find('l') != string::npos) {
 			loads.insert(opCode);
+			printf("Loaders: %s\n", opCode.c_str());
 		}
 
 		// Build map of generic opCodes
@@ -107,12 +108,12 @@ unsigned Assembler::format(instruction &op)
 {
 	// Command does not contain RD argument
 	if (rdSet.find(op.command) == rdSet.end()) {
-			op.value = op.arg0;
+		op.value = op.arg0;
 	} else {
 		op.rd = op.arg0;
 
 		// Second argument is an address/constant
-		if (op.i or loads.find(op.command) != rdSet.end()) {
+		if (op.i or loads.find(op.command) != loads.end()) {
 			op.value = op.arg1;
 		} else {
 			op.rs = op.arg1;
