@@ -2,8 +2,8 @@
  * Implementation of the Assembler class
  *
  * @authors Dylan Allbee, Taylor Sanchez
- * @version 1.1
- * @date 20 April, 2013
+ * @version 1.2
+ * @date 22 April, 2013
  */
 
 #include "assembler.h"
@@ -13,7 +13,6 @@
 #include <fstream>
 #include <iterator>
 #include <algorithm>
-#include <stdio.h>
 using namespace std;
 
 /**
@@ -46,7 +45,6 @@ Assembler::Assembler(const string &opListPath)
 		// Build a set of opCodes that do some form of loading
 		if (flags.find('l') != string::npos) {
 			loads.insert(opCode);
-			printf("Loaders: %s\n", opCode.c_str());
 		}
 
 		// Build map of generic opCodes
