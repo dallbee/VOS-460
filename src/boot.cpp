@@ -8,7 +8,7 @@ int main()
 {
 	try {
 		Assembler test ("../src/assembler/opcodes.lst");
-		test.build("test.asm");
+		test.build("../src/assembler/test.asm");
 	} catch(const char* error) {
 		printf ("[Assembler Error] %s \n", error);
 	}

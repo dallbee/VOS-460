@@ -1,6 +1,10 @@
-// TODO
-// - Needs to handle different instruction types
-// - Needs to handle blank lines
+/**
+ * Implementation of the Assembler class
+ *
+ * @authors Dylan Allbee, Taylor Sanchez
+ * @version 1.1
+ * @date 20 April, 2013
+ */
 
 #include "assembler.h"
 #include <map>
@@ -9,6 +13,7 @@
 #include <fstream>
 #include <iterator>
 #include <algorithm>
+#include <stdio.h>
 using namespace std;
 
 /**
@@ -19,19 +24,28 @@ using namespace std;
  */
 Assembler::Assembler(const string &opListPath)
 {
-	char immediate;
-	string opCode;
+	string opCode, flags;
 	ifstream opListFile(opListPath.c_str());
 	istream_iterator<string> it (opListFile), end;
 
 	// Load opcodes file into memory
 	for (int i = 0; it != end; ++i, ++it) {
-		immediate = it->at(it->size() - 1);
-		opCode = it->substr(0, it->size() - 2);
+		opCode = it->substr(0, it->find(':'));
+		flags = it->substr(it->find(':') + 1, it->length() - it->find(':'));
 
 		// Build set of opCodes capable of immediate addressing
-		if(immediate == '1') {
+		if (flags.find('i') != string::npos) {
 			immediates.insert(opCode);
+		}
+
+		// Build a set of opCodes with register destinations
+		if (flags.find('r') != string::npos) {
+			rdSet.insert(opCode);
+		}
+
+		// Build a set of opCodes that do some form of loading
+		if (flags.find('l') != string::npos) {
+			loads.insert(opCode);
 		}
 
 		// Build map of generic opCodes
@@ -39,27 +53,32 @@ Assembler::Assembler(const string &opListPath)
 	}
 
 	// Verify data existence
-	if  (this->opCodes.empty()) {
+	if (this->opCodes.empty()) {
 		throw "Could not read data in from operation codes file";
 	}
 }
 
 /**
- * Load source file line by line and assemble object code.
+ * Load source file line by line and assemble opcode field of object code.
  *
  * @param sourcePath The path to the program that will be assembled
  * @return void
  */
 void Assembler::build(const string &sourcePath)
 {
-	int object = 0, lineNumber = 0;
+	unsigned object = 0;
 	instruction op = {"", 0};
 	ifstream sourceFile(sourcePath.c_str());
 	ofstream programFile("test.o");
 
 	// Parse source file and build assembly file
-	for (string line; getline(sourceFile, line); ++lineNumber) {
+	for (lineNumber = 1; getline(sourceFile, line); ++lineNumber) {
 		op = parse(line);
+
+		// Pass upon no instruction
+		if (op.command.empty()) {
+			continue;
+		}
 
 		// Check for invalid instructions
 		if (opCodes.find(op.command) == opCodes.end()) {
@@ -68,19 +87,60 @@ void Assembler::build(const string &sourcePath)
 		}
 
 		// Check for invalid immediate instructions
-		if (op.immediate and immediates.find(op.command) == immediates.end()) {
+		if (op.i and immediates.find(op.command) == immediates.end()) {
 			string message = "Illegal immediate instruction";
 			throw parseError(lineNumber, message, line).c_str();
 		}
 
-		object = ((opCodes[op.command] << 2 | 0) << 1 | op.immediate) << 8 | op.value;
-		programFile << object;
+		object = format(op);
+		programFile << object << endl;
 	}
 }
 
 /**
+ * Takes in an instruction and formats the instruction into decimal object code
+ *
+ * @param op The instruction to format
+ * @return unsigned
+ */
+unsigned Assembler::format(instruction &op)
+{
+	// Command does not contain RD argument
+	if (rdSet.find(op.command) == rdSet.end()) {
+			op.value = op.arg0;
+	} else {
+		op.rd = op.arg0;
+
+		// Second argument is an address/constant
+		if (op.i or loads.find(op.command) != rdSet.end()) {
+			op.value = op.arg1;
+		} else {
+			op.rs = op.arg1;
+		}
+	}
+
+	// Check that register source is within range
+	if (op.rs > 3) {
+		string message = "Register source value out of range";
+		throw parseError(lineNumber, message, line).c_str();
+	}
+
+	// Check that register destination is within range
+	if (op.rd > 3) {
+		string message = "Register destination value out of range";
+		throw parseError(lineNumber, message, line).c_str();
+	}
+
+	op.value |= op.rs << 6; // Build RS the last 8 bits of the command
+	op.value &= 0xFF;
+
+	// Build and return the entire command
+	return ((opCodes[op.command] << 2 | op.rd) << 1 | op.i) << 8 | op.value;
+}
+
+/**
  * Splits an assembly instruction into its command and parameters
- * 
+ *
  * @param line The source code instruction to be interpereted.
  * @return Assembler::instruction
  */
@@ -90,7 +150,7 @@ Assembler::instruction Assembler::parse(const string &line)
 	int start = 0, end = 0;
 
 	// Get the size of the instruction without comments
-	int size = min(line.find_first_of("!"), line.size() - 1);
+	int size = min(line.find_first_of("!"), line.size());
 
 	// Convert instruction to lowercase
 	for (int i = 0; i != size; ++i) {
@@ -100,34 +160,28 @@ Assembler::instruction Assembler::parse(const string &line)
 	// Extract the command
 	if (size > 0) {
 		start = line.find_first_not_of("\t ");
-		end = line.find_first_of("\t ", start);
+		end = min(line.find_first_of("\t ", start), line.size());
 		op.command = line.substr(start, end - start);
+	}
 
-		// Set immediate bit and remove from command
-		if (op.command[op.command.size() - 1] == 'i') {
-			op.command.erase(op.command.size() - 1);
-			op.immediate = 1;
-		}
+	// Set immediate bit and remove from command
+	if (op.command[op.command.size() - 1] == 'i') {
+		op.command.erase(op.command.size() - 1);
+		op.i = 1;
 	}
 
 	// Extract the first argument, if it exists
 	if (size > end) {
-		start = line.find_first_of("0123456789", end);
-		if (start < 0) {
-			return op;
-		}
-		end = line.find_first_not_of("0123456789", start);
-		//istringstream(line.substr(start, end - start)) >> op.arg0;
+		start = line.find_first_not_of("\t ", end);
+		end = min(line.find_first_of("\t ", start), line.size());
+		istringstream(line.substr(start, end - start)) >> op.arg0;
 	}
 
 	// Extract the second argument, if it exists
 	if (size > end) {
-		start = line.find_first_of("0123456789", end);
-		if (start < 0) {
-			return op;
-		}
-		end = line.find_first_not_of("0123456789", start);
-		//istringstream(line.substr(start, end - start)) >> op.arg1;
+		start = line.find_first_not_of("\t ", end);
+		end = min(line.find_first_of("\t ", start), line.size());
+		istringstream(line.substr(start, end - start)) >> op.arg1;
 	}
 
 	return op;
@@ -136,7 +190,7 @@ Assembler::instruction Assembler::parse(const string &line)
 /**
  * Formats parsing errors in a consistant and human readable way.
  * Ex: On line 5, Invalid Instruction: "add 2 172"
- * 
+ *
  * @param lineNumber The line of which the error occurred
  * @param msg The error message to display
  * @param line The contents of the line in question
