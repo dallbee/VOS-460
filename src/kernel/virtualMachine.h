@@ -27,35 +27,46 @@ private:
 	static const int regSize = 4;
 	static const int memSize = 256;
 
+	int reg[regSize];
+ 	int mem[memSize];
 
-	//Basic Commands Required
-	//I was thinking to suffix each with 'VM' -Taylor
-	// statementVM()
-	// I wanted to keep consistency though, not just the overloaded ones -Taylor
-	int load();
-	int store();
-//	int add(); //overloaded statement
-	int addc();
-	int sub();
-	int subc();
-//	int and(); //overloaded statement
-//	int xor(); //overloaded statement
-//	int compl(); //overloaded statement
-	int shl();
-	int shla();
-	int shr();
-	int shra();
-	int compr();
-	int getstat();
-	int putstat();
-	int jump();
-	int jumpl();
-	int jumpe();
-	int jumpg();
-	int call();
-//	int return(); //overloaded statement
-	int read();
-	int write();
-	int halt();
-	int noop();
+ 	unsigned clock;
+ 	unsigned programCounter;
+ 	unsigned stackPointer;
+ 	unsigned base;
+ 	unsigned limit;
+ 	unsigned instructionRegister;
+ 	unsigned statusRegister;
+
+
+	map<string, int> opCodes;
+
+	//Basic Commands Required,
+	//just stores data in memory
+	void loadExec();
+	void storeExec();
+	void addExec();
+	void addcExec();
+	void subExec();
+	void subcExec();
+	void andExec();
+	void xorExec();
+	void complExec();
+	void shlExec();
+	void shlaExec();
+	void shrExec();
+	void shraExec();
+	void comprExec();
+	void getstatExec();
+	void putstatExec();
+	void jumpExec();
+	void jumplExec();
+	void jumpeExec();
+	void jumpgExec();
+	void callExec();
+	void returnExec();
+	void readExec();
+	void writeExec();
+	void haltExec();
+	void noopExec();
 };
