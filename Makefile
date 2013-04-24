@@ -5,17 +5,17 @@ SRCDIR = src
 
 all: boot
 
-boot: os.o virtualMachine.o assembler.o
-	$(CC) $(CFLAGS) -o $(TARGETDIR)/boot $(SRCDIR)/boot.cpp $(TARGETDIR)/os.o $(TARGETDIR)/virtualMachine.o $(TARGETDIR)/assembler.o
+boot: os.o VirtualMachine.o Assembler.o
+	$(CC) $(CFLAGS) -o $(TARGETDIR)/boot $(SRCDIR)/boot.cpp $(TARGETDIR)/os.o $(TARGETDIR)/VirtualMachine.o $(TARGETDIR)/Assembler.o
 
 os.o:
 	$(CC) $(CFLAGS) -o $(TARGETDIR)/os.o -c $(SRCDIR)/os/os.cpp
 
-virtualMachine.o:
-	$(CC) $(CFLAGS) -o $(TARGETDIR)/virtualMachine.o -c $(SRCDIR)/kernel/virtualMachine.cpp
+VirtualMachine.o:
+	$(CC) $(CFLAGS) -o $(TARGETDIR)/VirtualMachine.o -c $(SRCDIR)/kernel/VirtualMachine.cpp
 
-assembler.o:
-	$(CC) $(CFLAGS) -o $(TARGETDIR)/assembler.o -c $(SRCDIR)/assembler/assembler.cpp
+Assembler.o:
+	$(CC) $(CFLAGS) -o $(TARGETDIR)/Assembler.o -c $(SRCDIR)/assembler/Assembler.cpp
 
 clean:
 	rm -f $(TARGETDIR)/*

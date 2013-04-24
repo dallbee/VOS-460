@@ -26,8 +26,8 @@ public:
 	void machine_dump();
 
 private:
-	static const int regSize = 4;
-	static const int memSize = 256;
+	static const unsigned regSize = 4;
+	static const unsigned memSize = 256;
 
 	int reg[regSize];
 	int mem[memSize];

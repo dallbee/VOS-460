@@ -39,7 +39,7 @@ using namespace std;
 
 	
 
-	for(pc != memSize) {
+	for(; pc != memSize;) {
 		ir = mem[pc++];
 		CONST = ir & 0xFF;
 		ADDR = ir & 0x3F;
