@@ -1,7 +1,7 @@
 #include <stdio.h>
-#include "os/os.h"
-#include "kernel/VirtualMachine.h"
-#include "assembler/Assembler.h"
+#include "vm/VirtualMachine.h"
+#include "sys/os.h"
+#include "sys/assembler/Assembler.h"
 using namespace std;
 
 int main()
