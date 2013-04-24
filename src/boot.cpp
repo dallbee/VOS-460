@@ -13,7 +13,7 @@ int main()
 		printf ("[Assembler Error] %s \n", error);
 	}
 
-	virtualMachine();
+	//virtualMachine();
 
 	return 0;
 }

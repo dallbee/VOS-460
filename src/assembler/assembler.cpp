@@ -52,7 +52,7 @@ Assembler::Assembler(const string &opListPath)
 	}
 
 	// Verify data existence
-	if (this->opCodes.empty()) {
+	if (opCodes.empty()) {
 		throw "Could not read data in from operation codes file";
 	}
 }
@@ -66,7 +66,7 @@ Assembler::Assembler(const string &opListPath)
 void Assembler::build(const string &sourcePath)
 {
 	unsigned object = 0;
-	instruction op = {"", 0};
+	Instruction op = {"", 0};
 	ifstream sourceFile(sourcePath.c_str());
 	ofstream programFile("test.o");
 
@@ -102,7 +102,7 @@ void Assembler::build(const string &sourcePath)
  * @param op The instruction to format
  * @return unsigned
  */
-unsigned Assembler::format(instruction &op)
+unsigned Assembler::format(Instruction &op)
 {
 	// Command does not contain RD argument
 	if (rdSet.find(op.command) == rdSet.end()) {
@@ -143,9 +143,9 @@ unsigned Assembler::format(instruction &op)
  * @param line The source code instruction to be interpereted.
  * @return Assembler::instruction
  */
-Assembler::instruction Assembler::parse(const string &line)
+Assembler::Instruction Assembler::parse(const string &line)
 {
-	instruction op = {"", 0};
+	Instruction op = {"", 0};
 	int start = 0, end = 0;
 
 	// Get the size of the instruction without comments

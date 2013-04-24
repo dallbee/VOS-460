@@ -20,7 +20,7 @@ private:
 	set<string> immediates;
 	set<string> rdSet;
 	set<string> loads;
-	struct instruction {
+	struct Instruction {
 		string command;
 		int arg0;
 		int arg1;
@@ -29,7 +29,7 @@ private:
 		unsigned rs;
 		unsigned value;
 	};
-	unsigned format(instruction &op);
-	static instruction parse(const string &line);
+	unsigned format(Instruction &op);
+	static Instruction parse(const string &line);
 	static string parseError(int lineNumber, string msg, string line);
 };

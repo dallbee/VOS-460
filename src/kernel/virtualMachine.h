@@ -2,7 +2,6 @@
 #define VIRTUAL_MACHINE_H
 #endif
 
-
 #include <map>
 #include <set>
 #include <string>
@@ -28,21 +27,30 @@ private:
 	static const int memSize = 256;
 
 	int reg[regSize];
- 	int mem[memSize];
+	int mem[memSize];
 
- 	unsigned clock;
- 	unsigned programCounter;
- 	unsigned stackPointer;
- 	unsigned base;
- 	unsigned limit;
- 	unsigned instructionRegister;
- 	unsigned statusRegister;
-
+	unsigned OP;
+	unsigned RD;
+	unsigned I;
+	unsigned RS;
+	unsigned ADDR;
+	unsigned CARRY;
+	unsigned OVERFLOW;
+	unsigned LESS;
+	unsigned EQUAL;
+	unsigned GREATER;
+	int CONST;
+	
+	unsigned clock;
+	unsigned pc;
+	unsigned sp;
+	unsigned base;
+	unsigned limit;
+	unsigned ir;
+	unsigned sr;
 
 	map<string, int> opCodes;
 
-	//Basic Commands Required,
-	//just stores data in memory
 	void loadExec();
 	void storeExec();
 	void addExec();
