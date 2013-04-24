@@ -1,4 +1,4 @@
-#include "virtualMachine.h"
+#include "VirtualMachine.h"
 #include <map>
 #include <set>
 #include <string>
@@ -12,7 +12,7 @@ using namespace std;
  *
  * @param
  */
- virtualMachine::virtualMachine ()
+ VirtualMachine::VirtualMachine ()
  {
 //	int reg[regSize]={0};
 // 	int mem[memSize]={0};
@@ -37,6 +37,8 @@ using namespace std;
 	}
 	*/
 
+	
+
 	for(pc != memSize) {
 		ir = mem[pc++];
 		CONST = ir & 0xFF;
@@ -58,138 +60,138 @@ using namespace std;
 * no data to them yet
 */
 
-void virtualMachine::loadExec()
+void VirtualMachine::loadExec()
 {
 	reg[RD] = I ? CONST : mem[ADDR];
 }
 
-void virtualMachine::storeExec()
+void VirtualMachine::storeExec()
 {
 	mem[ADDR] = reg[RD];
 }
 
-void virtualMachine::addExec()
+void VirtualMachine::addExec()
 {
 	reg[RD] += I ? CONST : reg[RS];
 	CARRY = 1;
 }
 
-void virtualMachine::addcExec()
+void VirtualMachine::addcExec()
 {
 	reg[RD] += I ? (CONST + CARRY) : (reg[RS] + CARRY);
 	CARRY = 1;
 }
 
-void virtualMachine::subExec()
+void VirtualMachine::subExec()
 {
 	reg[RD] -= I ? CONST : reg[RS];
 	CARRY = 1;
 }
 
-void virtualMachine::subcExec()
+void VirtualMachine::subcExec()
 {
 	reg[RD] -= I ? (CONST - CARRY) : (reg[RS] - CARRY);
 	CARRY = 1;
 }
 
-void virtualMachine::andExec()
+void VirtualMachine::andExec()
 {
 	reg[RD] &= I ? CONST : reg[RS];
 }
 
-void virtualMachine::xorExec()
+void VirtualMachine::xorExec()
 {
 	reg[RD] ^= I ? CONST : reg[RS];
 }
 
-void virtualMachine::complExec()
+void VirtualMachine::complExec()
 {
 	reg[RD] = ~reg[RD];
 }
 
-void virtualMachine::shlExec()
+void VirtualMachine::shlExec()
 {
 	reg[RD] = reg[RD] << 1;
 	CARRY = 1;
 }
 
-void virtualMachine::shlaExec()
+void VirtualMachine::shlaExec()
 {
 
 }
 
-void virtualMachine::shrExec()
+void VirtualMachine::shrExec()
 {
 	reg[RD] = reg[RD] >> 1;
 	CARRY = 1;
 }
 
-void virtualMachine::shraExec()
+void VirtualMachine::shraExec()
 {
 
 }
 
-void virtualMachine::comprExec()
+void VirtualMachine::comprExec()
 {
 
 }
 
-void virtualMachine::getstatExec()
+void VirtualMachine::getstatExec()
 {
 	reg[RD] = sr;
 }
 
-void virtualMachine::putstatExec()
+void VirtualMachine::putstatExec()
 {
 	sr = reg[RD];
 }
 
-void virtualMachine::jumpExec()
+void VirtualMachine::jumpExec()
 {
 	pc = ADDR;
 }
 
-void virtualMachine::jumplExec()
+void VirtualMachine::jumplExec()
 {
 	pc = LESS ? ADDR : pc;
 }
 
-void virtualMachine::jumpeExec()
+void VirtualMachine::jumpeExec()
 {
 	pc = EQUAL ? ADDR : pc;
 }
 
-void virtualMachine::jumpgExec()
+void VirtualMachine::jumpgExec()
 {
 	pc = GREATER ? ADDR : pc;
 }
 
-void virtualMachine::callExec()
+void VirtualMachine::callExec()
 {
 
 }
 
-void virtualMachine::returnExec()
+void VirtualMachine::returnExec()
 {
 
 }
 
-void virtualMachine::readExec()
+void VirtualMachine::readExec()
 {
 
 }
 
-void virtualMachine::writeExec()
+void VirtualMachine::writeExec()
 {
 
 }
 
-void virtualMachine::haltExec()
+void VirtualMachine::haltExec()
 {
 
 }
 
-void virtualMachine::noopExec()
+void VirtualMachine::noopExec()
 {
 
 }

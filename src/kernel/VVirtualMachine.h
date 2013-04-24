@@ -7,9 +7,12 @@
 #include <string>
 using namespace std;
 
-class virtualMachine {
+typedef void (*ScriptFunction)(void);
+typedef std::map<std::string, ScriptFunction> script_map;
+
+class VirtualMachine {
 public:
-	virtualMachine();
+	VirtualMachine();
 
 	//run the assembly code
 	void start(string assemblyCode);
@@ -78,3 +81,6 @@ private:
 	void haltExec();
 	void noopExec();
 };
+
+typedef void (VirtualMachine::*math_method_t)(double);
+typedef std::map<std::string, math_method_t> math_func_map_t;
