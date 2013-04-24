@@ -24,38 +24,33 @@ public:
 	void machine_dump();
 
 private:
-	static const int regSize = 4;
-	static const int memSize = 256;
-
-
-	//Basic Commands Required
-	//I was thinking to suffix each with 'VM' -Taylor
-	// statementVM()
-	// I wanted to keep consistency though, not just the overloaded ones -Taylor
-	int load();
-	int store();
-//	int add(); //overloaded statement
-	int addc();
-	int sub();
-	int subc();
-//	int and(); //overloaded statement
-//	int xor(); //overloaded statement
-//	int compl(); //overloaded statement
-	int shl();
-	int shla();
-	int shr();
-	int shra();
-	int compr();
-	int getstat();
-	int putstat();
-	int jump();
-	int jumpl();
-	int jumpe();
-	int jumpg();
-	int call();
-//	int return(); //overloaded statement
-	int read();
-	int write();
-	int halt();
-	int noop();
+	//static const int regSize = 4;
+	//static const int memSize = 256;
+	
+	int loadExec();
+	int storeExec();
+ 	int addExec(); 
+	int addcExec();
+	int subExec();
+	int subcExec();
+  	int andExec();  
+ 	int xorExec();  
+ 	int complExec();  
+	int shlExec();
+	int shlaExec();
+	int shrExec();
+	int shraExec();
+	int comprExec();
+	int getstatExec();
+	int putstatExec();
+	int jumpExec();
+	int jumplExec();
+	int jumpeExec();
+	int jumpgExec();
+	int callExec();
+ 	int returnExec(); 
+	int readExec();
+	int writeExec();
+	int haltExec();
+	int noopExec();
 };

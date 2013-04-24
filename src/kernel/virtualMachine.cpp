@@ -14,6 +14,6 @@ using namespace std;
  */
  virtualMachine::virtualMachine ()
  {
- 	int reg[regSize] ={0};
- 	int mem[memSize] ={0};
+ 	//int reg[regSize] ={0};
+ 	//int mem[memSize] ={0};
  }
