@@ -24,33 +24,49 @@ public:
 	void machine_dump();
 
 private:
-	//static const int regSize = 4;
-	//static const int memSize = 256;
-	
-	int loadExec();
-	int storeExec();
- 	int addExec(); 
-	int addcExec();
-	int subExec();
-	int subcExec();
-  	int andExec();  
- 	int xorExec();  
- 	int complExec();  
-	int shlExec();
-	int shlaExec();
-	int shrExec();
-	int shraExec();
-	int comprExec();
-	int getstatExec();
-	int putstatExec();
-	int jumpExec();
-	int jumplExec();
-	int jumpeExec();
-	int jumpgExec();
-	int callExec();
- 	int returnExec(); 
-	int readExec();
-	int writeExec();
-	int haltExec();
-	int noopExec();
+	static const int regSize = 4;
+	static const int memSize = 256;
+
+	int reg[regSize];
+ 	int mem[memSize];
+
+ 	unsigned clock;
+ 	unsigned programCounter;
+ 	unsigned stackPointer;
+ 	unsigned base;
+ 	unsigned limit;
+ 	unsigned instructionRegister;
+ 	unsigned statusRegister;
+
+
+	map<string, int> opCodes;
+
+	//Basic Commands Required,
+	//just stores data in memory
+	void loadExec();
+	void storeExec();
+	void addExec();
+	void addcExec();
+	void subExec();
+	void subcExec();
+	void andExec();
+	void xorExec();
+	void complExec();
+	void shlExec();
+	void shlaExec();
+	void shrExec();
+	void shraExec();
+	void comprExec();
+	void getstatExec();
+	void putstatExec();
+	void jumpExec();
+	void jumplExec();
+	void jumpeExec();
+	void jumpgExec();
+	void callExec();
+	void returnExec();
+	void readExec();
+	void writeExec();
+	void haltExec();
+	void noopExec();
 };
