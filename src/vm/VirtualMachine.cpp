@@ -17,7 +17,7 @@ using namespace std;
 //	int reg[regSize]={0};
 // 	int mem[memSize]={0};
  	/*
- 	
+
  	string opCode, flags;
 	ifstream opListFile(opListPath.c_str());
 	istream_iterator<string> it (opListFile), end;
@@ -40,6 +40,29 @@ using namespace std;
 	instructions[0] = &VirtualMachine::loadExec;
 	instructions[1] = &VirtualMachine::storeExec;
 	instructions[2] = &VirtualMachine::addExec;
+	instructions[3] = &VirtualMachine::addcExec
+	instructions[4] = &VirtualMachine::subExec
+	instructions[5] = &VirtualMachine::subcExec
+	instructions[6] = &VirtualMachine::andExec
+	instructions[7] = &VirtualMachine::xorExec
+	instructions[8] = &VirtualMachine::complExec
+	instructions[9] = &VirtualMachine::shlExec
+	instructions[10] = &VirtualMachine::shlaExec
+	instructions[11] = &VirtualMachine::shrExec
+	instructions[12] = &VirtualMachine::shraExec
+	instructions[13] = &VirtualMachine::comprExec
+	instructions[14] = &VirtualMachine::getstatExec
+	instructions[15] = &VirtualMachine::putstatExec
+	instructions[16] = &VirtualMachine::jumpExec
+	instructions[17] = &VirtualMachine::jumplExec
+	instructions[18] = &VirtualMachine::jumpeExec
+	instructions[19] = &VirtualMachine::jumpgExec
+	instructions[20] = &VirtualMachine::callExec
+	instructions[21] = &VirtualMachine::returnExec
+	instructions[22] = &VirtualMachine::readExec
+	instructions[23] = &VirtualMachine::writeExec
+	instructions[24] = &VirtualMachine::haltExec
+	instructions[25] = &VirtualMachine::noopExec
 
 	for(; pc != memSize;) {
 		ir = mem[pc++];
@@ -50,7 +73,7 @@ using namespace std;
 		RD = (ir >>= 1) & 0x03;
 		OP = (ir >>= 5);
 	}
-	
+
 
 
  }
