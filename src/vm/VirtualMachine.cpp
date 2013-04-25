@@ -79,145 +79,244 @@ using namespace std;
 
  }
 
-/**
-* Each of the opCodes available
-*
-* @param
-* no data to them yet
-*/
 
+/**
+ * [VirtualMachine::loadExec description]
+ *
+ * @return void
+ */
 void VirtualMachine::loadExec()
 {
 	reg[RD] = I ? CONST : mem[ADDR];
 }
 
-void VirtualMachine::storeExec()
+/**
+ * [VirtualMachine::loadExec description]
+ *
+ * @return void
+ */void VirtualMachine::storeExec()
 {
 	mem[ADDR] = reg[RD];
 }
 
-void VirtualMachine::addExec()
+/**
+ * [VirtualMachine::loadExec description]
+ *
+ * @return void
+ */void VirtualMachine::addExec()
 {
 	reg[RD] += I ? CONST : reg[RS];
 	CARRY = 1;
 }
 
-void VirtualMachine::addcExec()
+/**
+ * [VirtualMachine::loadExec description]
+ *
+ * @return void
+ */void VirtualMachine::addcExec()
 {
 	reg[RD] += I ? (CONST + CARRY) : (reg[RS] + CARRY);
 	CARRY = 1;
 }
 
-void VirtualMachine::subExec()
+/**
+ * [VirtualMachine::loadExec description]
+ *
+ * @return void
+ */void VirtualMachine::subExec()
 {
 	reg[RD] -= I ? CONST : reg[RS];
 	CARRY = 1;
 }
 
-void VirtualMachine::subcExec()
+/**
+ * [VirtualMachine::loadExec description]
+ *
+ * @return void
+ */void VirtualMachine::subcExec()
 {
 	reg[RD] -= I ? (CONST - CARRY) : (reg[RS] - CARRY);
 	CARRY = 1;
 }
 
-void VirtualMachine::andExec()
+/**
+ * [VirtualMachine::loadExec description]
+ *
+ * @return void
+ */void VirtualMachine::andExec()
 {
 	reg[RD] &= I ? CONST : reg[RS];
 }
 
-void VirtualMachine::xorExec()
+/**
+ * [VirtualMachine::loadExec description]
+ *
+ * @return void
+ */void VirtualMachine::xorExec()
 {
 	reg[RD] ^= I ? CONST : reg[RS];
 }
 
-void VirtualMachine::complExec()
+/**
+ * [VirtualMachine::loadExec description]
+ *
+ * @return void
+ */void VirtualMachine::complExec()
 {
 	reg[RD] = ~reg[RD];
 }
 
-void VirtualMachine::shlExec()
+/**
+ * [VirtualMachine::loadExec description]
+ *
+ * @return void
+ */void VirtualMachine::shlExec()
 {
 	reg[RD] = reg[RD] << 1;
 	CARRY = 1;
 }
 
-void VirtualMachine::shlaExec()
+/**
+ * [VirtualMachine::loadExec description]
+ *
+ * @return void
+ */void VirtualMachine::shlaExec()
 {
 
 }
 
-void VirtualMachine::shrExec()
+/**
+ * [VirtualMachine::loadExec description]
+ *
+ * @return void
+ */void VirtualMachine::shrExec()
 {
 	reg[RD] = reg[RD] >> 1;
 	CARRY = 1;
 }
 
-void VirtualMachine::shraExec()
+/**
+ * [VirtualMachine::loadExec description]
+ *
+ * @return void
+ */void VirtualMachine::shraExec()
 {
 
 }
 
-void VirtualMachine::comprExec()
+/**
+ * [VirtualMachine::loadExec description]
+ *
+ * @return void
+ */void VirtualMachine::comprExec()
 {
 
 }
 
-void VirtualMachine::getstatExec()
+/**
+ * [VirtualMachine::loadExec description]
+ *
+ * @return void
+ */void VirtualMachine::getstatExec()
 {
 	reg[RD] = sr;
 }
 
-void VirtualMachine::putstatExec()
+/**
+ * [VirtualMachine::loadExec description]
+ *
+ * @return void
+ */void VirtualMachine::putstatExec()
 {
 	sr = reg[RD];
 }
 
-void VirtualMachine::jumpExec()
+/**
+ * [VirtualMachine::loadExec description]
+ *
+ * @return void
+ */void VirtualMachine::jumpExec()
 {
 	pc = ADDR;
 }
 
-void VirtualMachine::jumplExec()
+/**
+ * [VirtualMachine::loadExec description]
+ *
+ * @return void
+ */void VirtualMachine::jumplExec()
 {
 	pc = LESS ? ADDR : pc;
 }
 
-void VirtualMachine::jumpeExec()
+/**
+ * [VirtualMachine::loadExec description]
+ *
+ * @return void
+ */void VirtualMachine::jumpeExec()
 {
 	pc = EQUAL ? ADDR : pc;
 }
 
-void VirtualMachine::jumpgExec()
+/**
+ * [VirtualMachine::loadExec description]
+ *
+ * @return void
+ */void VirtualMachine::jumpgExec()
 {
 	pc = GREATER ? ADDR : pc;
 }
 
-void VirtualMachine::callExec()
+/**
+ * [VirtualMachine::loadExec description]
+ *
+ * @return void
+ */void VirtualMachine::callExec()
 {
 
 }
 
-void VirtualMachine::returnExec()
+/**
+ * [VirtualMachine::loadExec description]
+ *
+ * @return void
+ */void VirtualMachine::returnExec()
 {
 
 }
 
-void VirtualMachine::readExec()
+/**
+ * [VirtualMachine::loadExec description]
+ *
+ * @return void
+ */void VirtualMachine::readExec()
 {
 
 }
 
-void VirtualMachine::writeExec()
+/**
+ * [VirtualMachine::loadExec description]
+ *
+ * @return void
+ */void VirtualMachine::writeExec()
 {
 
 }
 
-void VirtualMachine::haltExec()
+/**
+ * [VirtualMachine::loadExec description]
+ *
+ * @return void
+ */void VirtualMachine::haltExec()
 {
 
 }
 
-void VirtualMachine::noopExec()
+/**
+ * [VirtualMachine::loadExec description]
+ *
+ * @return void
+ */void VirtualMachine::noopExec()
 {
 
 }
