@@ -38,7 +38,7 @@ private:
 	unsigned EQUAL;
 	unsigned GREATER;
 	int CONST;
-	
+
 	unsigned clock;
 	unsigned pc;
 	unsigned sp;
@@ -73,9 +73,7 @@ private:
 	void writeExec();
 	void haltExec();
 	void noopExec();
+	vector<void (VirtualMachine::*)()> instructions;
 };
 
-typedef void (VirtualMachine::*instructions_t)();
-typedef vector<instructions_t> instructionMap;
 
-	
