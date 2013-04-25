@@ -21,7 +21,7 @@ private:
 	set<string> rdSet;
 	set<string> loads;
 	struct Instruction {
-		string command;
+		string text;
 		int arg0;
 		int arg1;
 		unsigned rd;

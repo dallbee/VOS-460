@@ -75,18 +75,18 @@ void Assembler::build(const string &sourcePath)
 		op = parse(line);
 
 		// Pass upon no instruction
-		if (op.command.empty()) {
+		if (op.text.empty()) {
 			continue;
 		}
 
 		// Check for invalid instructions
-		if (opCodes.find(op.command) == opCodes.end()) {
+		if (opCodes.find(op.text) == opCodes.end()) {
 			string message = "Illegal instruction";
 			throw parseError(lineNumber, message, line).c_str();
 		}
 
 		// Check for invalid immediate instructions
-		if (op.i and immediates.find(op.command) == immediates.end()) {
+		if (op.i and immediates.find(op.text) == immediates.end()) {
 			string message = "Illegal immediate instruction";
 			throw parseError(lineNumber, message, line).c_str();
 		}
@@ -105,13 +105,13 @@ void Assembler::build(const string &sourcePath)
 unsigned Assembler::format(Instruction &op)
 {
 	// Command does not contain RD argument
-	if (rdSet.find(op.command) == rdSet.end()) {
+	if (rdSet.find(op.text) == rdSet.end()) {
 		op.value = op.arg0;
 	} else {
 		op.rd = op.arg0;
 
 		// Second argument is an address/constant
-		if (op.i or loads.find(op.command) != loads.end()) {
+		if (op.i or loads.find(op.text) != loads.end()) {
 			op.value = op.arg1;
 		} else {
 			op.rs = op.arg1;
@@ -134,7 +134,7 @@ unsigned Assembler::format(Instruction &op)
 	op.value &= 0xFF;
 
 	// Build and return the entire command
-	return ((opCodes[op.command] << 2 | op.rd) << 1 | op.i) << 8 | op.value;
+	return ((opCodes[op.text] << 2 | op.rd) << 1 | op.i) << 8 | op.value;
 }
 
 /**
@@ -155,12 +155,13 @@ Assembler::Instruction Assembler::parse(const string &line)
 	if (size > 0) {
 		start = line.find_first_not_of("\t ");
 		end = min(line.find_first_of("\t ", start), line.size());
-		op.command = line.substr(start, end - start);
+		op.text = line.substr(start, end - start);
+		transform(op.text.begin(), op.text.end(), op.text.begin(), ::tolower);
 	}
 
 	// Set immediate bit and remove from command
-	if (op.command[op.command.size() - 1] == 'i') {
-		op.command.erase(op.command.size() - 1);
+	if (op.text[op.text.size() - 1] == 'i') {
+		op.text.erase(op.text.size() - 1);
 		op.i = 1;
 	}
 
