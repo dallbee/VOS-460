@@ -31,3 +31,29 @@ Read it from .in file, which is the keyboard
 
 Throughput = number of processes completed per unit time
 
+At run time add 20 to the base for your program
+load 2 20
+
+1	Program 1 start (base)
+.
+.
+.
+49	end
+50	Program 2 start (base)
+.
+.
+.
+89	end
+90	Program 3 start (base)
+.
+.
+.
+150	end (limit?)
+
+
+What should be in the PCB: program counter, registers, status register, stack pointer, base, limit,process name, fstreams associated with the .o, in, .out, .st files.
+
+Program's WAIT TIME is the time spent WAITING in the Ready Queue, NOT time in the wait queue. The seconds means the CPU is waiting for the program to finish
+
+
+
