@@ -81,6 +81,25 @@ using namespace std;
 
 
 /**
+* Determines to set carry in status register or not
+* Also sets CARRY =1, seems redundant to have it in sr and separate variable...
+*
+* @return void
+*/
+void VirtualMachine::setCarry()
+{//we shouldn't just be blindingly setting CARRY should we?
+//I thought it needed some logic behind it.
+	if(reg[RD] & 0x10000 ){
+		sr   |= 1;
+		CARRY = 1;
+	} else{
+		sr &= 0xFFFE;
+		CARRY=0;
+	}
+}
+
+
+/**
  * [VirtualMachine::loadExec description]
  *
  * @return void
@@ -192,7 +211,7 @@ void VirtualMachine::shlExec()
  */
 void VirtualMachine::shlaExec()
 {
-
+	shlExec();
 }
 
 /**
@@ -213,7 +232,12 @@ void VirtualMachine::shrExec()
  */
 void VirtualMachine::shraExec()
 {
-
+	if (reg[RD] & 0x8000){
+		reg[RD] = (reg[RD] >> 1) | 0x8000;
+	} else{
+		reg[RD] = (reg[RD] >> 1) & 0x7FFF;
+	}
+	setCarry();
 }
 
 /**
@@ -223,7 +247,23 @@ void VirtualMachine::shraExec()
  */
 void VirtualMachine::comprExec()
 {
-
+	//still needs to determine RS vs CONST
+	if (reg[RD] < reg[RS]){
+		sr = (sr & 0xFFF9) | 8;
+		LESS=1;
+		EQUAL=0;
+		GREATER=0;
+	} else if (reg[RD] == reg[RS]){
+		sr = (sr & 0xFFF5) | 4;
+		LESS=0;
+		EQUAL=1;
+		GREATER=0;
+	} else{
+		sr = (sr & 0xFFF3) | 2;
+		LESS=0;
+		EQUAL=0;
+		GREATER=1;
+	}
 }
 
 /**
@@ -293,6 +333,17 @@ void VirtualMachine::jumpgExec()
  */
 void VirtualMachine::callExec()
 {
+	/*
+call and return instructions need special attention. As part of the execution
+of the call instruction the status of the VM must be pushed on to the stack.
+The status of the VM consist of pc, r[0]-r[3], and sr. The stack grows from
+the bottom of memory up, therefore initially sp = 256. After a call, sp is
+decremented by 6 as the values of pc, r[0]-r[3], and sr in the VM are pushed
+on to the stack. When a return instruction is executed, sp is incremented by
+6 as the new values of pc, r[0]-r[3], and sr are popped from the stack and
+restored in the VM. When sp >= 256 stack is empty, and when sp < limit+6 stack
+is full.
+	*/
 
 }
 

@@ -40,14 +40,20 @@ private:
 	unsigned GREATER;
 	int CONST;
 
+	//PCB related
 	unsigned clock;
 	unsigned pc;
 	unsigned sp;
 	unsigned base;
 	unsigned limit;
 	unsigned ir;
-	unsigned sr;
+	unsigned sr;//bits 15 -> 6 unused last 5: oVerflow, Less, Equal, Greater, Carry
 
+	//Register masking
+	void setCarry();
+	void writeStatus();
+
+	//instructions
 	void loadExec();
 	void storeExec();
 	void addExec();

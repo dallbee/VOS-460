@@ -15,3 +15,5 @@
 
 #Useless Mac OS stuff
 .DS_Store
+
+src/assembler/debug.cpp
