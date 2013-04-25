@@ -72,7 +72,7 @@ using namespace std;
 		I = (ir >>= 2) & 0x01;
 		RD = (ir >>= 1) & 0x03;
 		OP = (ir >>= 5);
-		(this->*instructions[1])();
+		(this->*instructions[OP])();
 	}
 
 
