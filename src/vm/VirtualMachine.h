@@ -23,6 +23,7 @@ public:
 private:
 	static const unsigned regSize = 4;
 	static const unsigned memSize = 256;
+	vector<void (VirtualMachine::*)()> instructions;
 
 	int reg[regSize];
 	int mem[memSize];
@@ -47,33 +48,33 @@ private:
 	unsigned ir;
 	unsigned sr;
 
-	void loadExec();
-	void storeExec();
-	void addExec();
-	void addcExec();
-	void subExec();
-	void subcExec();
-	void andExec();
-	void xorExec();
-	void complExec();
-	void shlExec();
-	void shlaExec();
-	void shrExec();
-	void shraExec();
-	void comprExec();
-	void getstatExec();
-	void putstatExec();
-	void jumpExec();
-	void jumplExec();
-	void jumpeExec();
-	void jumpgExec();
-	void callExec();
-	void returnExec();
-	void readExec();
-	void writeExec();
-	void haltExec();
-	void noopExec();
-	vector<void (VirtualMachine::*)()> instructions;
+	void loadInstruction();
+	void storeInstruction();
+	void addInstruction();
+	void addcInstruction();
+	void subInstruction();
+	void subcInstruction();
+	void andInstruction();
+	void xorInstruction();
+	void complInstruction();
+	void shlInstruction();
+	void shlaInstruction();
+	void shrInstruction();
+	void shraInstruction();
+	void comprInstruction();
+	void getstatInstruction();
+	void putstatInstruction();
+	void jumpInstruction();
+	void jumplInstruction();
+	void jumpeInstruction();
+	void jumpgInstruction();
+	void callInstruction();
+	void returnInstruction();
+	void readInstruction();
+	void writeInstruction();
+	void haltInstruction();
+	void noopInstruction();
+
 };
 
 
