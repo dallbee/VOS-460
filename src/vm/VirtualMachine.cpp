@@ -36,8 +36,10 @@ using namespace std;
 		throw "Could not read data in from operation codes file";
 	}
 	*/
-
-	
+	instructionMap instructions (32, &VirtualMachine::noopExec);
+	instructions[0] = &VirtualMachine::loadExec;
+	instructions[1] = &VirtualMachine::storeExec;
+	instructions[2] = &VirtualMachine::addExec;
 
 	for(; pc != memSize;) {
 		ir = mem[pc++];

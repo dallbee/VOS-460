@@ -5,17 +5,12 @@
 #include <map>
 #include <set>
 #include <string>
+#include <vector>
 using namespace std;
-
-typedef void (*ScriptFunction)(void);
-typedef std::map<std::string, ScriptFunction> script_map;
 
 class VirtualMachine {
 public:
 	VirtualMachine();
-
-	//run the assembly code
-	void start(string assemblyCode);
 
 	//useful debugging
 	void memory_dump();
@@ -52,8 +47,6 @@ private:
 	unsigned ir;
 	unsigned sr;
 
-	map<string, int> opCodes;
-
 	void loadExec();
 	void storeExec();
 	void addExec();
@@ -82,5 +75,7 @@ private:
 	void noopExec();
 };
 
-typedef void (VirtualMachine::*math_method_t)(double);
-typedef std::map<std::string, math_method_t> math_func_map_t;
+typedef void (VirtualMachine::*instructions_t)();
+typedef vector<instructions_t> instructionMap;
+
+	
