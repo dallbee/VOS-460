@@ -94,7 +94,8 @@ void VirtualMachine::loadExec()
  * [VirtualMachine::loadExec description]
  *
  * @return void
- */void VirtualMachine::storeExec()
+ */
+void VirtualMachine::storeExec()
 {
 	mem[ADDR] = reg[RD];
 }
@@ -103,7 +104,8 @@ void VirtualMachine::loadExec()
  * [VirtualMachine::loadExec description]
  *
  * @return void
- */void VirtualMachine::addExec()
+ */
+void VirtualMachine::addExec()
 {
 	reg[RD] += I ? CONST : reg[RS];
 	CARRY = 1;
@@ -113,7 +115,8 @@ void VirtualMachine::loadExec()
  * [VirtualMachine::loadExec description]
  *
  * @return void
- */void VirtualMachine::addcExec()
+ */
+void VirtualMachine::addcExec()
 {
 	reg[RD] += I ? (CONST + CARRY) : (reg[RS] + CARRY);
 	CARRY = 1;
@@ -123,7 +126,8 @@ void VirtualMachine::loadExec()
  * [VirtualMachine::loadExec description]
  *
  * @return void
- */void VirtualMachine::subExec()
+ */
+void VirtualMachine::subExec()
 {
 	reg[RD] -= I ? CONST : reg[RS];
 	CARRY = 1;
@@ -133,7 +137,8 @@ void VirtualMachine::loadExec()
  * [VirtualMachine::loadExec description]
  *
  * @return void
- */void VirtualMachine::subcExec()
+ */
+void VirtualMachine::subcExec()
 {
 	reg[RD] -= I ? (CONST - CARRY) : (reg[RS] - CARRY);
 	CARRY = 1;
@@ -143,7 +148,8 @@ void VirtualMachine::loadExec()
  * [VirtualMachine::loadExec description]
  *
  * @return void
- */void VirtualMachine::andExec()
+ */
+void VirtualMachine::andExec()
 {
 	reg[RD] &= I ? CONST : reg[RS];
 }
@@ -152,7 +158,8 @@ void VirtualMachine::loadExec()
  * [VirtualMachine::loadExec description]
  *
  * @return void
- */void VirtualMachine::xorExec()
+ */
+void VirtualMachine::xorExec()
 {
 	reg[RD] ^= I ? CONST : reg[RS];
 }
@@ -161,7 +168,8 @@ void VirtualMachine::loadExec()
  * [VirtualMachine::loadExec description]
  *
  * @return void
- */void VirtualMachine::complExec()
+ */
+void VirtualMachine::complExec()
 {
 	reg[RD] = ~reg[RD];
 }
@@ -170,7 +178,8 @@ void VirtualMachine::loadExec()
  * [VirtualMachine::loadExec description]
  *
  * @return void
- */void VirtualMachine::shlExec()
+ */
+void VirtualMachine::shlExec()
 {
 	reg[RD] = reg[RD] << 1;
 	CARRY = 1;
@@ -180,7 +189,8 @@ void VirtualMachine::loadExec()
  * [VirtualMachine::loadExec description]
  *
  * @return void
- */void VirtualMachine::shlaExec()
+ */
+void VirtualMachine::shlaExec()
 {
 
 }
@@ -189,7 +199,8 @@ void VirtualMachine::loadExec()
  * [VirtualMachine::loadExec description]
  *
  * @return void
- */void VirtualMachine::shrExec()
+ */
+void VirtualMachine::shrExec()
 {
 	reg[RD] = reg[RD] >> 1;
 	CARRY = 1;
@@ -199,7 +210,8 @@ void VirtualMachine::loadExec()
  * [VirtualMachine::loadExec description]
  *
  * @return void
- */void VirtualMachine::shraExec()
+ */
+void VirtualMachine::shraExec()
 {
 
 }
@@ -208,7 +220,8 @@ void VirtualMachine::loadExec()
  * [VirtualMachine::loadExec description]
  *
  * @return void
- */void VirtualMachine::comprExec()
+ */
+void VirtualMachine::comprExec()
 {
 
 }
@@ -217,7 +230,8 @@ void VirtualMachine::loadExec()
  * [VirtualMachine::loadExec description]
  *
  * @return void
- */void VirtualMachine::getstatExec()
+ */
+void VirtualMachine::getstatExec()
 {
 	reg[RD] = sr;
 }
@@ -226,7 +240,8 @@ void VirtualMachine::loadExec()
  * [VirtualMachine::loadExec description]
  *
  * @return void
- */void VirtualMachine::putstatExec()
+ */
+void VirtualMachine::putstatExec()
 {
 	sr = reg[RD];
 }
@@ -235,7 +250,8 @@ void VirtualMachine::loadExec()
  * [VirtualMachine::loadExec description]
  *
  * @return void
- */void VirtualMachine::jumpExec()
+ */
+void VirtualMachine::jumpExec()
 {
 	pc = ADDR;
 }
@@ -244,7 +260,8 @@ void VirtualMachine::loadExec()
  * [VirtualMachine::loadExec description]
  *
  * @return void
- */void VirtualMachine::jumplExec()
+ */
+void VirtualMachine::jumplExec()
 {
 	pc = LESS ? ADDR : pc;
 }
@@ -253,7 +270,8 @@ void VirtualMachine::loadExec()
  * [VirtualMachine::loadExec description]
  *
  * @return void
- */void VirtualMachine::jumpeExec()
+ */
+void VirtualMachine::jumpeExec()
 {
 	pc = EQUAL ? ADDR : pc;
 }
@@ -262,7 +280,8 @@ void VirtualMachine::loadExec()
  * [VirtualMachine::loadExec description]
  *
  * @return void
- */void VirtualMachine::jumpgExec()
+ */
+void VirtualMachine::jumpgExec()
 {
 	pc = GREATER ? ADDR : pc;
 }
@@ -271,7 +290,8 @@ void VirtualMachine::loadExec()
  * [VirtualMachine::loadExec description]
  *
  * @return void
- */void VirtualMachine::callExec()
+ */
+void VirtualMachine::callExec()
 {
 
 }
@@ -280,7 +300,8 @@ void VirtualMachine::loadExec()
  * [VirtualMachine::loadExec description]
  *
  * @return void
- */void VirtualMachine::returnExec()
+ */
+void VirtualMachine::returnExec()
 {
 
 }
@@ -289,7 +310,8 @@ void VirtualMachine::loadExec()
  * [VirtualMachine::loadExec description]
  *
  * @return void
- */void VirtualMachine::readExec()
+ */
+void VirtualMachine::readExec()
 {
 
 }
@@ -298,7 +320,8 @@ void VirtualMachine::loadExec()
  * [VirtualMachine::loadExec description]
  *
  * @return void
- */void VirtualMachine::writeExec()
+ */
+void VirtualMachine::writeExec()
 {
 
 }
@@ -307,7 +330,8 @@ void VirtualMachine::loadExec()
  * [VirtualMachine::loadExec description]
  *
  * @return void
- */void VirtualMachine::haltExec()
+ */
+void VirtualMachine::haltExec()
 {
 
 }
@@ -316,7 +340,8 @@ void VirtualMachine::loadExec()
  * [VirtualMachine::loadExec description]
  *
  * @return void
- */void VirtualMachine::noopExec()
+ */
+void VirtualMachine::noopExec()
 {
 
 }
