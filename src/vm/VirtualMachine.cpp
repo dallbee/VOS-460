@@ -83,11 +83,12 @@ using namespace std;
 /**
 * Determines to set carry in status register or not
 * Also sets CARRY =1, seems redundant to have it in sr and separate variable...
+* couldn't we just check the correct bit of sr isntead of CARRY/LESS/EQUAL etc?
 *
 * @return void
 */
 void VirtualMachine::setCarry()
-{//we shouldn't just be blindingly setting CARRY should we?
+{//we shouldn't just be blindly setting CARRY should we?
 //I thought it needed some logic behind it.
 	if(reg[RD] & 0x10000 ){
 		sr   |= 1;
@@ -96,6 +97,10 @@ void VirtualMachine::setCarry()
 		sr &= 0xFFFE;
 		CARRY=0;
 	}
+}
+
+void VirtualMachine::incrementClock(int cycles){
+	clock += cycles;
 }
 
 
@@ -211,6 +216,7 @@ void VirtualMachine::shlExec()
  */
 void VirtualMachine::shlaExec()
 {
+	incrementClock(1);
 	shlExec();
 }
 
@@ -221,6 +227,7 @@ void VirtualMachine::shlaExec()
  */
 void VirtualMachine::shrExec()
 {
+	incrementClock(1);
 	reg[RD] = reg[RD] >> 1;
 	CARRY = 1;
 }
@@ -232,6 +239,7 @@ void VirtualMachine::shrExec()
  */
 void VirtualMachine::shraExec()
 {
+	incrementClock(1);
 	if (reg[RD] & 0x8000){
 		reg[RD] = (reg[RD] >> 1) | 0x8000;
 	} else{
@@ -247,8 +255,11 @@ void VirtualMachine::shraExec()
  */
 void VirtualMachine::comprExec()
 {
+	incrementClock(1);
 	//still needs to determine RS vs CONST
-	if (reg[RD] < reg[RS]){
+	//newvariable = I ? CONST : reg[RS];
+
+	if (reg[RD] < reg[RS]/*replace w/ newvariable*/){
 		sr = (sr & 0xFFF9) | 8;
 		LESS=1;
 		EQUAL=0;
@@ -333,6 +344,7 @@ void VirtualMachine::jumpgExec()
  */
 void VirtualMachine::callExec()
 {
+	incrementClock(4);
 	/*
 call and return instructions need special attention. As part of the execution
 of the call instruction the status of the VM must be pushed on to the stack.
@@ -354,7 +366,7 @@ is full.
  */
 void VirtualMachine::returnExec()
 {
-
+	incrementClock(4);
 }
 
 /**
@@ -364,7 +376,7 @@ void VirtualMachine::returnExec()
  */
 void VirtualMachine::readExec()
 {
-
+	incrementClock(28)
 }
 
 /**
@@ -374,7 +386,7 @@ void VirtualMachine::readExec()
  */
 void VirtualMachine::writeExec()
 {
-
+	incrementClock(28);
 }
 
 /**
@@ -384,7 +396,7 @@ void VirtualMachine::writeExec()
  */
 void VirtualMachine::haltExec()
 {
-
+	incrementClock(1);
 }
 
 /**
@@ -394,5 +406,5 @@ void VirtualMachine::haltExec()
  */
 void VirtualMachine::noopExec()
 {
-
+	incrementClock(1);
 }

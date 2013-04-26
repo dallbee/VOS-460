@@ -40,8 +40,8 @@ private:
 	unsigned GREATER;
 	int CONST;
 
-	//PCB related
 	unsigned clock;
+	//PCB related
 	unsigned pc;
 	unsigned sp;
 	unsigned base;
@@ -49,9 +49,10 @@ private:
 	unsigned ir;
 	unsigned sr;//bits 15 -> 6 unused last 5: oVerflow, Less, Equal, Greater, Carry
 
-	//Register masking
+	//Register masking and misc hardware udpates
 	void setCarry();
 	void writeStatus();
+	void incrementClock(int cycles);
 
 	//instructions
 	void loadExec();
@@ -82,5 +83,3 @@ private:
 	void noopExec();
 
 };
-
-
