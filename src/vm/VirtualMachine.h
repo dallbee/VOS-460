@@ -35,12 +35,13 @@ private:
 	unsigned ADDR;
 	unsigned CARRY;
 	unsigned OVERFLOW;
-	unsigned LESS;
-	unsigned EQUAL;
-	unsigned GREATER;
+	// unsigned LESS;
+	// unsigned EQUAL;
+	// unsigned GREATER;
 	int CONST;
 
 	unsigned clock;
+
 	//PCB related
 	unsigned pc;
 	unsigned sp;
@@ -55,7 +56,7 @@ private:
 	void setEqual();
 	void setLess();
 	void writeStatus();
-	void incrementClock(int cycles);
+	void incrementClock(unsigned cycles);
 
 	int getCarry();
 	int getGreater();

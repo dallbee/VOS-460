@@ -82,14 +82,13 @@ using namespace std;
 
 /**
 * Determines to set carry in status register or not
-* Also sets CARRY =1, seems redundant to have it in sr and separate variable...
-* couldn't we just check the correct bit of sr isntead of CARRY/LESS/EQUAL etc?
 *
 * @return void
 */
 void VirtualMachine::setCarry(){
-//we shouldn't just be blindly setting CARRY should we?
-//I thought it needed some logic behind it.
+
+	//more readable if preferred: or just delete if statement
+		//if turnary is preferred.
 	// if(reg[RD] & 0x10000 ){
 	// 	sr |= 1;
 	// } else{
@@ -98,35 +97,81 @@ void VirtualMachine::setCarry(){
 	sr = (reg[RD] & 0x10000) ? (sr | 1) : (sr & 0xFFFE);
 }
 
+/**
+* Sets 'greater than' bit in status register
+* while clearing equal and less than
+*
+* @return void
+*/
 void VirtualMachine::setGreater(){
 	sr = (sr & 0xFFF3) | 2;
-
 }
+
+/**
+* Sets 'equal to' bit in status register
+* while clearing less and greater than
+*
+* @return void
+*/
 void VirtualMachine::setEqual(){
 	sr = (sr & 0xFFF5) | 4;
-
 }
+
+/**
+* Sets 'less than' bit in status register
+* while clearing equal and greater than
+*
+* @return void
+*/
 void VirtualMachine::setLess(){
 	sr = (sr & 0xFFF9) | 8;
 }
 
+/**
+* Checks for 'Carry' bit in status register
+*
+* @return 1 or 0. based on bit status
+*/
 int VirtualMachine::getCarry(){
-	return CARRY = (sr & 1) ? 1 : 0;
-}
-int VirtualMachine::getGreater(){
-	return CARRY = (sr & 2) ? 1 : 0;
-}
-int VirtualMachine::getEqual(){
-	return CARRY = (sr & 4) ? 1 : 0;
-}
-int VirtualMachine::getLess(){
-	return CARRY = (sr & 8) ? 1 : 0;
+	return (sr & 1) ? -1 : 0;
 }
 
-void VirtualMachine::incrementClock(int cycles){
+/**
+* Checks for 'Greater than' bit in status register
+*
+* @return 1 or 0. based on bit status
+*/
+int VirtualMachine::getGreater(){
+	return (sr & 2) ? -1 : 0;
+}
+
+/**
+* Checks for 'Equal to' bit in status register
+*
+* @return 1 or 0. based on bit status
+*/
+int VirtualMachine::getEqual(){
+	return (sr & 4) ? -1 : 0;
+}
+
+/**
+* Checks for 'Less than' bit in status register
+*
+* @return 1 or 0. based on bit status
+*/
+int VirtualMachine::getLess(){
+	return (sr & 8) ? -1 : 0;
+}
+
+/**
+* Increments the clock the input number of cycles
+*
+* @param cycles The number by which clock in incremented.
+* @return void
+*/
+void VirtualMachine::incrementClock(unsigned cycles){
 	clock += cycles;
 }
-
 
 /**
  * [VirtualMachine::loadExec description]
@@ -345,7 +390,7 @@ void VirtualMachine::jumpExec()
 void VirtualMachine::jumplExec()
 {
 	incrementClock(1);
-	pc = LESS ? ADDR : pc;
+	pc = getLess() ? ADDR : pc;
 }
 
 /**
@@ -356,7 +401,7 @@ void VirtualMachine::jumplExec()
 void VirtualMachine::jumpeExec()
 {
 	incrementClock(1);
-	pc = EQUAL ? ADDR : pc;
+	pc = getEqual() ? ADDR : pc;
 }
 
 /**
@@ -367,7 +412,7 @@ void VirtualMachine::jumpeExec()
 void VirtualMachine::jumpgExec()
 {
 	incrementClock(1);
-	pc = GREATER ? ADDR : pc;
+	pc = getGreater() ? ADDR : pc;
 }
 
 /**
