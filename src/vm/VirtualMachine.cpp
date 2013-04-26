@@ -87,16 +87,40 @@ using namespace std;
 *
 * @return void
 */
-void VirtualMachine::setCarry()
-{//we shouldn't just be blindly setting CARRY should we?
+void VirtualMachine::setCarry(){
+//we shouldn't just be blindly setting CARRY should we?
 //I thought it needed some logic behind it.
-	if(reg[RD] & 0x10000 ){
-		sr   |= 1;
-		CARRY = 1;
-	} else{
-		sr &= 0xFFFE;
-		CARRY=0;
-	}
+	// if(reg[RD] & 0x10000 ){
+	// 	sr |= 1;
+	// } else{
+	// 	sr &= 0xFFFE;
+	// }
+	sr = (reg[RD] & 0x10000) ? (sr | 1) : (sr & 0xFFFE);
+}
+
+void VirtualMachine::setGreater(){
+	sr = (sr & 0xFFF3) | 2;
+
+}
+void VirtualMachine::setEqual(){
+	sr = (sr & 0xFFF5) | 4;
+
+}
+void VirtualMachine::setLess(){
+	sr = (sr & 0xFFF9) | 8;
+}
+
+int VirtualMachine::getCarry(){
+	return CARRY = (sr & 1) ? 1 : 0;
+}
+int VirtualMachine::getGreater(){
+	return CARRY = (sr & 2) ? 1 : 0;
+}
+int VirtualMachine::getEqual(){
+	return CARRY = (sr & 4) ? 1 : 0;
+}
+int VirtualMachine::getLess(){
+	return CARRY = (sr & 8) ? 1 : 0;
 }
 
 void VirtualMachine::incrementClock(int cycles){
@@ -111,6 +135,7 @@ void VirtualMachine::incrementClock(int cycles){
  */
 void VirtualMachine::loadExec()
 {
+	incrementClock(1);
 	reg[RD] = I ? CONST : mem[ADDR];
 }
 
@@ -121,6 +146,7 @@ void VirtualMachine::loadExec()
  */
 void VirtualMachine::storeExec()
 {
+	incrementClock(1);
 	mem[ADDR] = reg[RD];
 }
 
@@ -131,8 +157,9 @@ void VirtualMachine::storeExec()
  */
 void VirtualMachine::addExec()
 {
+	incrementClock(1);
 	reg[RD] += I ? CONST : reg[RS];
-	CARRY = 1;
+	setCarry();
 }
 
 /**
@@ -142,8 +169,9 @@ void VirtualMachine::addExec()
  */
 void VirtualMachine::addcExec()
 {
-	reg[RD] += I ? (CONST + CARRY) : (reg[RS] + CARRY);
-	CARRY = 1;
+	incrementClock(1);
+	reg[RD] += I ? (CONST + getCarry()) : (reg[RS] + getCarry());
+	setCarry();
 }
 
 /**
@@ -153,8 +181,9 @@ void VirtualMachine::addcExec()
  */
 void VirtualMachine::subExec()
 {
+	incrementClock(1);
 	reg[RD] -= I ? CONST : reg[RS];
-	CARRY = 1;
+	setCarry();
 }
 
 /**
@@ -164,8 +193,9 @@ void VirtualMachine::subExec()
  */
 void VirtualMachine::subcExec()
 {
-	reg[RD] -= I ? (CONST - CARRY) : (reg[RS] - CARRY);
-	CARRY = 1;
+	incrementClock(1);
+	reg[RD] -= I ? (CONST - getCarry()) : (reg[RS] - getCarry());
+	setCarry();
 }
 
 /**
@@ -175,6 +205,7 @@ void VirtualMachine::subcExec()
  */
 void VirtualMachine::andExec()
 {
+	incrementClock(1);
 	reg[RD] &= I ? CONST : reg[RS];
 }
 
@@ -185,6 +216,7 @@ void VirtualMachine::andExec()
  */
 void VirtualMachine::xorExec()
 {
+	incrementClock(1);
 	reg[RD] ^= I ? CONST : reg[RS];
 }
 
@@ -195,6 +227,7 @@ void VirtualMachine::xorExec()
  */
 void VirtualMachine::complExec()
 {
+	incrementClock(1);
 	reg[RD] = ~reg[RD];
 }
 
@@ -205,8 +238,9 @@ void VirtualMachine::complExec()
  */
 void VirtualMachine::shlExec()
 {
+	incrementClock(1);
 	reg[RD] = reg[RD] << 1;
-	CARRY = 1;
+	setCarry();
 }
 
 /**
@@ -229,7 +263,7 @@ void VirtualMachine::shrExec()
 {
 	incrementClock(1);
 	reg[RD] = reg[RD] >> 1;
-	CARRY = 1;
+	setCarry();
 }
 
 /**
@@ -240,6 +274,8 @@ void VirtualMachine::shrExec()
 void VirtualMachine::shraExec()
 {
 	incrementClock(1);
+
+	//Needs to dublicate the MSB as it shifts
 	if (reg[RD] & 0x8000){
 		reg[RD] = (reg[RD] >> 1) | 0x8000;
 	} else{
@@ -256,24 +292,15 @@ void VirtualMachine::shraExec()
 void VirtualMachine::comprExec()
 {
 	incrementClock(1);
-	//still needs to determine RS vs CONST
-	//newvariable = I ? CONST : reg[RS];
+	int constOrReg = I ? CONST : reg[RS];
+	//(reg[RD] < constOrReg) ? setLess() : ((reg[RD] < constOrReg) ? setEqual() : setGreater());
 
-	if (reg[RD] < reg[RS]/*replace w/ newvariable*/){
-		sr = (sr & 0xFFF9) | 8;
-		LESS=1;
-		EQUAL=0;
-		GREATER=0;
-	} else if (reg[RD] == reg[RS]){
-		sr = (sr & 0xFFF5) | 4;
-		LESS=0;
-		EQUAL=1;
-		GREATER=0;
+	if (reg[RD] < constOrReg){
+		setLess();
+	} else if (reg[RD] == constOrReg){
+		setEqual();
 	} else{
-		sr = (sr & 0xFFF3) | 2;
-		LESS=0;
-		EQUAL=0;
-		GREATER=1;
+		setGreater();
 	}
 }
 
@@ -284,6 +311,7 @@ void VirtualMachine::comprExec()
  */
 void VirtualMachine::getstatExec()
 {
+	incrementClock(1);
 	reg[RD] = sr;
 }
 
@@ -294,6 +322,7 @@ void VirtualMachine::getstatExec()
  */
 void VirtualMachine::putstatExec()
 {
+	incrementClock(1);
 	sr = reg[RD];
 }
 
@@ -304,6 +333,7 @@ void VirtualMachine::putstatExec()
  */
 void VirtualMachine::jumpExec()
 {
+	incrementClock(1);
 	pc = ADDR;
 }
 
@@ -314,6 +344,7 @@ void VirtualMachine::jumpExec()
  */
 void VirtualMachine::jumplExec()
 {
+	incrementClock(1);
 	pc = LESS ? ADDR : pc;
 }
 
@@ -324,6 +355,7 @@ void VirtualMachine::jumplExec()
  */
 void VirtualMachine::jumpeExec()
 {
+	incrementClock(1);
 	pc = EQUAL ? ADDR : pc;
 }
 
@@ -334,6 +366,7 @@ void VirtualMachine::jumpeExec()
  */
 void VirtualMachine::jumpgExec()
 {
+	incrementClock(1);
 	pc = GREATER ? ADDR : pc;
 }
 
@@ -376,7 +409,7 @@ void VirtualMachine::returnExec()
  */
 void VirtualMachine::readExec()
 {
-	incrementClock(28)
+	incrementClock(28);
 }
 
 /**

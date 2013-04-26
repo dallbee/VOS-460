@@ -51,8 +51,17 @@ private:
 
 	//Register masking and misc hardware udpates
 	void setCarry();
+	void setGreater();
+	void setEqual();
+	void setLess();
 	void writeStatus();
 	void incrementClock(int cycles);
+
+	int getCarry();
+	int getGreater();
+	int getEqual();
+	int getLess();
+
 
 	//instructions
 	void loadExec();
