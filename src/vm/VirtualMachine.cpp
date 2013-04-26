@@ -81,10 +81,10 @@ using namespace std;
 
 
 /**
-* Determines to set carry in status register or not
-*
-* @return void
-*/
+ * Determines to set carry in status register or not
+ *
+ * @return void
+ */
 void VirtualMachine::setCarry(){
 
 	//more readable if preferred: or just delete if statement
@@ -98,83 +98,84 @@ void VirtualMachine::setCarry(){
 }
 
 /**
-* Sets 'greater than' bit in status register
-* while clearing equal and less than
-*
-* @return void
-*/
+ * Sets 'greater than' bit in status register
+ * while clearing equal and less than
+ *
+ * @return void
+ */
 void VirtualMachine::setGreater(){
 	sr = (sr & 0xFFF3) | 2;
 }
 
 /**
-* Sets 'equal to' bit in status register
-* while clearing less and greater than
-*
-* @return void
-*/
+ * Sets 'equal to' bit in status register
+ * while clearing less and greater than
+ *
+ * @return void
+ */
 void VirtualMachine::setEqual(){
 	sr = (sr & 0xFFF5) | 4;
 }
 
 /**
-* Sets 'less than' bit in status register
-* while clearing equal and greater than
-*
-* @return void
-*/
+ * Sets 'less than' bit in status register
+ * while clearing equal and greater than
+ *
+ * @return void
+ */
 void VirtualMachine::setLess(){
 	sr = (sr & 0xFFF9) | 8;
 }
 
 /**
-* Checks for 'Carry' bit in status register
-*
-* @return 1 or 0. based on bit status
-*/
+ * Checks for 'Carry' bit in status register
+ *
+ * @return 1 or 0. based on bit status
+ */
 int VirtualMachine::getCarry(){
-	return (sr & 1) ? -1 : 0;
+	return (sr & 1) ? 1 : 0;
 }
 
 /**
-* Checks for 'Greater than' bit in status register
-*
-* @return 1 or 0. based on bit status
-*/
+ * Checks for 'Greater than' bit in status register
+ *
+ * @return 1 or 0. based on bit status
+ */
 int VirtualMachine::getGreater(){
-	return (sr & 2) ? -1 : 0;
+	return (sr & 2) ? 1 : 0;
 }
 
 /**
-* Checks for 'Equal to' bit in status register
-*
-* @return 1 or 0. based on bit status
-*/
+ * Checks for 'Equal to' bit in status register
+ *
+ * @return 1 or 0. based on bit status
+ */
 int VirtualMachine::getEqual(){
-	return (sr & 4) ? -1 : 0;
+	return (sr & 4) ? 1 : 0;
 }
 
 /**
-* Checks for 'Less than' bit in status register
-*
-* @return 1 or 0. based on bit status
-*/
+ * Checks for 'Less than' bit in status register
+ *
+ * @return 1 or 0. based on bit status
+ */
 int VirtualMachine::getLess(){
-	return (sr & 8) ? -1 : 0;
+	return (sr & 8) ? 1 : 0;
 }
 
 /**
-* Increments the clock the input number of cycles
-*
-* @param cycles The number by which clock in incremented.
-* @return void
-*/
+ * Increments the clock the input number of cycles
+ *
+ * @param cycles The number by which clock in incremented.
+ * @return void
+ */
 void VirtualMachine::incrementClock(unsigned cycles){
 	clock += cycles;
 }
 
 /**
- * [VirtualMachine::loadExec description]
+ * Loads constant if immediate (I) is high
+ * or loads from memory based on address if I is low
  *
  * @return void
  */
@@ -185,7 +186,7 @@ void VirtualMachine::loadExec()
 }
 
 /**
- * [VirtualMachine::loadExec description]
+ * Stores the register into the specified memory address
  *
  * @return void
  */
@@ -196,7 +197,8 @@ void VirtualMachine::storeExec()
 }
 
 /**
- * [VirtualMachine::loadExec description]
+ * Adds constant if immediate (I) is high
+ * or adds value register if I is low
  *
  * @return void
  */
@@ -208,7 +210,9 @@ void VirtualMachine::addExec()
 }
 
 /**
- * [VirtualMachine::loadExec description]
+ * Adds constant if immediate (I) is high
+ * or add register's value if I is low
+ * also adds 1 if the carry bit is high.
  *
  * @return void
  */
@@ -220,7 +224,8 @@ void VirtualMachine::addcExec()
 }
 
 /**
- * [VirtualMachine::loadExec description]
+ * Subtracts constant if immediate (I) is high
+ * or subtracts register's value if I is low
  *
  * @return void
  */
@@ -231,8 +236,11 @@ void VirtualMachine::subExec()
 	setCarry();
 }
 
+
 /**
- * [VirtualMachine::loadExec description]
+ * Subtracts constant if immediate (I) is high
+ * or subtracts register's value if I is low
+ * also subtracts 1 if the carry bit is high.
  *
  * @return void
  */
@@ -244,7 +252,8 @@ void VirtualMachine::subcExec()
 }
 
 /**
- * [VirtualMachine::loadExec description]
+ * Bitwise AND's constant if immediate (I) is high
+ * or AND's register's value if I is low
  *
  * @return void
  */
@@ -255,7 +264,8 @@ void VirtualMachine::andExec()
 }
 
 /**
- * [VirtualMachine::loadExec description]
+ * Bitwise XOR's constant if immediate (I) is high
+ * or XOR's register's value if I is low
  *
  * @return void
  */
@@ -266,7 +276,7 @@ void VirtualMachine::xorExec()
 }
 
 /**
- * [VirtualMachine::loadExec description]
+ * Creates Compliment (opposite bits) of reg[RD]
  *
  * @return void
  */
@@ -277,7 +287,7 @@ void VirtualMachine::complExec()
 }
 
 /**
- * [VirtualMachine::loadExec description]
+ * Shifts bits left by 1
  *
  * @return void
  */
@@ -289,7 +299,7 @@ void VirtualMachine::shlExec()
 }
 
 /**
- * [VirtualMachine::loadExec description]
+ * Arithmetically shifts bits left by 1
  *
  * @return void
  */
@@ -300,7 +310,7 @@ void VirtualMachine::shlaExec()
 }
 
 /**
- * [VirtualMachine::loadExec description]
+ * Shifts bits right by 1
  *
  * @return void
  */
@@ -308,11 +318,13 @@ void VirtualMachine::shrExec()
 {
 	incrementClock(1);
 	reg[RD] = reg[RD] >> 1;
-	setCarry();
+	setCarry(); //I dont get why we would set carry on a right shift? -Taylor
 }
 
 /**
- * [VirtualMachine::loadExec description]
+ * Arithmetically shifts bits left by 1
+ * which means it must check the Most Significant Bit (MSB) and
+ * make sure the next MSB is the same
  *
  * @return void
  */
@@ -320,17 +332,23 @@ void VirtualMachine::shraExec()
 {
 	incrementClock(1);
 
+	//I may want to clean this up because I could just 'OR' it with an 'AND' of reg[RD]'s 15th bit.
+	//But I'm not sure that I cleaner yet.
+
 	//Needs to dublicate the MSB as it shifts
 	if (reg[RD] & 0x8000){
 		reg[RD] = (reg[RD] >> 1) | 0x8000;
 	} else{
 		reg[RD] = (reg[RD] >> 1) & 0x7FFF;
 	}
-	setCarry();
+	setCarry(); //I dont get why we would set carry on a right shift? -Taylor
 }
 
 /**
- * [VirtualMachine::loadExec description]
+ * Compares constant if immediate (I) is high
+ * or Compares register's value if I is low
+ * Then it sets the appropriate statusRegister (sr) bitmask
+ *
  *
  * @return void
  */
@@ -338,19 +356,19 @@ void VirtualMachine::comprExec()
 {
 	incrementClock(1);
 	int constOrReg = I ? CONST : reg[RS];
-	//(reg[RD] < constOrReg) ? setLess() : ((reg[RD] < constOrReg) ? setEqual() : setGreater());
+	(reg[RD] < constOrReg) ? setLess() : ((reg[RD] < constOrReg) ? setEqual() : setGreater());
 
-	if (reg[RD] < constOrReg){
-		setLess();
-	} else if (reg[RD] == constOrReg){
-		setEqual();
-	} else{
-		setGreater();
-	}
+	// if (reg[RD] < constOrReg){
+	// 	setLess();
+	// } else if (reg[RD] == constOrReg){
+	// 	setEqual();
+	// } else{
+	// 	setGreater();
+	// }
 }
 
 /**
- * [VirtualMachine::loadExec description]
+ * Sets the register equal to the statusRegister(sr)
  *
  * @return void
  */
@@ -361,7 +379,7 @@ void VirtualMachine::getstatExec()
 }
 
 /**
- * [VirtualMachine::loadExec description]
+ * Sets the statusRegister(sr) equal to the register
  *
  * @return void
  */
@@ -372,7 +390,7 @@ void VirtualMachine::putstatExec()
 }
 
 /**
- * [VirtualMachine::loadExec description]
+ * Sets the program counter to the specified address
  *
  * @return void
  */
@@ -383,7 +401,8 @@ void VirtualMachine::jumpExec()
 }
 
 /**
- * [VirtualMachine::loadExec description]
+ * If the 'Less than' bit is high in the statusRegister(sr)
+ * Sets the program counter to the specified address
  *
  * @return void
  */
@@ -394,7 +413,8 @@ void VirtualMachine::jumplExec()
 }
 
 /**
- * [VirtualMachine::loadExec description]
+ * If the 'Equal to' bit is high in the statusRegister(sr)
+ * Sets the program counter to the specified address
  *
  * @return void
  */
@@ -404,8 +424,10 @@ void VirtualMachine::jumpeExec()
 	pc = getEqual() ? ADDR : pc;
 }
 
+
 /**
- * [VirtualMachine::loadExec description]
+ * If the 'Greater than' bit is high in the statusRegister(sr)
+ * Sets the program counter to the specified address
  *
  * @return void
  */
