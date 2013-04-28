@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include "vm/VirtualMachine.h"
-#include "sys/os.h"
+#include "sys/OS.h"
 #include "sys/assembler/Assembler.h"
 #include <stdio.h>
 using namespace std;
