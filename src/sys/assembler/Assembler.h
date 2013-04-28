@@ -15,7 +15,7 @@ public:
 	void build(const string &sourcePath);
 private:
 	string line;
-	unsigned lineNumber;
+	int lineNumber;
 	map<string, int> opCodes;
 	set<string> immediates;
 	set<string> rdSet;
@@ -24,12 +24,12 @@ private:
 		string text;
 		int arg0;
 		int arg1;
-		unsigned rd;
-		unsigned i;
-		unsigned rs;
+		int rd;
+		int i;
+		int rs;
 		unsigned value;
 	};
-	unsigned format(Instruction &op);
+	int format(Instruction &op);
 	static Instruction parse(const string &line);
 	static string parseError(int lineNumber, string msg, string line);
 };

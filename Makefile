@@ -1,5 +1,5 @@
 CC      = g++
-CFLAGS  = -g -Wall -O3
+CFLAGS  = -g -O3 -m64 -Wall -Wextra -Wshadow -Wstrict-aliasing -Wstrict-overflow=5 -Weffc++ -Werror -pedantic -ansi
 TARGETDIR = bin
 SRCDIR = src
 

@@ -21,34 +21,39 @@ public:
 	void machine_dump();
 
 private:
-	static const unsigned regSize = 4;
-	static const unsigned memSize = 256;
-	vector<void (VirtualMachine::*)()> instructions;
+	static const int regSize = 4;
+	static const int memSize = 256;
 
-	int reg[regSize];
-	int mem[memSize];
+	typedef void(VirtualMachine::*FunctionPointer)();
 
-	unsigned OP;
-	unsigned RD;
-	unsigned I;
-	unsigned RS;
-	unsigned ADDR;
-	unsigned CARRY;
-	unsigned OVERFLOW;
-	// unsigned LESS;
-	// unsigned EQUAL;
-	// unsigned GREATER;
-	int CONST;
+	struct StatusRegister {
+		int op;
+		int rd;
+		int i;
+		int rs;
+		int addr;
+		int overflow;
+		int less;
+		int equal;
+		int greater;
+		int carry;
+		int constant;
+	} sr;
+
+	struct PCB {
+		int pc;
+		int sp;
+		int base;
+		int limit;
+		int ir;
+		int sr;
+	};
+
+	FunctionPointer instructions[32];
 
 	unsigned clock;
-
-	//PCB related
-	unsigned pc;
-	unsigned sp;
-	unsigned base;
-	unsigned limit;
-	unsigned ir;
-	unsigned sr;//bits 15 -> 6 unused last 5: oVerflow, Less, Equal, Greater, Carry
+	int reg[regSize];
+	int mem[memSize];
 
 	//Register masking and misc hardware udpates
 	void setCarry();
@@ -56,13 +61,11 @@ private:
 	void setEqual();
 	void setLess();
 	void writeStatus();
-	void incrementClock(unsigned cycles);
 
 	int getCarry();
 	int getGreater();
 	int getEqual();
 	int getLess();
-
 
 	//instructions
 	void loadExec();
@@ -91,5 +94,4 @@ private:
 	void writeExec();
 	void haltExec();
 	void noopExec();
-
 };

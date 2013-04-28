@@ -65,8 +65,8 @@ Assembler::Assembler(const string &opListPath)
  */
 void Assembler::build(const string &sourcePath)
 {
-	unsigned object = 0;
-	Instruction op = {"", 0};
+	int object = 0;
+	Instruction op = {"", 0, 0, 0, 0, 0, 0};
 	ifstream sourceFile(sourcePath.c_str());
 	ofstream programFile("test.o");
 
@@ -100,9 +100,9 @@ void Assembler::build(const string &sourcePath)
  * Takes in an instruction and formats the instruction into decimal object code
  *
  * @param op The instruction to format
- * @return unsigned
+ * @return int
  */
-unsigned Assembler::format(Instruction &op)
+int Assembler::format(Instruction &op)
 {
 	// Command does not contain RD argument
 	if (rdSet.find(op.text) == rdSet.end()) {
@@ -145,7 +145,7 @@ unsigned Assembler::format(Instruction &op)
  */
 Assembler::Instruction Assembler::parse(const string &line)
 {
-	Instruction op = {"", 0};
+	Instruction op = {};
 	int start = 0, end = 0;
 
 	// Get the size of the instruction without comments

@@ -4,7 +4,6 @@
 #include <string>
 #include <stdio.h>
 
-
 using namespace std;
 
 /**
@@ -12,10 +11,8 @@ using namespace std;
  *
  * @param
  */
- VirtualMachine::VirtualMachine ()
+ VirtualMachine::VirtualMachine() : clock(), sr()
  {
-//	int reg[regSize]={0};
-// 	int mem[memSize]={0};
  	/*
 
  	string opCode, flags;
@@ -36,7 +33,7 @@ using namespace std;
 		throw "Could not read data in from operation codes file";
 	}
 	*/
-	instructions.reserve(32);
+
 	instructions[0x00] = &VirtualMachine::loadExec;
 	instructions[0x01] = &VirtualMachine::storeExec;
 	instructions[0x02] = &VirtualMachine::addExec;
@@ -66,17 +63,14 @@ using namespace std;
 
 	for(; pc != memSize;) {
 		ir = mem[pc++];
-		CONST = ir & 0xFF;
-		ADDR = ir & 0x3F;
-		RS = (ir >>= 6) & 0x03;
-		I = (ir >>= 2) & 0x01;
-		RD = (ir >>= 1) & 0x03;
-		OP = (ir >>= 5);
-		(this->*instructions[OP])();
+		sr.constant = ir & 0xFF;
+		sr.addr = ir & 0x3F;
+		sr.rs = (ir >>= 6) & 0x03;
+		sr.i = (ir >>= 2) & 0x01;
+		sr.rd = (ir >>= 1) & 0x03;
+		sr.op = (ir >>= 5);
+		(this->*instructions[sr.op])();
 	}
-
-
-
  }
 
 
@@ -164,16 +158,6 @@ int VirtualMachine::getLess(){
 }
 
 /**
- * Increments the clock the input number of cycles
- *
- * @param cycles The number by which clock in incremented.
- * @return void
- */
-void VirtualMachine::incrementClock(unsigned cycles){
-	clock += cycles;
-}
-
-/**
  * Loads constant if immediate (I) is high
  * or loads from memory based on address if I is low
  *
@@ -181,7 +165,7 @@ void VirtualMachine::incrementClock(unsigned cycles){
  */
 void VirtualMachine::loadExec()
 {
-	incrementClock(1);
+	++clock;
 	reg[RD] = I ? CONST : mem[ADDR];
 }
 
@@ -192,7 +176,7 @@ void VirtualMachine::loadExec()
  */
 void VirtualMachine::storeExec()
 {
-	incrementClock(1);
+	++clock;
 	mem[ADDR] = reg[RD];
 }
 
@@ -204,7 +188,7 @@ void VirtualMachine::storeExec()
  */
 void VirtualMachine::addExec()
 {
-	incrementClock(1);
+	++clock;
 	reg[RD] += I ? CONST : reg[RS];
 	setCarry();
 }
@@ -218,7 +202,7 @@ void VirtualMachine::addExec()
  */
 void VirtualMachine::addcExec()
 {
-	incrementClock(1);
+	++clock;
 	reg[RD] += I ? (CONST + getCarry()) : (reg[RS] + getCarry());
 	setCarry();
 }
@@ -231,7 +215,7 @@ void VirtualMachine::addcExec()
  */
 void VirtualMachine::subExec()
 {
-	incrementClock(1);
+	++clock;
 	reg[RD] -= I ? CONST : reg[RS];
 	setCarry();
 }
@@ -246,7 +230,7 @@ void VirtualMachine::subExec()
  */
 void VirtualMachine::subcExec()
 {
-	incrementClock(1);
+	++clock;
 	reg[RD] -= I ? (CONST - getCarry()) : (reg[RS] - getCarry());
 	setCarry();
 }
@@ -259,7 +243,7 @@ void VirtualMachine::subcExec()
  */
 void VirtualMachine::andExec()
 {
-	incrementClock(1);
+	++clock;
 	reg[RD] &= I ? CONST : reg[RS];
 }
 
@@ -271,7 +255,7 @@ void VirtualMachine::andExec()
  */
 void VirtualMachine::xorExec()
 {
-	incrementClock(1);
+	++clock;
 	reg[RD] ^= I ? CONST : reg[RS];
 }
 
@@ -282,7 +266,7 @@ void VirtualMachine::xorExec()
  */
 void VirtualMachine::complExec()
 {
-	incrementClock(1);
+	++clock;
 	reg[RD] = ~reg[RD];
 }
 
@@ -293,7 +277,7 @@ void VirtualMachine::complExec()
  */
 void VirtualMachine::shlExec()
 {
-	incrementClock(1);
+	++clock;
 	reg[RD] = reg[RD] << 1;
 	setCarry();
 }
@@ -305,9 +289,10 @@ void VirtualMachine::shlExec()
  */
 void VirtualMachine::shlaExec()
 {
-	incrementClock(1);
+	++clock;
 	shlExec();
 }
+++clock;
 
 /**
  * Shifts bits right by 1
@@ -316,7 +301,7 @@ void VirtualMachine::shlaExec()
  */
 void VirtualMachine::shrExec()
 {
-	incrementClock(1);
+	++clock;
 	reg[RD] = reg[RD] >> 1;
 	setCarry(); //I dont get why we would set carry on a right shift? -Taylor
 }
@@ -330,7 +315,7 @@ void VirtualMachine::shrExec()
  */
 void VirtualMachine::shraExec()
 {
-	incrementClock(1);
+	++clock;
 
 	//I may want to clean this up because I could just 'OR' it with an 'AND' of reg[RD]'s 15th bit.
 	//But I'm not sure that I cleaner yet.
@@ -354,7 +339,7 @@ void VirtualMachine::shraExec()
  */
 void VirtualMachine::comprExec()
 {
-	incrementClock(1);
+	++clock;
 	int constOrReg = I ? CONST : reg[RS];
 	(reg[RD] < constOrReg) ? setLess() : ((reg[RD] < constOrReg) ? setEqual() : setGreater());
 
@@ -374,7 +359,7 @@ void VirtualMachine::comprExec()
  */
 void VirtualMachine::getstatExec()
 {
-	incrementClock(1);
+	++clock;
 	reg[RD] = sr;
 }
 
@@ -385,7 +370,7 @@ void VirtualMachine::getstatExec()
  */
 void VirtualMachine::putstatExec()
 {
-	incrementClock(1);
+	++clock;
 	sr = reg[RD];
 }
 
@@ -396,7 +381,7 @@ void VirtualMachine::putstatExec()
  */
 void VirtualMachine::jumpExec()
 {
-	incrementClock(1);
+	++clock;
 	pc = ADDR;
 }
 
@@ -408,7 +393,7 @@ void VirtualMachine::jumpExec()
  */
 void VirtualMachine::jumplExec()
 {
-	incrementClock(1);
+	++clock;
 	pc = getLess() ? ADDR : pc;
 }
 
@@ -420,7 +405,7 @@ void VirtualMachine::jumplExec()
  */
 void VirtualMachine::jumpeExec()
 {
-	incrementClock(1);
+	++clock;
 	pc = getEqual() ? ADDR : pc;
 }
 
@@ -433,7 +418,7 @@ void VirtualMachine::jumpeExec()
  */
 void VirtualMachine::jumpgExec()
 {
-	incrementClock(1);
+	++clock;
 	pc = getGreater() ? ADDR : pc;
 }
 
@@ -444,7 +429,7 @@ void VirtualMachine::jumpgExec()
  */
 void VirtualMachine::callExec()
 {
-	incrementClock(4);
+	clock += 4;
 	/*
 call and return instructions need special attention. As part of the execution
 of the call instruction the status of the VM must be pushed on to the stack.
@@ -466,7 +451,7 @@ is full.
  */
 void VirtualMachine::returnExec()
 {
-	incrementClock(4);
+	clock += 4;
 }
 
 /**
@@ -476,7 +461,7 @@ void VirtualMachine::returnExec()
  */
 void VirtualMachine::readExec()
 {
-	incrementClock(28);
+	clock += 28;
 }
 
 /**
@@ -486,7 +471,7 @@ void VirtualMachine::readExec()
  */
 void VirtualMachine::writeExec()
 {
-	incrementClock(28);
+	clock += 28;
 }
 
 /**
@@ -496,7 +481,7 @@ void VirtualMachine::writeExec()
  */
 void VirtualMachine::haltExec()
 {
-	incrementClock(1);
+	++clock;
 }
 
 /**
@@ -506,5 +491,5 @@ void VirtualMachine::haltExec()
  */
 void VirtualMachine::noopExec()
 {
-	incrementClock(1);
+	++clock;
 }
