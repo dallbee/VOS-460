@@ -2,8 +2,9 @@
 #define VIRTUAL_MACHINE_H
 #endif
 
-#include <map>
-#include <set>
+#include <string>
+#include <fstream>
+#include <stdio.h>
 #include <string>
 #include <vector>
 using namespace std;
@@ -12,13 +13,8 @@ class VirtualMachine {
 public:
 	VirtualMachine();
 
-	//useful debugging
-	void memory_dump();
-	void register_dump();
-	void print_pc();
-	void print_sp();
-	void print_clock();
-	void machine_dump();
+	//debugging
+	void machineDump();
 
 private:
 	static const unsigned regSize = 4;
@@ -28,36 +24,37 @@ private:
 	int reg[regSize];
 	int mem[memSize];
 
-	unsigned OP;
-	unsigned RD;
-	unsigned I;
-	unsigned RS;
-	unsigned ADDR;
-	unsigned CARRY;
-	unsigned OVERFLOW;
-	// unsigned LESS;
-	// unsigned EQUAL;
-	// unsigned GREATER;
-	int CONST;
+	unsigned OP;	//Operation
+	unsigned RD;	//Register-Destination
+	unsigned I;		//Immediate
+	unsigned RS;	//Register-Source
+	unsigned ADDR;	//Address
+	int CONST;		//Constant
 
 	unsigned clock;
 
-	//PCB related
-	unsigned pc;
-	unsigned sp;
+	string filename;
+
+	void pushStack(int pcbItem);
+	int  popStack();
+	unsigned programCounter;
+	unsigned stackPointer;
 	unsigned base;
 	unsigned limit;
-	unsigned ir;
-	unsigned sr;//bits 15 -> 6 unused last 5: oVerflow, Less, Equal, Greater, Carry
+	unsigned instructionReg;
+	unsigned statusReg;//bits 15 -> 6 unused last 5: oVerflow, Less, Equal, Greater, Carry
 
-	//Register masking and misc hardware udpates
+	//hardware udpates
+
+	void writeStatus();
+	void incrementClock(unsigned cycles);
+
+	//Status Register Masking
 	void setCarry();
 	void setGreater();
 	void setEqual();
 	void setLess();
-	void writeStatus();
-	void incrementClock(unsigned cycles);
-
+	void setOverflow();
 	int getCarry();
 	int getGreater();
 	int getEqual();
