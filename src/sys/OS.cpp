@@ -6,27 +6,27 @@
 #include "OS.h"
 
 OS::OS(){
-	program = "";
+	// program = "";
 }
+
 
 /**
  *
  *
  * @return void
  */
-void OS::launchProgram(string programFile){
-	program = programFile;
-	assemble();
-	execute();
-}
-
-/**
+//void OS::launchProgram(string programFile){
+	// program = programFile;
+	// assemble();
+	// execute();
+//}
+/*
  *
  *
  * @return void
  */
 void OS::assemble(){
-	ass.build(program);
+	// ass.build(program);
 }
 
 /**
@@ -35,7 +35,7 @@ void OS::assemble(){
  * @return void
  */
 void OS::execute(){
-	vm.
+	// vm.
 }
 
 /**

@@ -19,3 +19,4 @@ Assembler.o:
 
 clean:
 	rm -f $(TARGETDIR)/*
+

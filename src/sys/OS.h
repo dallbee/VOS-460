@@ -1,28 +1,29 @@
 #ifndef OS_H
 #define OS_H
-#endif
 
 #include <string>
-#include "Assember.h"
-#include "VirtualMachine.h"
+#include "assembler/Assembler.h"
+#include "../vm/VirtualMachine.h"
 using namespace std;
 
 class OS {
 public:
 	OS();
+	//string program;
 
-	void launchProgram(string program);
+	void launchProgram(string programFile);
+
 	//debugging
 	void vmDump();
 
 private:
 
-	string program;
-
-	Assembler ass;
-	VirtualMachine vm;
+	//Assembler ass ("assembler/opcodes.lst");
+	//VirtualMachine vm;
 
 	void loadFile();
 	void assemble();
 	void execute();
 };
+
+#endif

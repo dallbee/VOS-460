@@ -9,7 +9,7 @@
 
 #ifndef VIRTUAL_MACHINE_H
 #define VIRTUAL_MACHINE_H
-#endif
+
 
 #include <string>
 #include <fstream>
@@ -90,3 +90,5 @@ private:
 	void haltExec();
 	void noopExec();
 };
+
+#endif
