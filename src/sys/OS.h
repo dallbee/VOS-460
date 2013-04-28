@@ -9,7 +9,6 @@ using namespace std;
 class OS {
 public:
 	OS();
-	string program;
 
 	void launchProgram(string programFile);
 
@@ -18,6 +17,8 @@ public:
 
 private:
 
+	string program;
+	string programAss;
 
 	Assembler ass;
 	VirtualMachine vm;

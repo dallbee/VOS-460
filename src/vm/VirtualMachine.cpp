@@ -72,7 +72,42 @@ using namespace std;
  }
 
 /**
+ * Executes the given assembly code.
+ *
+ */
+ void VirtualMachine::execute(string programAss){
+	 	ifstream assFile(programAss.c_str());
+
+	 	if(!assFile){
+	 		throw "VirtualMachine: could not find assembly code file";
+	 	}
+
+	 	int assLine;
+	 	assFile >> assLine;
+	 	while(!assFile.eof()){
+	 		mem[limit++] = assLine;
+	 		assFile >> assLine;
+	 	}
+
+	 	while(pc != memSize){
+	 		// if(sp < (limit +6)){
+	 		// 	throw "VirtualMachine: Out of memory!";
+	 		// }
+
+	 		ir = mem[pc++];
+	 		OP = (ir >> 11) & 0x3F;
+	 		RD = (ir >> 9)  & 0x03;
+	 		I  = (ir >> 8)  & 0x01;
+	 		RS = (ir >> 6)  & 0x03;
+	 		CONST = ir & 0xFF;
+	 		ADDR  = ir & 0xFF;
+	 		instructions[OP] ?	instructions[OP] : throw "VirtualMachine: invalid OP";
+	 	}
+ }
+
+/**
  * Dumps the VirtualMachine's contents so they can be read
+ *
  */
  void VirtualMachine::machineDump() {
 	for(int i = 0; i < memSize; ++i) {

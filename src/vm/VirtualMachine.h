@@ -21,6 +21,7 @@ using namespace std;
 class VirtualMachine {
 public:
 	VirtualMachine();
+	void execute(string programAss);
 	void machineDump();
 
 private:

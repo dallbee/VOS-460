@@ -5,9 +5,8 @@
    	*/
 #include "OS.h"
 
-OS::OS(): program(), ass("assembler/opcodes.lst"), vm(){
-	program = "";
-	//ass("assembler/opcodes.lst");
+OS::OS(): program(), programAss(), ass("assembler/opcodes.lst"), vm(){
+
 }
 
 
@@ -27,7 +26,7 @@ void OS::launchProgram(string programFile){
  * @return void
  */
 void OS::assemble(){
-	// ass.build(program);
+	ass.build(program);
 }
 
 /**
@@ -36,7 +35,10 @@ void OS::assemble(){
  * @return void
  */
 void OS::execute(){
-	// vm.
+	programAss = "test.o";
+	vm.execute(programAss);
+
+
 }
 
 /**
@@ -45,5 +47,5 @@ void OS::execute(){
  * @return void
  */
 void OS::vmDump(){
-
+	vm.machineDump();
 }
