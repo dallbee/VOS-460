@@ -12,44 +12,37 @@ using namespace std;
 class VirtualMachine {
 public:
 	VirtualMachine();
-
-	//debugging
 	void machineDump();
 
 private:
-	static const unsigned regSize = 4;
-	static const unsigned memSize = 256;
-	vector<void (VirtualMachine::*)()> instructions;
-
+	static const int regSize = 4;
+	static const int memSize = 256;
 	int reg[regSize];
 	int mem[memSize];
-
-	unsigned OP;	//Operation
-	unsigned RD;	//Register-Destination
-	unsigned I;		//Immediate
-	unsigned RS;	//Register-Source
-	unsigned ADDR;	//Address
-	int CONST;		//Constant
-
 	unsigned clock;
+	string fileName;
 
-	string filename;
+	typedef void(VirtualMachine::*FunctionPointer)();
+	FunctionPointer instructions[32];
+
+	int OP;
+	int RD;
+	int I;
+	int RS;
+	int ADDR;
+	int CONST;
+
+	int pc;
+	int ir;
+	int sp;
+	int base;
+	int limit;
+	int sr;
 
 	void pushStack(int pcbItem);
-	int  popStack();
-	unsigned programCounter;
-	unsigned stackPointer;
-	unsigned base;
-	unsigned limit;
-	unsigned instructionReg;
-	unsigned statusReg;//bits 15 -> 6 unused last 5: oVerflow, Less, Equal, Greater, Carry
+	int popStack();
 
-	//hardware udpates
-
-	void writeStatus();
-	void incrementClock(unsigned cycles);
-
-	//Status Register Masking
+	// Status Register Masking
 	void setCarry();
 	void setGreater();
 	void setEqual();
@@ -59,9 +52,9 @@ private:
 	int getGreater();
 	int getEqual();
 	int getLess();
+	int getOverflow();
 
-
-	//instructions
+	// ALU instructions
 	void loadExec();
 	void storeExec();
 	void addExec();
@@ -88,5 +81,4 @@ private:
 	void writeExec();
 	void haltExec();
 	void noopExec();
-
 };

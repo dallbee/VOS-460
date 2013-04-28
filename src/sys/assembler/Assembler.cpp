@@ -21,7 +21,8 @@ using namespace std;
  *
  * @param opListPath The path to the opcode listing to be used for assembly.
  */
-Assembler::Assembler(const string &opListPath)
+Assembler::Assembler(const string &opListPath): line(), lineNumber(), opCodes(),
+	immediates(), rdSet(), loads()
 {
 	string opCode, flags;
 	ifstream opListFile(opListPath.c_str());
@@ -145,7 +146,7 @@ int Assembler::format(Instruction &op)
  */
 Assembler::Instruction Assembler::parse(const string &line)
 {
-	Instruction op = {};
+	Instruction op = {"", 0, 0, 0, 0, 0, 0};
 	int start = 0, end = 0;
 
 	// Get the size of the instruction without comments
