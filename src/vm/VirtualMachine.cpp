@@ -1,3 +1,14 @@
+/**
+ * Implementation of the VirtualMachine class
+ *
+ * @filename VirtualMachine.cpp
+ * @authors Dylan Allbee, Taylor Sanchez
+ * @version 0.8
+ * @date 22 April, 2013
+ */
+
+// NOTE: we still need to handle sign extension
+
 #include "VirtualMachine.h"
 #include <map>
 #include <set>
@@ -10,8 +21,6 @@ using namespace std;
 
 /**
  * Construct object and create registers and memory
- *
- * @param
  */
  VirtualMachine::VirtualMachine(): clock(), fileName(), OP(), RD(), I(), RS(),
  	ADDR(), CONST(), pc(), ir(), sp(), base(), limit(), sr()
@@ -61,8 +70,6 @@ using namespace std;
 
 /**
  * Dumps the VirtualMachine's contents so they can be read
- *
- * @return void
  */
  void VirtualMachine::machineDump() {
 	for(int i = 0; i < memSize; ++i) {
@@ -80,29 +87,24 @@ using namespace std;
  * Pushes the input data to the stack, and increments the sp
  *
  * @param pcbItem Process Control Block item
- * @return void
  */
-inline void VirtualMachine::pushStack(int pcbItem)
+inline void VirtualMachine::pushStack(short pcbItem)
 {
-	mem[sp] = pcbItem;
-	--sp;
+	mem[sp--] = pcbItem;
 }
 
 /**
  * Decrements the sp, then pops out the data from the stack
  *
- * @return int
+ * @return The top of the memory stack.
  */
-inline int VirtualMachine::popStack()
+inline short VirtualMachine::popStack()
 {
-	++sp;
-	return mem[sp];
+	return mem[++sp];
 }
 
 /**
  * Determines to set carry in status register or not
- *
- * @return void
  */
 inline void VirtualMachine::setCarry()
 {
@@ -112,8 +114,6 @@ inline void VirtualMachine::setCarry()
 /**
  * Sets 'greater than' bit in status register
  * while clearing equal and less than bits
- *
- * @return void
  */
 inline void VirtualMachine::setGreater()
 {
@@ -123,8 +123,6 @@ inline void VirtualMachine::setGreater()
 /**
  * Sets 'equal to' bit in status register
  * while clearing less and greater than bits
- *
- * @return void
  */
 inline void VirtualMachine::setEqual()
 {
@@ -134,8 +132,6 @@ inline void VirtualMachine::setEqual()
 /**
  * Sets 'less than' bit in status register
  * while clearing equal and greater than bits
- *
- * @return void
  */
 inline void VirtualMachine::setLess()
 {
@@ -144,8 +140,6 @@ inline void VirtualMachine::setLess()
 
 /**
  * Sets the 'overflow' bit in status register
- *
- * @return void
  */
 inline void VirtualMachine::setOverflow()
 {
@@ -155,48 +149,56 @@ inline void VirtualMachine::setOverflow()
 /**
  * Checks for 'Carry' bit in status register
  *
- * @return 1 or 0. based on bit status
+ * @return The carry bit value
  */
 inline int VirtualMachine::getCarry()
 {
-	return (sr & 1) ? 1 : 0;
+	return (sr & 1) != 0;
 }
 
 /**
  * Checks for 'Greater than' bit in status register
  *
- * @return 1 or 0. based on bit status
+ * @return The greater than bit value
  */
 inline int VirtualMachine::getGreater()
 {
-	return (sr & 2) ? 1 : 0;
+	return (sr & 2) != 0;
 }
 
 /**
  * Checks for 'Equal to' bit in status register
  *
- * @return 1 or 0. based on bit status
+ * @return The equal bit value
  */
 inline int VirtualMachine::getEqual()
 {
-	return (sr & 4) ? 1 : 0;
+	return (sr & 4) != 0;
 }
 
 /**
  * Checks for 'Less than' bit in status register
  *
- * @return 1 or 0. based on bit status
+ * @return The less than bit value
  */
 inline int VirtualMachine::getLess()
 {
-	return (sr & 8) ? 1 : 0;
+	return (sr & 8) != 0;
+}
+
+/**
+ * Checks for 'Less than' bit in status register
+ *
+ * @return The overflow bit value
+ */
+inline int VirtualMachine::getOverflow()
+{
+	return (sr & 16) != 0;
 }
 
 /**
  * Loads constant if immediate (I) is high
  * or loads from memory based on address if I is low
- *
- * @return void
  */
 void VirtualMachine::loadExec()
 {
@@ -206,8 +208,6 @@ void VirtualMachine::loadExec()
 
 /**
  * Stores the register into the specified memory address
- *
- * @return void
  */
 void VirtualMachine::storeExec()
 {
@@ -218,8 +218,6 @@ void VirtualMachine::storeExec()
 /**
  * Adds constant if immediate (I) is high
  * or adds value register if I is low
- *
- * @return void
  */
 void VirtualMachine::addExec()
 {
@@ -232,8 +230,6 @@ void VirtualMachine::addExec()
  * Adds constant if immediate (I) is high
  * or add register's value if I is low
  * also adds 1 if the carry bit is high.
- *
- * @return void
  */
 void VirtualMachine::addcExec()
 {
@@ -245,8 +241,6 @@ void VirtualMachine::addcExec()
 /**
  * Subtracts constant if immediate (I) is high
  * or subtracts register's value if I is low
- *
- * @return void
  */
 void VirtualMachine::subExec()
 {
@@ -260,12 +254,9 @@ void VirtualMachine::subExec()
  * Subtracts constant if immediate (I) is high
  * or subtracts register's value if I is low
  * also subtracts 1 if the carry bit is high.
- *
- * @return void
  */
 void VirtualMachine::subcExec()
 {
-
 	reg[RD] -= I ? (CONST - getCarry()) : (reg[RS] - getCarry());
 	setCarry();
 	++clock;
@@ -274,12 +265,9 @@ void VirtualMachine::subcExec()
 /**
  * Bitwise AND's constant if immediate (I) is high
  * or AND's register's value if I is low
- *
- * @return void
  */
 void VirtualMachine::andExec()
 {
-
 	reg[RD] &= I ? CONST : reg[RS];
 	++clock;
 }
@@ -287,62 +275,47 @@ void VirtualMachine::andExec()
 /**
  * Bitwise XOR's constant if immediate (I) is high
  * or XOR's register's value if I is low
- *
- * @return void
  */
 void VirtualMachine::xorExec()
 {
-
 	reg[RD] ^= I ? CONST : reg[RS];
 	++clock;
 }
 
 /**
  * Creates Compliment (opposite bits) of reg[RD]
- *
- * @return void
  */
 void VirtualMachine::complExec()
 {
-
 	reg[RD] = ~reg[RD];
 	++clock;
 }
 
 /**
  * Shifts bits left by 1
- *
- * @return void
  */
-void VirtualMachine::shlExec()
+inline void VirtualMachine::shlExec()
 {
-
-	reg[RD] = reg[RD] << 1;
+	reg[RD] <<= 1;
 	setCarry();
 	++clock;
 }
 
 /**
  * Arithmetically shifts bits left by 1
- *
- * @return void
  */
 void VirtualMachine::shlaExec()
 {
 	shlExec();
-	++clock;
 }
 
 /**
  * Shifts bits right by 1
- *
- * @return void
  */
 void VirtualMachine::shrExec()
 {
-
-	reg[RD] = reg[RD] >> 1;
-	setCarry(); //I dont get why we would set carry on a right shift? -Taylor
+	reg[RD] = (unsigned)reg[RD] >> 1;
+	setCarry();
 	++clock;
 }
 
@@ -350,23 +323,11 @@ void VirtualMachine::shrExec()
  * Arithmetically shifts bits left by 1
  * which means it must check the Most Significant Bit (MSB) and
  * make sure the next MSB is the same
- *
- * @return void
  */
 void VirtualMachine::shraExec()
 {
-
-
-	//I may want to clean this up because I could just 'OR' it with an 'AND' of reg[RD]'s 15th bit.
-	//But I'm not sure that I cleaner yet.
-	reg[RD] = (reg[RD] & 0x8000) ? (reg[RD] >> 1) | 0x8000 : (reg[RD] >> 1) & 0x7FFF;
-	//Needs to dublicate the MSB as it shifts
-	// if (reg[RD] & 0x8000) {
-	// 	reg[RD] = (reg[RD] >> 1) | 0x8000;
-	// } else{
-	// 	reg[RD] = (reg[RD] >> 1) & 0x7FFF;
-	// }
-	setCarry(); //I dont get why we would set carry on a right shift? -Taylor
+	reg[RD] >>= 1;
+	setCarry();
 	++clock;
 }
 
@@ -374,58 +335,45 @@ void VirtualMachine::shraExec()
  * Compares constant if immediate (I) is high
  * or Compares register's value if I is low
  * Then it sets the appropriate sr bitmask
- *
- *
- * @return void
  */
 void VirtualMachine::comprExec()
 {
+	int compareValue = I ? CONST : reg[RS];
 
-	int constOrReg = I ? CONST : reg[RS];
-	(reg[RD] < constOrReg) ? setLess() : ((reg[RD] < constOrReg) ? setEqual() : setGreater());
+	if (reg[RD] < compareValue) {
+		setLess();
+	} else if (reg[RD] == compareValue) {
+		setEqual();
+	} else {
+		setGreater();
+	}
 
-	// if (reg[RD] < constOrReg) {
-	// 	setLess();
-	// } else if (reg[RD] == constOrReg) {
-	// 	setEqual();
-	// } else{
-	// 	setGreater();
-	// }
 	++clock;
 }
 
 /**
  * Sets the register equal to the sr
- *
- * @return void
  */
 void VirtualMachine::getstatExec()
 {
-
 	reg[RD] = sr;
 	++clock;
 }
 
 /**
  * Sets the sr equal to the register
- *
- * @return void
  */
 void VirtualMachine::putstatExec()
 {
-
 	sr = reg[RD];
 	++clock;
 }
 
 /**
  * Sets the program counter to the specified address
- *
- * @return void
  */
 void VirtualMachine::jumpExec()
 {
-
 	pc = ADDR;
 	++clock;
 }
@@ -433,12 +381,9 @@ void VirtualMachine::jumpExec()
 /**
  * If the 'Less than' bit is high in the sr
  * Sets the program counter to the specified address
- *
- * @return void
  */
 void VirtualMachine::jumplExec()
 {
-
 	pc = getLess() ? ADDR : pc;
 	++clock;
 }
@@ -446,12 +391,9 @@ void VirtualMachine::jumplExec()
 /**
  * If the 'Equal to' bit is high in the sr
  * Sets the program counter to the specified address
- *
- * @return void
  */
 void VirtualMachine::jumpeExec()
 {
-
 	pc = getEqual() ? ADDR : pc;
 	++clock;
 }
@@ -460,20 +402,15 @@ void VirtualMachine::jumpeExec()
 /**
  * If the 'Greater than' bit is high in the sr
  * Sets the program counter to the specified address
- *
- * @return void
  */
 void VirtualMachine::jumpgExec()
 {
-
 	pc = getGreater() ? ADDR : pc;
 	++clock;
 }
 
 /**
  * Jumps to a new address, and stores the current Process Control Block
- *
- * @return void
  */
 void VirtualMachine::callExec()
 {
@@ -489,8 +426,6 @@ void VirtualMachine::callExec()
 
 /**
  * Returns to the previous state of the Process Control Block
- *
- * @return void
  */
 void VirtualMachine::returnExec()
 {
@@ -505,8 +440,6 @@ void VirtualMachine::returnExec()
 
 /**
  * Reads in data from a ".in" file to a register
- *
- * @return void
  */
 void VirtualMachine::readExec()
 {
@@ -519,8 +452,6 @@ void VirtualMachine::readExec()
 
 /**
  * Saves/Writes out a register's data to a ".out" file
- *
- * @return void
  */
 void VirtualMachine::writeExec()
 {
@@ -533,8 +464,6 @@ void VirtualMachine::writeExec()
 
 /**
  * Halts the VirtualMachine
- *
- * @return void
  */
 void VirtualMachine::haltExec()
 {
@@ -543,8 +472,6 @@ void VirtualMachine::haltExec()
 
 /**
  * Only increments the CPU clock
- *
- * @return void
  */
 void VirtualMachine::noopExec()
 {

@@ -15,7 +15,7 @@ public:
 	void build(const string &sourcePath);
 private:
 	string line;
-	int lineNumber;
+	unsigned lineNumber;
 	map<string, int> opCodes;
 	set<string> immediates;
 	set<string> rdSet;

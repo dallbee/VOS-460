@@ -2,8 +2,8 @@
  * Implementation of the Assembler class
  *
  * @authors Dylan Allbee, Taylor Sanchez
- * @version 1.2
- * @date 22 April, 2013
+ * @version 1.3
+ * @date 27 April, 2013
  */
 
 #include "Assembler.h"
@@ -62,7 +62,6 @@ Assembler::Assembler(const string &opListPath): line(), lineNumber(), opCodes(),
  * Load source file line by line and assemble opcode field of object code.
  *
  * @param sourcePath The path to the program that will be assembled
- * @return void
  */
 void Assembler::build(const string &sourcePath)
 {
@@ -101,7 +100,7 @@ void Assembler::build(const string &sourcePath)
  * Takes in an instruction and formats the instruction into decimal object code
  *
  * @param op The instruction to format
- * @return int
+ * @return The opcode as an integer
  */
 int Assembler::format(Instruction &op)
 {
@@ -142,7 +141,7 @@ int Assembler::format(Instruction &op)
  * Splits an assembly instruction into its command and parameters
  *
  * @param line The source code instruction to be interpereted.
- * @return Assembler::instruction
+ * @return The opcode as an Assembler::instruction
  */
 Assembler::Instruction Assembler::parse(const string &line)
 {
@@ -190,7 +189,7 @@ Assembler::Instruction Assembler::parse(const string &line)
  * @param lineNumber The line of which the error occurred
  * @param msg The error message to display
  * @param line The contents of the line in question
- * @return string
+ * @return The error message
  */
 string Assembler::parseError(int lineNumber, string msg, string line)
 {

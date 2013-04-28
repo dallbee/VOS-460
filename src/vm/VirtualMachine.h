@@ -17,8 +17,8 @@ public:
 private:
 	static const int regSize = 4;
 	static const int memSize = 256;
-	int reg[regSize];
-	int mem[memSize];
+	short reg[regSize];
+	short mem[memSize];
 	unsigned clock;
 	string fileName;
 
@@ -29,18 +29,18 @@ private:
 	int RD;
 	int I;
 	int RS;
-	int ADDR;
-	int CONST;
+	unsigned char ADDR;
+	signed char CONST;
 
-	int pc;
-	int ir;
-	int sp;
-	int base;
-	int limit;
-	int sr;
+	short pc;
+	short ir;
+	short sp;
+	short base;
+	short limit;
+	short sr;
 
-	void pushStack(int pcbItem);
-	int popStack();
+	void pushStack(short pcbItem);
+	short popStack();
 
 	// Status Register Masking
 	void setCarry();
