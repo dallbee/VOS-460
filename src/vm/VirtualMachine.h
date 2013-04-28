@@ -1,3 +1,12 @@
+/**
+ * Definition of the VirtualMachine class
+ *
+ * @authors Dylan Allbee, Taylor Sanchez
+ * @version 1.0
+ * @date 28 April, 2013
+ * @file VirtualMachine.h
+ */
+
 #ifndef VIRTUAL_MACHINE_H
 #define VIRTUAL_MACHINE_H
 #endif
@@ -23,7 +32,7 @@ private:
 	string fileName;
 
 	typedef void(VirtualMachine::*FunctionPointer)();
-	FunctionPointer instructions[32];
+	FunctionPointer instructions[26];
 
 	int OP;
 	int RD;
@@ -65,7 +74,6 @@ private:
 	void xorExec();
 	void complExec();
 	void shlExec();
-	void shlaExec();
 	void shrExec();
 	void shraExec();
 	void comprExec();

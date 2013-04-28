@@ -1,13 +1,19 @@
 /**
  * Implementation of the VirtualMachine class
  *
- * @filename VirtualMachine.cpp
  * @authors Dylan Allbee, Taylor Sanchez
  * @version 0.8
- * @date 22 April, 2013
+ * @date 28 April, 2013
+ * @file VirtualMachine.cpp
  */
 
-// NOTE: we still need to handle sign extension
+// TODO:
+// 	Exceptions
+// 	I'm not happy with the setBit functions, but I can't think of a better solution either.
+// 	PCB should be moved to a struct. This doesn't necessarily have to be done for phase 1, but certainly for phase 2.
+//  Halting is a bit hackish. We may want to come up with something cleaner.
+//
+//  I'm fairly certain everything is working at this point but I've left comments where I wasn't sure
 
 #include "VirtualMachine.h"
 #include <map>
@@ -15,8 +21,6 @@
 #include <string>
 #include <fstream>
 #include <stdio.h>
-
-
 using namespace std;
 
 /**
@@ -25,8 +29,6 @@ using namespace std;
  VirtualMachine::VirtualMachine(): clock(), fileName(), OP(), RD(), I(), RS(),
  	ADDR(), CONST(), pc(), ir(), sp(), base(), limit(), sr()
  {
- 	fileName = "";
-
 	instructions[0x00] = &VirtualMachine::loadExec;
 	instructions[0x01] = &VirtualMachine::storeExec;
 	instructions[0x02] = &VirtualMachine::addExec;
@@ -37,7 +39,7 @@ using namespace std;
 	instructions[0x07] = &VirtualMachine::xorExec;
 	instructions[0x08] = &VirtualMachine::complExec;
 	instructions[0x09] = &VirtualMachine::shlExec;
-	instructions[0x0A] = &VirtualMachine::shlaExec;
+	instructions[0x0A] = &VirtualMachine::shlExec;
 	instructions[0x0B] = &VirtualMachine::shrExec;
 	instructions[0x0C] = &VirtualMachine::shraExec;
 	instructions[0x0D] = &VirtualMachine::comprExec;
@@ -54,7 +56,7 @@ using namespace std;
 	instructions[0x18] = &VirtualMachine::haltExec;
 	instructions[0x19] = &VirtualMachine::noopExec;
 
-	for(; pc != memSize;) {
+	for(; pc != memSize and OP != 0x18;) {
 		ir = mem[pc++];
 		CONST = ir & 0xFF;
 		ADDR = ir & 0x3F;
@@ -62,6 +64,7 @@ using namespace std;
 		I =  (ir >>= 2) & 0x01;
 		RD = (ir >>= 1) & 0x03;
 		OP = (ir >>= 5);
+		// NEED OUT OF RANGE EXCEPTION
 		(this->*instructions[OP])();
 	}
 
@@ -90,6 +93,7 @@ using namespace std;
  */
 inline void VirtualMachine::pushStack(short pcbItem)
 {
+	// NEED OVERFLOW EXCEPTION
 	mem[sp--] = pcbItem;
 }
 
@@ -100,6 +104,7 @@ inline void VirtualMachine::pushStack(short pcbItem)
  */
 inline short VirtualMachine::popStack()
 {
+	// NEED OVERFLOW EXCEPTION
 	return mem[++sp];
 }
 
@@ -233,6 +238,8 @@ void VirtualMachine::addExec()
  */
 void VirtualMachine::addcExec()
 {
+	// I'm not sure that this will work with my signed char trick for
+	// sign extension, Need to test.
 	reg[RD] += I ? (CONST + getCarry()) : (reg[RS] + getCarry());
 	setCarry();
 	++clock;
@@ -257,6 +264,8 @@ void VirtualMachine::subExec()
  */
 void VirtualMachine::subcExec()
 {
+	// I'm not sure that this will work with my signed char trick for
+	// sign extension, Need to test.
 	reg[RD] -= I ? (CONST - getCarry()) : (reg[RS] - getCarry());
 	setCarry();
 	++clock;
@@ -294,19 +303,11 @@ void VirtualMachine::complExec()
 /**
  * Shifts bits left by 1
  */
-inline void VirtualMachine::shlExec()
+void VirtualMachine::shlExec()
 {
 	reg[RD] <<= 1;
 	setCarry();
 	++clock;
-}
-
-/**
- * Arithmetically shifts bits left by 1
- */
-void VirtualMachine::shlaExec()
-{
-	shlExec();
 }
 
 /**
@@ -443,10 +444,9 @@ void VirtualMachine::returnExec()
  */
 void VirtualMachine::readExec()
 {
-	string inputFile = (fileName.substr(0, fileName.find_first_of("."))).append(".in");
-	ifstream istream(inputFile.c_str());
-	istream >> reg[RD];
-	istream.close();
+	fileName = (fileName.substr(0, fileName.find_first_of("."))).append(".in");
+	ifstream inputFile(fileName.c_str());
+	inputFile >> reg[RD];
 	clock += 28;
 }
 
@@ -455,10 +455,9 @@ void VirtualMachine::readExec()
  */
 void VirtualMachine::writeExec()
 {
-	string outputFile = (fileName.substr(0, fileName.find_first_of("."))).append(".out");
-	ofstream ostream(outputFile.c_str());
-	ostream << reg[RD];
-	ostream.close();
+	fileName = (fileName.substr(0, fileName.find_first_of("."))).append(".out");
+	ofstream outputFile(fileName.c_str());
+	outputFile << reg[RD];
 	clock += 28;
 }
 
@@ -467,6 +466,7 @@ void VirtualMachine::writeExec()
  */
 void VirtualMachine::haltExec()
 {
+	pc = memSize;
 	++clock;
 }
 

@@ -1,8 +1,15 @@
+/**
+ * Definition of the Assembler class
+ *
+ * @authors Dylan Allbee, Taylor Sanchez
+ * @version 1.2
+ * @date 22 April, 2013
+ * @file Assembler.h
+ */
+
 #ifndef ASSEMBLER_H
 #define ASSEMBLER_H
 #endif
-
-#define INT_MASK 0xFF
 
 #include <map>
 #include <set>
@@ -13,13 +20,17 @@ class Assembler {
 public:
 	Assembler(const string &opListPath);
 	void build(const string &sourcePath);
+
 private:
 	string line;
 	unsigned lineNumber;
 	map<string, int> opCodes;
+
+	// Opcode parameter sets
 	set<string> immediates;
 	set<string> rdSet;
 	set<string> loads;
+
 	struct Instruction {
 		string text;
 		int arg0;
