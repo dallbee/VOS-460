@@ -2,7 +2,9 @@
 #include <map>
 #include <set>
 #include <string>
+#include <fstream>
 #include <stdio.h>
+
 
 using namespace std;
 
@@ -11,8 +13,11 @@ using namespace std;
  *
  * @param
  */
- VirtualMachine::VirtualMachine() : clock(), sr()
+ VirtualMachine::VirtualMachine ()
  {
+	// int reg[regSize]={0};
+ 	// int mem[memSize]={0};
+ 	filename = "";
  	/*
 
  	string opCode, flags;
@@ -33,7 +38,7 @@ using namespace std;
 		throw "Could not read data in from operation codes file";
 	}
 	*/
-
+	instructions.reserve(32);
 	instructions[0x00] = &VirtualMachine::loadExec;
 	instructions[0x01] = &VirtualMachine::storeExec;
 	instructions[0x02] = &VirtualMachine::addExec;
@@ -61,18 +66,68 @@ using namespace std;
 	instructions[0x18] = &VirtualMachine::haltExec;
 	instructions[0x19] = &VirtualMachine::noopExec;
 
-	for(; pc != memSize;) {
-		ir = mem[pc++];
-		sr.constant = ir & 0xFF;
-		sr.addr = ir & 0x3F;
-		sr.rs = (ir >>= 6) & 0x03;
-		sr.i = (ir >>= 2) & 0x01;
-		sr.rd = (ir >>= 1) & 0x03;
-		sr.op = (ir >>= 5);
-		(this->*instructions[sr.op])();
+	for(; programCounter != memSize;) {
+		instructionReg = mem[programCounter++];
+		CONST = instructionReg & 0xFF;
+		ADDR = instructionReg & 0x3F;
+		RS = (instructionReg >>= 6) & 0x03;
+		I =  (instructionReg >>= 2) & 0x01;
+		RD = (instructionReg >>= 1) & 0x03;
+		OP = (instructionReg >>= 5);
+		(this->*instructions[OP])();
 	}
+
+	stackPointer = memSize -1;
+
  }
 
+/**
+ * Dumps the VirtualMachine's contents so they can be read
+ *
+ * @return void
+ */
+ void VirtualMachine::machineDump(){
+	for(int i = 0; i < memSize; i++){ //memory
+		printf("Memory[%i] \t %i \n", i, mem[i] );
+	}
+	for(int i = 0; i < regSize; i++){ //reg
+		printf("Register[%i] \t %i \n", i, reg[i] );
+	}
+	printf("Program Counter: \t %i \n", programCounter);
+	printf("Stack Pointer: \t %i \n", stackPointer);
+	printf("Clock: \t \t %i \n", clock);
+ }
+
+/**
+ * Increments the clock the input number of cycles
+ *
+ * @param cycles The number by which clock in incremented.
+ * @return void
+ */
+void VirtualMachine::incrementClock(unsigned cycles){
+	clock += cycles;
+}
+
+/**
+ * Pushes the input data to the stack, and increments the stackPointer
+ *
+ * @param pcbItem Process Control Block item
+ * @return void
+ */
+void VirtualMachine::pushStack(int pcbItem){
+	mem[stackPointer] = pcbItem;
+	stackPointer--;
+}
+
+/**
+ * Decrements the stackPointer, then pops out the data from the stack
+ *
+ * @return int
+ */
+int VirtualMachine::popStack(){
+	stackPointer++;
+	return mem[stackPointer];
+}
 
 /**
  * Determines to set carry in status register or not
@@ -84,41 +139,50 @@ void VirtualMachine::setCarry(){
 	//more readable if preferred: or just delete if statement
 		//if turnary is preferred.
 	// if(reg[RD] & 0x10000 ){
-	// 	sr |= 1;
+	// 	statusReg |= 1;
 	// } else{
-	// 	sr &= 0xFFFE;
+	// 	statusReg &= 0xFFFE;
 	// }
-	sr = (reg[RD] & 0x10000) ? (sr | 1) : (sr & 0xFFFE);
+	statusReg = (reg[RD] & 0x10000) ? (statusReg | 1) : (statusReg & 0xFFFE);
 }
 
 /**
  * Sets 'greater than' bit in status register
- * while clearing equal and less than
+ * while clearing equal and less than bits
  *
  * @return void
  */
 void VirtualMachine::setGreater(){
-	sr = (sr & 0xFFF3) | 2;
+	statusReg = (statusReg & 0xFFF3) | 2;
 }
 
 /**
  * Sets 'equal to' bit in status register
- * while clearing less and greater than
+ * while clearing less and greater than bits
  *
  * @return void
  */
 void VirtualMachine::setEqual(){
-	sr = (sr & 0xFFF5) | 4;
+	statusReg = (statusReg & 0xFFF5) | 4;
 }
 
 /**
  * Sets 'less than' bit in status register
- * while clearing equal and greater than
+ * while clearing equal and greater than bits
  *
  * @return void
  */
 void VirtualMachine::setLess(){
-	sr = (sr & 0xFFF9) | 8;
+	statusReg = (statusReg & 0xFFF9) | 8;
+}
+
+/**
+ * Sets the 'overflow' bit in status register
+ *
+ * @return void
+ */
+void VirtualMachine::setOverflow(){
+	statusReg |= 16;
 }
 
 /**
@@ -127,7 +191,7 @@ void VirtualMachine::setLess(){
  * @return 1 or 0. based on bit status
  */
 int VirtualMachine::getCarry(){
-	return (sr & 1) ? 1 : 0;
+	return (statusReg & 1) ? 1 : 0;
 }
 
 /**
@@ -136,7 +200,7 @@ int VirtualMachine::getCarry(){
  * @return 1 or 0. based on bit status
  */
 int VirtualMachine::getGreater(){
-	return (sr & 2) ? 1 : 0;
+	return (statusReg & 2) ? 1 : 0;
 }
 
 /**
@@ -145,7 +209,7 @@ int VirtualMachine::getGreater(){
  * @return 1 or 0. based on bit status
  */
 int VirtualMachine::getEqual(){
-	return (sr & 4) ? 1 : 0;
+	return (statusReg & 4) ? 1 : 0;
 }
 
 /**
@@ -154,7 +218,7 @@ int VirtualMachine::getEqual(){
  * @return 1 or 0. based on bit status
  */
 int VirtualMachine::getLess(){
-	return (sr & 8) ? 1 : 0;
+	return (statusReg & 8) ? 1 : 0;
 }
 
 /**
@@ -165,7 +229,7 @@ int VirtualMachine::getLess(){
  */
 void VirtualMachine::loadExec()
 {
-	++clock;
+	incrementClock(1);
 	reg[RD] = I ? CONST : mem[ADDR];
 }
 
@@ -176,7 +240,7 @@ void VirtualMachine::loadExec()
  */
 void VirtualMachine::storeExec()
 {
-	++clock;
+	incrementClock(1);
 	mem[ADDR] = reg[RD];
 }
 
@@ -188,7 +252,7 @@ void VirtualMachine::storeExec()
  */
 void VirtualMachine::addExec()
 {
-	++clock;
+	incrementClock(1);
 	reg[RD] += I ? CONST : reg[RS];
 	setCarry();
 }
@@ -202,7 +266,7 @@ void VirtualMachine::addExec()
  */
 void VirtualMachine::addcExec()
 {
-	++clock;
+	incrementClock(1);
 	reg[RD] += I ? (CONST + getCarry()) : (reg[RS] + getCarry());
 	setCarry();
 }
@@ -215,7 +279,7 @@ void VirtualMachine::addcExec()
  */
 void VirtualMachine::subExec()
 {
-	++clock;
+	incrementClock(1);
 	reg[RD] -= I ? CONST : reg[RS];
 	setCarry();
 }
@@ -230,7 +294,7 @@ void VirtualMachine::subExec()
  */
 void VirtualMachine::subcExec()
 {
-	++clock;
+	incrementClock(1);
 	reg[RD] -= I ? (CONST - getCarry()) : (reg[RS] - getCarry());
 	setCarry();
 }
@@ -243,7 +307,7 @@ void VirtualMachine::subcExec()
  */
 void VirtualMachine::andExec()
 {
-	++clock;
+	incrementClock(1);
 	reg[RD] &= I ? CONST : reg[RS];
 }
 
@@ -255,7 +319,7 @@ void VirtualMachine::andExec()
  */
 void VirtualMachine::xorExec()
 {
-	++clock;
+	incrementClock(1);
 	reg[RD] ^= I ? CONST : reg[RS];
 }
 
@@ -266,7 +330,7 @@ void VirtualMachine::xorExec()
  */
 void VirtualMachine::complExec()
 {
-	++clock;
+	incrementClock(1);
 	reg[RD] = ~reg[RD];
 }
 
@@ -277,7 +341,7 @@ void VirtualMachine::complExec()
  */
 void VirtualMachine::shlExec()
 {
-	++clock;
+	incrementClock(1);
 	reg[RD] = reg[RD] << 1;
 	setCarry();
 }
@@ -289,10 +353,8 @@ void VirtualMachine::shlExec()
  */
 void VirtualMachine::shlaExec()
 {
-	++clock;
 	shlExec();
 }
-++clock;
 
 /**
  * Shifts bits right by 1
@@ -301,7 +363,7 @@ void VirtualMachine::shlaExec()
  */
 void VirtualMachine::shrExec()
 {
-	++clock;
+	incrementClock(1);
 	reg[RD] = reg[RD] >> 1;
 	setCarry(); //I dont get why we would set carry on a right shift? -Taylor
 }
@@ -315,31 +377,31 @@ void VirtualMachine::shrExec()
  */
 void VirtualMachine::shraExec()
 {
-	++clock;
+	incrementClock(1);
 
 	//I may want to clean this up because I could just 'OR' it with an 'AND' of reg[RD]'s 15th bit.
 	//But I'm not sure that I cleaner yet.
-
+	reg[RD] = (reg[RD] & 0x8000) ? (reg[RD] >> 1) | 0x8000 : (reg[RD] >> 1) & 0x7FFF;
 	//Needs to dublicate the MSB as it shifts
-	if (reg[RD] & 0x8000){
-		reg[RD] = (reg[RD] >> 1) | 0x8000;
-	} else{
-		reg[RD] = (reg[RD] >> 1) & 0x7FFF;
-	}
+	// if (reg[RD] & 0x8000){
+	// 	reg[RD] = (reg[RD] >> 1) | 0x8000;
+	// } else{
+	// 	reg[RD] = (reg[RD] >> 1) & 0x7FFF;
+	// }
 	setCarry(); //I dont get why we would set carry on a right shift? -Taylor
 }
 
 /**
  * Compares constant if immediate (I) is high
  * or Compares register's value if I is low
- * Then it sets the appropriate statusRegister (sr) bitmask
+ * Then it sets the appropriate statusReg bitmask
  *
  *
  * @return void
  */
 void VirtualMachine::comprExec()
 {
-	++clock;
+	incrementClock(1);
 	int constOrReg = I ? CONST : reg[RS];
 	(reg[RD] < constOrReg) ? setLess() : ((reg[RD] < constOrReg) ? setEqual() : setGreater());
 
@@ -353,25 +415,25 @@ void VirtualMachine::comprExec()
 }
 
 /**
- * Sets the register equal to the statusRegister(sr)
+ * Sets the register equal to the statusReg
  *
  * @return void
  */
 void VirtualMachine::getstatExec()
 {
-	++clock;
-	reg[RD] = sr;
+	incrementClock(1);
+	reg[RD] = statusReg;
 }
 
 /**
- * Sets the statusRegister(sr) equal to the register
+ * Sets the statusReg equal to the register
  *
  * @return void
  */
 void VirtualMachine::putstatExec()
 {
-	++clock;
-	sr = reg[RD];
+	incrementClock(1);
+	statusReg = reg[RD];
 }
 
 /**
@@ -381,115 +443,125 @@ void VirtualMachine::putstatExec()
  */
 void VirtualMachine::jumpExec()
 {
-	++clock;
-	pc = ADDR;
+	incrementClock(1);
+	programCounter = ADDR;
 }
 
 /**
- * If the 'Less than' bit is high in the statusRegister(sr)
+ * If the 'Less than' bit is high in the statusReg
  * Sets the program counter to the specified address
  *
  * @return void
  */
 void VirtualMachine::jumplExec()
 {
-	++clock;
-	pc = getLess() ? ADDR : pc;
+	incrementClock(1);
+	programCounter = getLess() ? ADDR : programCounter;
 }
 
 /**
- * If the 'Equal to' bit is high in the statusRegister(sr)
+ * If the 'Equal to' bit is high in the statusReg
  * Sets the program counter to the specified address
  *
  * @return void
  */
 void VirtualMachine::jumpeExec()
 {
-	++clock;
-	pc = getEqual() ? ADDR : pc;
+	incrementClock(1);
+	programCounter = getEqual() ? ADDR : programCounter;
 }
 
 
 /**
- * If the 'Greater than' bit is high in the statusRegister(sr)
+ * If the 'Greater than' bit is high in the statusReg
  * Sets the program counter to the specified address
  *
  * @return void
  */
 void VirtualMachine::jumpgExec()
 {
-	++clock;
-	pc = getGreater() ? ADDR : pc;
+	incrementClock(1);
+	programCounter = getGreater() ? ADDR : programCounter;
 }
 
 /**
- * [VirtualMachine::loadExec description]
+ * Jumps to a new address, and stores the current Process Control Block
  *
  * @return void
  */
 void VirtualMachine::callExec()
 {
-	clock += 4;
-	/*
-call and return instructions need special attention. As part of the execution
-of the call instruction the status of the VM must be pushed on to the stack.
-The status of the VM consist of pc, r[0]-r[3], and sr. The stack grows from
-the bottom of memory up, therefore initially sp = 256. After a call, sp is
-decremented by 6 as the values of pc, r[0]-r[3], and sr in the VM are pushed
-on to the stack. When a return instruction is executed, sp is incremented by
-6 as the new values of pc, r[0]-r[3], and sr are popped from the stack and
-restored in the VM. When sp >= 256 stack is empty, and when sp < limit+6 stack
-is full.
-	*/
-
+	incrementClock(4);
+	pushStack(programCounter);
+	pushStack(statusReg);
+	pushStack(reg[0]);
+	pushStack(reg[1]);
+	pushStack(reg[2]);
+	pushStack(reg[3]);
+	programCounter = ADDR;
 }
 
 /**
- * [VirtualMachine::loadExec description]
+ * Returns to the previous state of the Process Control Block
  *
  * @return void
  */
 void VirtualMachine::returnExec()
 {
-	clock += 4;
+	incrementClock(4);
+	programCounter = popStack();
+	statusReg = popStack();
+	reg[0] = popStack();
+	reg[1] = popStack();
+	reg[2] = popStack();
+	reg[3] = popStack();
 }
 
 /**
- * [VirtualMachine::loadExec description]
+ * Reads in data from a ".in" file to a register
  *
  * @return void
  */
 void VirtualMachine::readExec()
 {
-	clock += 28;
+	incrementClock(28);
+	string inputFile = (filename.substr(0, filename.find_first_of("."))).append(".in");
+	ifstream istream(inputFile.c_str());
+	istream >> reg[RD];
+	istream.close();
 }
 
 /**
- * [VirtualMachine::loadExec description]
+ * Saves/Writes out a register's data to a ".out" file
  *
  * @return void
  */
 void VirtualMachine::writeExec()
 {
-	clock += 28;
+	incrementClock(28);
+	string outputFile = (filename.substr(0, filename.find_first_of("."))).append(".out");
+	ofstream ostream(outputFile.c_str());
+	ostream << reg[RD];
+	ostream.close();
 }
 
 /**
- * [VirtualMachine::loadExec description]
+ * Halts the VirtualMachine
  *
  * @return void
  */
 void VirtualMachine::haltExec()
 {
-	++clock;
+	incrementClock(1);
+	//destruct VirtualMachine?
 }
 
 /**
- * [VirtualMachine::loadExec description]
+ * Only increments the CPU clock
  *
  * @return void
  */
 void VirtualMachine::noopExec()
 {
-	++clock;
+	incrementClock(1);
 }

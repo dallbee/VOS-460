@@ -2,8 +2,9 @@
 #define VIRTUAL_MACHINE_H
 #endif
 
-#include <map>
-#include <set>
+#include <string>
+#include <fstream>
+#include <stdio.h>
 #include <string>
 #include <vector>
 using namespace std;
@@ -12,60 +13,53 @@ class VirtualMachine {
 public:
 	VirtualMachine();
 
-	//useful debugging
-	void memory_dump();
-	void register_dump();
-	void print_pc();
-	void print_sp();
-	void print_clock();
-	void machine_dump();
+	//debugging
+	void machineDump();
 
 private:
-	static const int regSize = 4;
-	static const int memSize = 256;
+	static const unsigned regSize = 4;
+	static const unsigned memSize = 256;
+	vector<void (VirtualMachine::*)()> instructions;
 
-	typedef void(VirtualMachine::*FunctionPointer)();
-
-	struct StatusRegister {
-		int op;
-		int rd;
-		int i;
-		int rs;
-		int addr;
-		int overflow;
-		int less;
-		int equal;
-		int greater;
-		int carry;
-		int constant;
-	} sr;
-
-	struct PCB {
-		int pc;
-		int sp;
-		int base;
-		int limit;
-		int ir;
-		int sr;
-	};
-
-	FunctionPointer instructions[32];
-
-	unsigned clock;
 	int reg[regSize];
 	int mem[memSize];
 
-	//Register masking and misc hardware udpates
+	unsigned OP;	//Operation
+	unsigned RD;	//Register-Destination
+	unsigned I;		//Immediate
+	unsigned RS;	//Register-Source
+	unsigned ADDR;	//Address
+	int CONST;		//Constant
+
+	unsigned clock;
+
+	string filename;
+
+	void pushStack(int pcbItem);
+	int  popStack();
+	unsigned programCounter;
+	unsigned stackPointer;
+	unsigned base;
+	unsigned limit;
+	unsigned instructionReg;
+	unsigned statusReg;//bits 15 -> 6 unused last 5: oVerflow, Less, Equal, Greater, Carry
+
+	//hardware udpates
+
+	void writeStatus();
+	void incrementClock(unsigned cycles);
+
+	//Status Register Masking
 	void setCarry();
 	void setGreater();
 	void setEqual();
 	void setLess();
-	void writeStatus();
-
+	void setOverflow();
 	int getCarry();
 	int getGreater();
 	int getEqual();
 	int getLess();
+
 
 	//instructions
 	void loadExec();
@@ -94,4 +88,5 @@ private:
 	void writeExec();
 	void haltExec();
 	void noopExec();
+
 };
