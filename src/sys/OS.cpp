@@ -5,8 +5,9 @@
    	*/
 #include "OS.h"
 
-OS::OS(){
-	// program = "";
+OS::OS(): program(), ass("assembler/opcodes.lst"), vm(){
+	program = "";
+	//ass("assembler/opcodes.lst");
 }
 
 
@@ -15,11 +16,11 @@ OS::OS(){
  *
  * @return void
  */
-//void OS::launchProgram(string programFile){
-	// program = programFile;
-	// assemble();
-	// execute();
-//}
+void OS::launchProgram(string programFile){
+	program = programFile;
+	assemble();
+	execute();
+}
 /*
  *
  *

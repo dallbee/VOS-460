@@ -9,7 +9,7 @@ using namespace std;
 class OS {
 public:
 	OS();
-	//string program;
+	string program;
 
 	void launchProgram(string programFile);
 
@@ -18,8 +18,9 @@ public:
 
 private:
 
-	//Assembler ass ("assembler/opcodes.lst");
-	//VirtualMachine vm;
+
+	Assembler ass;
+	VirtualMachine vm;
 
 	void loadFile();
 	void assemble();
