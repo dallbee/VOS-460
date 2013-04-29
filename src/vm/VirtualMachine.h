@@ -9,7 +9,7 @@
 
 #ifndef VIRTUAL_MACHINE_H
 #define VIRTUAL_MACHINE_H
-#endif
+
 
 #include <string>
 #include <fstream>
@@ -21,6 +21,7 @@ using namespace std;
 class VirtualMachine {
 public:
 	VirtualMachine();
+	void execute(string programAss);
 	void machineDump();
 
 private:
@@ -90,3 +91,5 @@ private:
 	void haltExec();
 	void noopExec();
 };
+
+#endif

@@ -9,7 +9,7 @@
 
 #ifndef ASSEMBLER_H
 #define ASSEMBLER_H
-#endif
+
 
 #include <map>
 #include <set>
@@ -44,3 +44,4 @@ private:
 	static Instruction parse(const string &line);
 	static string parseError(int lineNumber, string msg, string line);
 };
+#endif
