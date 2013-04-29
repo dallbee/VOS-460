@@ -60,8 +60,7 @@ using namespace std;
 		I =  (ir >>= 2) & 0x01;
 		RD = (ir >>= 1) & 0x03;
 		OP = (ir >>= 2) & 0x1F;
-		printf("CONST:%i ADDR:%i RS:%i I:%i RD:%i OP:%i\n", CONST, ADDR, RS, I, RD, OP );
-		printf("File:%s Filename:%s \n", file.c_str(), fileName.c_str());
+		machineDump(limit);
 		if (sp - 1 == pc) {
 			throw "Out of memory, stack pointer and program counter collision";
 		}
@@ -73,58 +72,22 @@ using namespace std;
 	}
 }
 
-
-/**
- * Executes the given assembly code.
- *
- */
- // void VirtualMachine::execute(string programAs){
-
- // 		fileName = programAs;
- // 		programAs = (programAs.substr(0, programAs.find_first_of("."))).append(".o");
-	//  	ifstream asFile(programAs.c_str());
-
-	//  	if(!asFile){
-	//  		throw "VirtualMachine: could not find assembly code file";
-	//  	}
-
-	//  	int asLine;
-	//  	asFile >> asLine;
-	//  	while(!asFile.eof()){
-	//  		mem[limit++] = asLine;
-	//  		asFile >> asLine;
-	//  	}
-
-	//  	while(pc < memSize){
-	//  		// if(sp < (limit +6)){
-	//  		// 	throw "VirtualMachine: Out of memory!";
-	//  		// }
-
-	//  		ir = mem[pc++];
-	//  		OP = (ir >> 11) & 0x3F;
-	//  		RD = (ir >> 9)  & 0x03;
-	//  		I  = (ir >> 8)  & 0x01;
-	//  		RS = (ir >> 6)  & 0x03;
-	//  		CONST = ir & 0xFF;
-	//  		ADDR  = ir & 0xFF;
-	//  		(this->*instructions[OP])();
-	//  	}
- // }
-
 /**
  * Dumps the VirtualMachine's contents so they can be read
  *
  */
- void VirtualMachine::machineDump() {
-	for(int i = 0; i < memSize; ++i) {
-		printf("Memory[%i] \t %i \n", i, mem[i] );
+ void VirtualMachine::machineDump(short memInt) {
+ 	printf("CONST:%u ADDR:%u RS:%u I:%u RD:%u OP:%u\n", CONST, ADDR, RS, I, RD, OP );
+	printf("Filename:%s \n", fileName.c_str());
+	for(int i = 0; i < memSize and i < memInt; ++i) {
+		printf("Memory[%u] \t %u \n", i, mem[i] & 0xFFFF );
 	}
 	for(int i = 0; i < regSize; ++i) {
-		printf("Register[%i] \t %i \n", i, reg[i] );
+		printf("Register[%u] \t %u \n", i, reg[i] & 0xFFFF );
 	}
-	printf("Program Counter: \t %i \n", pc);
-	printf("Stack Pointer: \t %i \n", sp);
-	printf("Clock: \t \t %i \n", clock);
+	printf("Program Counter: \t %u \n", pc);
+	printf("Stack Pointer: \t %u \n", sp);
+	printf("Clock: \t \t %u \n", clock);
  }
 
 /**
