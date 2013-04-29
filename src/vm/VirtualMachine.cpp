@@ -18,9 +18,9 @@ using namespace std;
 /**
  * Construct object and create registers and memory
  */
- VirtualMachine::VirtualMachine(short (&memory)[memSize]): mem(memory), clock(),
- 	fileName(), OP(), RD(), I(), RS(), ADDR(), CONST(), pc(), ir(),
- 	sp(memSize - 1), base(), limit(), sr()
+ VirtualMachine::VirtualMachine(string file, short (&memory)[memSize],short progLimit):
+	mem(memory), clock(), fileName(), OP(), RD(), I(), RS(), ADDR(), CONST(),
+	pc(), ir(), sp(memSize - 1), base(), limit(), sr()
  {
 	instructions[0x00] = &VirtualMachine::loadExec;
 	instructions[0x01] = &VirtualMachine::storeExec;
@@ -49,15 +49,19 @@ using namespace std;
 	instructions[0x18] = &VirtualMachine::haltExec;
 	instructions[0x19] = &VirtualMachine::noopExec;
 
+	fileName = file;
+	limit = progLimit;
+
 	for(; pc != memSize and OP != 0x18;) {
 		ir = mem[pc++];
 		CONST = ir & 0xFF;
-		ADDR = ir & 0x3F;
+		ADDR = ir & 0xFF;
 		RS = (ir >>= 6) & 0x03;
 		I =  (ir >>= 2) & 0x01;
 		RD = (ir >>= 1) & 0x03;
-		OP = (ir >>= 5);
-
+		OP = (ir >>= 2) & 0x1F;
+		printf("CONST:%i ADDR:%i RS:%i I:%i RD:%i OP:%i\n", CONST, ADDR, RS, I, RD, OP );
+		printf("File:%s Filename:%s \n", file.c_str(), fileName.c_str());
 		if (sp - 1 == pc) {
 			throw "Out of memory, stack pointer and program counter collision";
 		}
@@ -68,6 +72,44 @@ using namespace std;
 		(this->*instructions[OP])();
 	}
 }
+
+
+/**
+ * Executes the given assembly code.
+ *
+ */
+ // void VirtualMachine::execute(string programAs){
+
+ // 		fileName = programAs;
+ // 		programAs = (programAs.substr(0, programAs.find_first_of("."))).append(".o");
+	//  	ifstream asFile(programAs.c_str());
+
+	//  	if(!asFile){
+	//  		throw "VirtualMachine: could not find assembly code file";
+	//  	}
+
+	//  	int asLine;
+	//  	asFile >> asLine;
+	//  	while(!asFile.eof()){
+	//  		mem[limit++] = asLine;
+	//  		asFile >> asLine;
+	//  	}
+
+	//  	while(pc < memSize){
+	//  		// if(sp < (limit +6)){
+	//  		// 	throw "VirtualMachine: Out of memory!";
+	//  		// }
+
+	//  		ir = mem[pc++];
+	//  		OP = (ir >> 11) & 0x3F;
+	//  		RD = (ir >> 9)  & 0x03;
+	//  		I  = (ir >> 8)  & 0x01;
+	//  		RS = (ir >> 6)  & 0x03;
+	//  		CONST = ir & 0xFF;
+	//  		ADDR  = ir & 0xFF;
+	//  		(this->*instructions[OP])();
+	//  	}
+ // }
 
 /**
  * Dumps the VirtualMachine's contents so they can be read

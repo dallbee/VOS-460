@@ -23,7 +23,7 @@ public:
 	static const int regSize = 4;
 	static const int memSize = 256;
 
-	VirtualMachine(short (&memory)[memSize]);
+	VirtualMachine(string file, short (&memory)[memSize],short progLimit);
 	void execute(string programAss);
 	void machineDump();
 

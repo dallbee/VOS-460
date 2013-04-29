@@ -66,10 +66,15 @@ Assembler::Assembler(const string &opListPath): line(), lineNumber(), opCodes(),
  */
 void Assembler::build(const string &sourcePath)
 {
-	int object = 0;
+	int object = 0, start = 0, end = 0;
+	string outputFile="";
+	start = sourcePath.find_first_not_of("\t ");
+	end   = sourcePath.find_first_of(".");
+	outputFile = sourcePath.substr(start, end - start) + ".o";
+
 	Instruction op = {"", 0, 0, 0, 0, 0, 0};
 	ifstream sourceFile(sourcePath.c_str());
-	ofstream programFile("test.o");
+	ofstream programFile(outputFile.c_str());
 
 	// Parse source file and build assembly file
 	for (lineNumber = 1; getline(sourceFile, line); ++lineNumber) {

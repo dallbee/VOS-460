@@ -6,7 +6,7 @@ SRCDIR = src
 all: boot
 
 boot: VirtualMachine.o Assembler.o
-	$(CC) $(CFLAGS) -o $(TARGETDIR)/os $(SRCDIR)/os.cpp $(TARGETDIR)/OS.o $(TARGETDIR)/VirtualMachine.o $(TARGETDIR)/Assembler.o
+	$(CC) $(CFLAGS) -o $(TARGETDIR)/os $(SRCDIR)/os.cpp $(TARGETDIR)/VirtualMachine.o $(TARGETDIR)/Assembler.o
 
 #os.o:
 #	$(CC) $(CFLAGS) -o $(TARGETDIR)/OS.o -c $(SRCDIR)/sys/OS.cpp
