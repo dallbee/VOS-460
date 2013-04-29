@@ -55,7 +55,7 @@ private:
 	short popStack();
 
 	// Status Register Masking
-	void setCarry();
+	void setCarry(int value);
 	void setCarryRight();
 	void setGreater();
 	void setEqual();

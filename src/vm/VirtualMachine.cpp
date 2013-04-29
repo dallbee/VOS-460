@@ -18,9 +18,9 @@ using namespace std;
 /**
  * Construct object and create registers and memory
  */
- VirtualMachine::VirtualMachine(string file, short (&memory)[memSize],short progLimit):
-	mem(memory), clock(), fileName(), OP(), RD(), I(), RS(), ADDR(), CONST(),
-	pc(), ir(), sp(memSize - 1), base(), limit(), sr()
+ VirtualMachine::VirtualMachine(string file, short (&memory)[memSize], short progLimit):
+	mem(memory), clock(), fileName(file), OP(), RD(), I(), RS(), ADDR(), CONST(),
+	pc(), ir(), sp(memSize - 1), base(), limit(progLimit), sr()
  {
 	instructions[0x00] = &VirtualMachine::loadExec;
 	instructions[0x01] = &VirtualMachine::storeExec;
@@ -49,8 +49,6 @@ using namespace std;
 	instructions[0x18] = &VirtualMachine::haltExec;
 	instructions[0x19] = &VirtualMachine::noopExec;
 
-	fileName = file;
-	limit = progLimit;
 	memoryDump(limit);
 
 	for(; pc != memSize and OP != 0x18;) {
@@ -127,10 +125,10 @@ inline short VirtualMachine::popStack()
 /**
  * Determines to set carry in status register or not
  */
-inline void VirtualMachine::setCarry()
+inline void VirtualMachine::setCarry(int value)
 {
 	sr &= 0x0000;
-	sr = (reg[RD] & 0x10000) ? (sr | 1) : sr ;
+	sr = (value & 0x10000) ? (sr | 1) : sr;
 }
 
 /**
@@ -140,7 +138,7 @@ inline void VirtualMachine::setCarry()
 inline void VirtualMachine::setCarryRight()
 {
 	sr &= 0x0000;
-	sr = (reg[RD] & 0x0001) ? (sr | 1) : sr ;
+	sr = (reg[RD] & 0x0001) ? (sr | 1) : sr;
 }
 
 /**
@@ -253,8 +251,9 @@ void VirtualMachine::storeExec()
  */
 void VirtualMachine::addExec()
 {
-	reg[RD] += I ? CONST : reg[RS];
-	setCarry();
+	int value = I ? reg[RD] + CONST : reg[RD] + reg[RS];
+	reg[RD] = value & 0xFFFF;
+	setCarry(value);
 	++clock;
 }
 
@@ -265,10 +264,10 @@ void VirtualMachine::addExec()
  */
 void VirtualMachine::addcExec()
 {
-	// I'm not sure that this will work with my signed char trick for
-	// sign extension, Need to test.
-	reg[RD] += I ? (CONST + getCarry()) : (reg[RS] + getCarry());
-	setCarry();
+	int carry = getCarry();
+	int value = I ? reg[RD] + CONST + carry: reg[RD] + reg[RS] + carry;
+	reg[RD] = value & 0xFFFF;
+	setCarry(value);
 	++clock;
 }
 
@@ -278,8 +277,9 @@ void VirtualMachine::addcExec()
  */
 void VirtualMachine::subExec()
 {
-	reg[RD] -= I ? CONST : reg[RS];
-	setCarry();
+	int value = I ? reg[RD] - CONST : reg[RD] - reg[RS];
+	reg[RD] = value & 0xFFFF;
+	setCarry(value);
 	++clock;
 }
 
@@ -291,10 +291,10 @@ void VirtualMachine::subExec()
  */
 void VirtualMachine::subcExec()
 {
-	// I'm not sure that this will work with my signed char trick for
-	// sign extension, Need to test.
-	reg[RD] -= I ? (CONST - getCarry()) : (reg[RS] - getCarry());
-	setCarry();
+	int carry = getCarry();
+	int value = I ? reg[RD] - CONST - carry : reg[RD] - reg[RS] - carry;
+	reg[RD] = value & 0xFFFF;
+	setCarry(value);
 	++clock;
 }
 
@@ -332,8 +332,9 @@ void VirtualMachine::complExec()
  */
 void VirtualMachine::shlExec()
 {
-	reg[RD] <<= 1;
-	setCarry();
+	int value = reg[RD] << 1;
+	reg[RD] = value & 0xFFFF;
+	setCarry(value);
 	++clock;
 }
 

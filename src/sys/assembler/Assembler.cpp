@@ -66,8 +66,8 @@ Assembler::Assembler(const string &opListPath): line(), lineNumber(), opCodes(),
  */
 void Assembler::build(const string &sourcePath)
 {
-	int object = 0, start = 0, end = 0;
-	string outputFile="";
+	int object = 0, start = 0, end = 0;;
+	string outputFile;
 	start = sourcePath.find_first_not_of("\t ");
 	end   = sourcePath.find_last_of(".");
 	outputFile = sourcePath.substr(start, end - start) + ".o";
