@@ -61,7 +61,6 @@ using namespace std;
 		I =  (ir >>= 2) & 0x01;
 		RD = (ir >>= 1) & 0x03;
 		OP = (ir >>= 2) & 0x1F;
-		machineDump();
 		if (sp - 1 == pc) {
 			throw "Out of memory, stack pointer and program counter collision";
 		}
@@ -69,7 +68,8 @@ using namespace std;
 			throw "Unknown operation";
 		}
 
-		(this->*instructions[OP])();
+		(this->*instructions[OP])();\
+		machineDump();
 	}
 }
 
@@ -79,11 +79,12 @@ using namespace std;
  */
  void VirtualMachine::machineDump() {
  	printf("==================================================\n");
- 	printf("Program Counter: \t %u \n", pc-1);
-	printf("Stack Pointer: \t %u \n", sp);
-	printf("Clock: \t \t %u \n", clock);
- 	printf("CONST:%u ADDR:%u RS:%u I:%u RD:%u OP:%u\n", CONST, ADDR, RS, I, RD, OP );
+ 	printf("Program Counter: \t %u\n", pc-1);
+	printf("Stack Pointer: \t %u\n", sp);
+	printf("Clock: \t \t %u\n", clock);
+ 	printf("CONST:%u ADDR:%u RS:%u I:%u RD:%u OP:%X\n", CONST, ADDR, RS, I, RD, OP );
 	printf("Filename:%s \n", fileName.c_str());
+	printf("statusReg:%X \n", sr);
 	for(int i = 0; i < regSize; ++i) {
 		printf("Register[%u] \t %u \n", i, reg[i] & 0xFFFF );
 	}
@@ -446,12 +447,12 @@ void VirtualMachine::callExec()
  */
 void VirtualMachine::returnExec()
 {
-	pc = popStack();
-	sr = popStack();
-	reg[0] = popStack();
-	reg[1] = popStack();
-	reg[2] = popStack();
 	reg[3] = popStack();
+	reg[2] = popStack();
+	reg[1] = popStack();
+	reg[0] = popStack();
+	sr = popStack();
+	pc = popStack();
 	clock += 4;
 }
 
