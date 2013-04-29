@@ -20,15 +20,16 @@ using namespace std;
 
 class VirtualMachine {
 public:
-	VirtualMachine();
+	static const int regSize = 4;
+	static const int memSize = 256;
+
+	VirtualMachine(short (&memory)[memSize]);
 	void execute(string programAss);
 	void machineDump();
 
 private:
-	static const int regSize = 4;
-	static const int memSize = 256;
 	short reg[regSize];
-	short mem[memSize];
+	short (&mem)[memSize];
 	unsigned clock;
 	string fileName;
 

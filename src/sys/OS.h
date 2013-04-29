@@ -19,9 +19,9 @@ private:
 
 	string program;
 	string programAss;
-
+	short mem[VirtualMachine::memSize];
 	Assembler ass;
-	VirtualMachine vm;
+	VirtualMachine vm(mem);
 
 	void loadFile();
 	void assemble();

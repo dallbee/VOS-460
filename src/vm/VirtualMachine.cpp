@@ -7,14 +7,6 @@
  * @file VirtualMachine.cpp
  */
 
-// TODO:
-// 	Exceptions
-// 	I'm not happy with the setBit functions, but I can't think of a better solution either.
-// 	PCB should be moved to a struct. This doesn't necessarily have to be done for phase 1, but certainly for phase 2.
-//  Halting is a bit hackish. We may want to come up with something cleaner.
-//
-//  I'm fairly certain everything is working at this point but I've left comments where I wasn't sure
-
 #include "VirtualMachine.h"
 #include <map>
 #include <set>
@@ -26,8 +18,9 @@ using namespace std;
 /**
  * Construct object and create registers and memory
  */
- VirtualMachine::VirtualMachine(): clock(), fileName(), OP(), RD(), I(), RS(),
- 	ADDR(), CONST(), pc(), ir(), sp(), base(), limit(), sr()
+ VirtualMachine::VirtualMachine(short (&memory)[memSize]): mem(memory), clock(),
+ 	fileName(), OP(), RD(), I(), RS(), ADDR(), CONST(), pc(), ir(),
+ 	sp(memSize - 1), base(), limit(), sr()
  {
 	instructions[0x00] = &VirtualMachine::loadExec;
 	instructions[0x01] = &VirtualMachine::storeExec;
@@ -64,46 +57,17 @@ using namespace std;
 		I =  (ir >>= 2) & 0x01;
 		RD = (ir >>= 1) & 0x03;
 		OP = (ir >>= 5);
-		// NEED OUT OF RANGE EXCEPTION
+
+		if (sp - 1 == pc) {
+			throw "Out of memory, stack pointer and program counter collision";
+		}
+		if (OP > 0x19) {
+			throw "Unknown operation"
+		}
+
 		(this->*instructions[OP])();
 	}
-
-	sp = memSize -1;
- }
-
-/**
- * Executes the given assembly code.
- *
- */
- void VirtualMachine::execute(string programAss){
-	 	ifstream assFile(programAss.c_str());
-
-	 	if(!assFile){
-	 		throw "VirtualMachine: could not find assembly code file";
-	 	}
-
-	 	int assLine;
-	 	assFile >> assLine;
-	 	while(!assFile.eof()){
-	 		mem[limit++] = assLine;
-	 		assFile >> assLine;
-	 	}
-
-	 	while(pc != memSize){
-	 		// if(sp < (limit +6)){
-	 		// 	throw "VirtualMachine: Out of memory!";
-	 		// }
-
-	 		ir = mem[pc++];
-	 		OP = (ir >> 11) & 0x3F;
-	 		RD = (ir >> 9)  & 0x03;
-	 		I  = (ir >> 8)  & 0x01;
-	 		RS = (ir >> 6)  & 0x03;
-	 		CONST = ir & 0xFF;
-	 		ADDR  = ir & 0xFF;
-	 		instructions[OP] ?	instructions[OP] : throw "VirtualMachine: invalid OP";
-	 	}
- }
+}
 
 /**
  * Dumps the VirtualMachine's contents so they can be read
@@ -128,7 +92,6 @@ using namespace std;
  */
 inline void VirtualMachine::pushStack(short pcbItem)
 {
-	// NEED OVERFLOW EXCEPTION
 	mem[sp--] = pcbItem;
 }
 
@@ -139,7 +102,6 @@ inline void VirtualMachine::pushStack(short pcbItem)
  */
 inline short VirtualMachine::popStack()
 {
-	// NEED OVERFLOW EXCEPTION
 	return mem[++sp];
 }
 
