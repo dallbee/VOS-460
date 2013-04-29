@@ -130,7 +130,16 @@ inline short VirtualMachine::popStack()
  */
 inline void VirtualMachine::setCarry()
 {
-	sr = (reg[RD] & 0x10000) ? (sr | 1) : (sr & 0xFFFE);
+	sr = (reg[RD] & 0x10000) ? (sr | 1) : (sr & 0x0000);
+}
+
+/**
+ * Determines to set carry in status register or not
+ * This one is for right shift bits, that would go too far.
+ */
+inline void VirtualMachine::setCarryRight()
+{
+	sr = (reg[RD] & 0x0001) ? (sr | 1) : (sr & 0x0000);
 }
 
 /**
@@ -139,7 +148,7 @@ inline void VirtualMachine::setCarry()
  */
 inline void VirtualMachine::setGreater()
 {
-	sr = (sr & 0xFFF3) | 2;
+	sr = (sr & 0x0002) | 2;
 }
 
 /**
@@ -148,7 +157,7 @@ inline void VirtualMachine::setGreater()
  */
 inline void VirtualMachine::setEqual()
 {
-	sr = (sr & 0xFFF5) | 4;
+	sr = (sr & 0x0004) | 4;
 }
 
 /**
@@ -157,7 +166,7 @@ inline void VirtualMachine::setEqual()
  */
 inline void VirtualMachine::setLess()
 {
-	sr = (sr & 0xFFF9) | 8;
+	sr = (sr & 0x0008) | 8;
 }
 
 /**
@@ -332,8 +341,8 @@ void VirtualMachine::shlExec()
  */
 void VirtualMachine::shrExec()
 {
+	setCarryRight();
 	reg[RD] = (unsigned)reg[RD] >> 1;
-	setCarry();
 	++clock;
 }
 
@@ -344,8 +353,8 @@ void VirtualMachine::shrExec()
  */
 void VirtualMachine::shraExec()
 {
+	setCarryRight();
 	reg[RD] >>= 1;
-	setCarry();
 	++clock;
 }
 

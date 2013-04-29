@@ -56,6 +56,7 @@ private:
 
 	// Status Register Masking
 	void setCarry();
+	void setCarryRight();
 	void setGreater();
 	void setEqual();
 	void setLess();
