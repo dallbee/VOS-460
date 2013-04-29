@@ -130,7 +130,8 @@ inline short VirtualMachine::popStack()
  */
 inline void VirtualMachine::setCarry()
 {
-	sr = (reg[RD] & 0x10000) ? (sr | 1) : (sr & 0x0000);
+	sr &= 0x0000;
+	sr = (reg[RD] & 0x10000) ? (sr | 1) : sr ;
 }
 
 /**
@@ -139,7 +140,8 @@ inline void VirtualMachine::setCarry()
  */
 inline void VirtualMachine::setCarryRight()
 {
-	sr = (reg[RD] & 0x0001) ? (sr | 1) : (sr & 0x0000);
+	sr &= 0x0000;
+	sr = (reg[RD] & 0x0001) ? (sr | 1) : sr ;
 }
 
 /**
