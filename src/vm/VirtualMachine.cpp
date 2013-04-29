@@ -67,7 +67,6 @@ using namespace std;
 		if (OP > 0x19) {
 			throw "Unknown operation";
 		}
-
 		(this->*instructions[OP])();\
 		machineDump();
 	}
