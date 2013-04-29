@@ -2,7 +2,7 @@
  * Definition of the VirtualMachine class
  *
  * @authors Dylan Allbee, Taylor Sanchez
- * @version 1.0
+ * @version 1.1
  * @date 28 April, 2013
  * @file VirtualMachine.h
  */

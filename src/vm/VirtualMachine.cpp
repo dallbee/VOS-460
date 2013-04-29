@@ -2,7 +2,7 @@
  * Implementation of the VirtualMachine class
  *
  * @authors Dylan Allbee, Taylor Sanchez
- * @version 0.8
+ * @version 1.0
  * @date 28 April, 2013
  * @file VirtualMachine.cpp
  */
@@ -62,7 +62,7 @@ using namespace std;
 			throw "Out of memory, stack pointer and program counter collision";
 		}
 		if (OP > 0x19) {
-			throw "Unknown operation"
+			throw "Unknown operation";
 		}
 
 		(this->*instructions[OP])();
