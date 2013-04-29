@@ -51,6 +51,7 @@ using namespace std;
 
 	fileName = file;
 	limit = progLimit;
+	memoryDump(limit);
 
 	for(; pc != memSize and OP != 0x18;) {
 		ir = mem[pc++];
@@ -60,7 +61,7 @@ using namespace std;
 		I =  (ir >>= 2) & 0x01;
 		RD = (ir >>= 1) & 0x03;
 		OP = (ir >>= 2) & 0x1F;
-		machineDump(limit);
+		machineDump();
 		if (sp - 1 == pc) {
 			throw "Out of memory, stack pointer and program counter collision";
 		}
@@ -76,18 +77,31 @@ using namespace std;
  * Dumps the VirtualMachine's contents so they can be read
  *
  */
- void VirtualMachine::machineDump(short memInt) {
+ void VirtualMachine::machineDump() {
+ 	printf("==================================================\n");
+ 	printf("Program Counter: \t %u \n", pc-1);
+	printf("Stack Pointer: \t %u \n", sp);
+	printf("Clock: \t \t %u \n", clock);
  	printf("CONST:%u ADDR:%u RS:%u I:%u RD:%u OP:%u\n", CONST, ADDR, RS, I, RD, OP );
 	printf("Filename:%s \n", fileName.c_str());
-	for(int i = 0; i < memSize and i < memInt; ++i) {
-		printf("Memory[%u] \t %u \n", i, mem[i] & 0xFFFF );
-	}
 	for(int i = 0; i < regSize; ++i) {
 		printf("Register[%u] \t %u \n", i, reg[i] & 0xFFFF );
 	}
-	printf("Program Counter: \t %u \n", pc);
-	printf("Stack Pointer: \t %u \n", sp);
-	printf("Clock: \t \t %u \n", clock);
+	for(int i = memSize-1; i > sp; --i) {
+		printf("Stack[%u] \t %u \n", i, mem[i] & 0xFFFF );
+	}
+ }
+
+/**
+ * Dumps the VirtualMachine's mem[] contents so they can be read
+ * This is separate because it is much longer than the machineDump()
+ *
+ * @param memInt Controls how much memory will be printed.
+ */
+ void VirtualMachine::memoryDump(short memInt){
+ 		for(int i = 0; i < memSize and i < memInt; ++i) {
+		printf("Memory[%u] \t %u \n", i, mem[i] & 0xFFFF );
+	}
  }
 
 /**

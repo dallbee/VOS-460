@@ -25,7 +25,8 @@ public:
 
 	VirtualMachine(string file, short (&memory)[memSize],short progLimit);
 	void execute(string programAss);
-	void machineDump(short memInt);
+	void machineDump();
+	void memoryDump(short memInt);
 
 private:
 	short reg[regSize];
