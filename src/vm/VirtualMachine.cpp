@@ -49,7 +49,7 @@ using namespace std;
 	instructions[0x18] = &VirtualMachine::haltExec;
 	instructions[0x19] = &VirtualMachine::noopExec;
 
-	memoryDump(limit);
+	//memoryDump(limit); //remove comment for debugging
 
 	for(; pc != memSize and OP != 0x18;) {
 		ir = mem[pc++];
@@ -66,7 +66,7 @@ using namespace std;
 			throw "Unknown operation";
 		}
 		(this->*instructions[OP])();\
-		machineDump();
+		//machineDump(); //remove comment for debugging
 	}
 }
 

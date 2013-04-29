@@ -1,3 +1,11 @@
+/**
+ * Implementation of the os.cpp
+ *
+ * @authors Dylan Allbee, Taylor Sanchez
+ * @version 1.0
+ * @date 29 April, 2013
+ * @file os.cpp
+ */
 #include <stdio.h>
 #include "vm/VirtualMachine.h"
 #include "sys/assembler/Assembler.h"
@@ -12,6 +20,7 @@ int main(int argc, char *argv[])
 		printf ("Please specify a Program");
 	}
 
+
 	// Assemble opcodes
 	try {
 		Assembler as("../src/sys/assembler/opcodes.lst");
@@ -21,22 +30,22 @@ int main(int argc, char *argv[])
 		return 1;
 	}
 
+
 	//Load assembly code into memory
-	short (mem)[VirtualMachine::memSize]={0};
+	short mem[VirtualMachine::memSize]={0};
 	string programAs = fAndF;
 	programAs = (programAs.substr(0, programAs.find_last_of("."))).append(".o");
  	ifstream asFile(programAs.c_str());
- 	if(!asFile){
+ 	if (! asFile.good()){
  		printf ("OS: could not find assembly code file");
  	}
-
-
  	int asLine = 0, limit = 0;
  	asFile >> asLine;
  	while(!asFile.eof()){
  		mem[limit++] = asLine;
  		asFile >> asLine;
  	}
+
 
  	//Execute the program
 	try {
@@ -46,9 +55,7 @@ int main(int argc, char *argv[])
 		return 1;
 	}
 
+
 	printf("Program Complete!\n");
-
-	printf()
-
 	return 0;
 }
