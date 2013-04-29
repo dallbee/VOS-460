@@ -7,8 +7,7 @@ using namespace std;
 int main(int argc, char *argv[])
 {
 	string fAndF = argv[1]; //filesAndFolders
-	fAndF = "../io/"+(fAndF.substr(0, fAndF.find_first_of("."))).append("/")+fAndF;
-	printf("%s \n", fAndF.c_str());
+	fAndF = "../io/"+(fAndF.substr(0, fAndF.find_last_of("."))).append("/")+fAndF;
 	if(argc == 1){
 		printf ("Please specify a Program");
 	}
@@ -25,7 +24,7 @@ int main(int argc, char *argv[])
 	//Load assembly code into memory
 	short (mem)[VirtualMachine::memSize]={0};
 	string programAs = fAndF;
-	programAs = (programAs.substr(0, programAs.find_first_of("."))).append(".o");
+	programAs = (programAs.substr(0, programAs.find_last_of("."))).append(".o");
  	ifstream asFile(programAs.c_str());
  	if(!asFile){
  		printf ("OS: could not find assembly code file");

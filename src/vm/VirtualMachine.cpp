@@ -446,7 +446,7 @@ void VirtualMachine::returnExec()
  */
 void VirtualMachine::readExec()
 {
-	fileName = (fileName.substr(0, fileName.find_first_of("."))).append(".in");
+	fileName = (fileName.substr(0, fileName.find_last_of("."))).append(".in");
 	ifstream inputFile(fileName.c_str());
 	inputFile >> reg[RD];
 	clock += 28;
@@ -457,7 +457,7 @@ void VirtualMachine::readExec()
  */
 void VirtualMachine::writeExec()
 {
-	fileName = (fileName.substr(0, fileName.find_first_of("."))).append(".out");
+	fileName = (fileName.substr(0, fileName.find_last_of("."))).append(".out");
 	ofstream outputFile(fileName.c_str());
 	outputFile << reg[RD];
 	clock += 28;
