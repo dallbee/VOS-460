@@ -59,6 +59,9 @@ using namespace std;
 		I =  (ir >>= 2) & 0x01;
 		RD = (ir >>= 1) & 0x03;
 		OP = (ir >>= 2) & 0x1F;
+		if (pc > limit){
+			throw "Virtual Machine: Program counter is past program addressing limit!"; 
+		}
 		if (sp - 1 == pc) {
 			throw "Out of memory, stack pointer and program counter collision";
 		}
