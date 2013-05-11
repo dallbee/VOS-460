@@ -7,9 +7,10 @@
  * @file os.cpp
  */
 #include <stdio.h>
+#include <string>
+#include "OS.h"
 #include "vm/VirtualMachine.h"
 #include "sys/assembler/Assembler.h"
-#include <string>
 using namespace std;
 
 int main(int argc, char *argv[])
