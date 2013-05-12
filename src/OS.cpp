@@ -49,7 +49,7 @@ void OS::finish(){ //get total times
 	userCpuUtil	= userTotal/osClock;
 	throughput = progs.size()/osClock;
 
-	//program output here. Still deciding how to handle.
+	//os output here. Still deciding how to handle.
 }
 
 void OS::saveState(){ //saves PCB of running process upon using its timeslice, or io starts
@@ -68,15 +68,35 @@ void OS::scheduler(){
 }
 
 void OS::prcoessFinish(){
-
+	//program output file
 }
 
 void OS::run(){
 
+
 }
 
 void OS::load(){
+	string file, folderCountls;
+	fstream folderList, folderCount;
+	int folderTotal;
+	system("ls -d ../io/*/ > folders");
+	folderList.open("folders");
 
+	system("ls -d ../io/*/ | wc -l > folderCountls");
+	folderCount.open("folderCountls");
+	getline(folderCount, folderCountls);
+	folderCount.close();
+	folderTotal = atoi(folderCountls.c_str());
+	string prog[folderTotal];
+
+	for (int lineNumber = 0; getline(folderList, file); lineNumber++){
+		file = file.substr(0, file.find_last_of("/"));
+		//printf ("%i %s\n", lineNumber, file.c_str());
+		prog[lineNumber] = file + "/" + file + ".s";
+		printf ("%i %s\n", lineNumber, prog[lineNumber].c_str());
+	}
+	system("rm folderCountls; rm folders");
 }
 
 int main(){

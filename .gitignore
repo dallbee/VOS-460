@@ -8,13 +8,11 @@
 # Compiled Dynamic libraries
 *.so
 *.dylib
-
 # Compiled Static libraries
 *.lai
 *.la
 *.a
-
 #Useless Mac OS stuff
 .DS_Store
-
 src/assembler/debug.cpp
+/test.cpp~
