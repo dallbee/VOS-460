@@ -22,6 +22,7 @@ class VirtualMachine {
 public:
 	static const int regSize = 4;
 	static const int memSize = 256;
+	friend class OS;
 
 	VirtualMachine(string file, short (&memory)[memSize],short progLimit);
 	void execute(string programAss);

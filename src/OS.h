@@ -16,7 +16,7 @@ using namespace std;
 class PCB{
 public:
 	PCB();
-	friend class VirtualMachine;
+	friend class OS;
 private:
 	PCB(string fileName, int tempBase, int tempLimit);
 	string fileName;
@@ -58,7 +58,7 @@ public:
 
 
 private:
-	list<PCB *>  jobs;
+	list<PCB *>  progs;
 	queue<PCB *> readyQ, waitQ;
 	PCB* running;
 	int osClock;
@@ -73,7 +73,7 @@ private:
 	int userCpuUtil;
 	int throughput;
 
-	fstream osOutput;
+	fstream osOut;
 	fstream processStack;
 	//pcb is supposed to be private, then use ?
 

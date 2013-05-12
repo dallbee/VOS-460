@@ -36,9 +36,8 @@ OS::OS(userTotal, osClock, tempLimit, tempBase, itdleTotal){
 void OS::loadState(){ //loads PCB of running process, just before it starts
 	VM.pc = running -> pc + running -> base;
 	VM.sp = running -> sp;
-	VM.r = running -> reg;
+	VM.reg = running -> reg;
 	VM.ir = running -> ir;
-	VM.readNum = running -> readNum;
 	VM.fileName = running -> fileName;
 	VM.base = running -> base;
 	VM.limit = running -> limit;
@@ -46,11 +45,22 @@ void OS::loadState(){ //loads PCB of running process, just before it starts
 
 
 void OS::finish(){ //get total times
+	systemCpuUtil = (osClock - idleTotal)/osClock;
+	userCpuUtil	= userTotal/osClock;
+	throughput = progs.size()/osClock;
 
+	//program output here. Still deciding how to handle.
 }
 
-void OS::saveState(){ //saves PCB of running process upon finishing
+void OS::saveState(){ //saves PCB of running process upon using its timeslice, or io starts
 
+	running -> pc = VM.pc = VM.base;
+	running -> sp = VM.sp;
+	running -> reg = VM.reg;
+	running -> ir = VM.ir;
+	running -> fileName = VM.fileName;
+	running -> base = VM.base;
+	running -> limit = VM.limit;
 }
 
 void OS::scheduler(){
