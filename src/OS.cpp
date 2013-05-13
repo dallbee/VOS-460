@@ -120,7 +120,7 @@ void OS::load()
 {
 	// Copies the name of all program files in the io directory to progs file
 	if (system("ls -d -1 $PWD/../io/**/*.s | grep -Po '(?<=\\/)\\w*(?=\\/\\w*\\.s)' > progs")) {
-		// error
+		throw "Error while attempting to get program listing";
 	}
 
 	ifstream progFile("progs");
@@ -133,7 +133,7 @@ void OS::load()
 	 		Assembler as("../src/sys/assembler/opcodes.lst");
 	 		as.build(string("../io/" + line + "/" + line + ".s"));
 	 	} catch(const char* error) {
-	 		printf ("[Assembler Error] %s \n", error);
+	 		printf("[Assembler Error] %s \n", error);
 	 	}
 
 	 	// Load object code into memory
@@ -144,7 +144,7 @@ void OS::load()
 	}
 
 	if (system("rm -f progs")) {
-		// error
+		printf("Could not remove progs file");
 	}
 }
 
@@ -155,10 +155,15 @@ void OS::load()
  */
 int main()
 {
-	OS os;
-	os.load();
-	os.scheduler();
-	os.run();
+	try {
+		OS os;
+		os.load();
+		os.scheduler();
+		os.run();
+	} catch(const char* error) {
+		printf("[Operating System Error] %s \n", error);
+	}
+	
 	return 0;
 }
 
