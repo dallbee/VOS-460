@@ -10,15 +10,17 @@
 #define OS_H
 
 #include "vm/VirtualMachine.h"
+#include "sys/assembler/Assembler.h"
+#include <list>
+#include <queue>
 
 using namespace std;
 
-class PCB{
+class PCB {
 public:
-	PCB();
+	PCB(string fileName, int tempBase, int tempLimit);
 	friend class OS;
 private:
-	PCB(string fileName, int tempBase, int tempLimit);
 	string fileName;
 	short reg[VirtualMachine::regSize];
 	short pc;
@@ -38,12 +40,9 @@ private:
 	int turnTime;
 	int ioTime;
 	int LargestStack;
-
-
-
 };
 
-class OS{
+class OS {
 public:
 	OS();
 	VirtualMachine VM;
@@ -82,7 +81,7 @@ private:
 	int Limit;
 	string fAndF;
 	string programAs;
-	short mem[VirtualMachine::memSize]
+	short mem[VirtualMachine::memSize];
 };
 
 #endif

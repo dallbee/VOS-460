@@ -6,19 +6,20 @@
  * @date 29 April, 2013
  * @file os.cpp
  */
-#include <stdio.h>
-#include <string>
+
+
 #include "OS.h"
 #include "vm/VirtualMachine.h"
 #include "sys/assembler/Assembler.h"
+#include <stdio.h>
+#include <cstdlib>
+#include <string>
+#include <list>
+#include <queue>
 using namespace std;
 
-PCB::PCB(pc(), ir(), sp(memSize - 1), base(), limit(progLimit), sr()){
-
-}
-
-PCB::PCB(string fileName, int tempBase, int tempLimit){
-	this -> fileName = fileName;
+PCB::PCB(string fileName, int tempBase, int tempLimit) : filename(fileName), pc(), ir(), sp(memSize - 1), base(), limit(progLimit), sr()
+{
 	//input  = filename +".in";
 	//output = filename +"out";
 	stack  = filename + ".st";
@@ -29,22 +30,25 @@ PCB::PCB(string fileName, int tempBase, int tempLimit){
 	execTime = 0;
 }
 
-OS::OS(userTotal, osClock, tempLimit, tempBase, itdleTotal){
+OS::OS() : userTotal(), osClock(), tempLimit(), tempBase(), itdleTotal()
+{
 
 }
 
-void OS::loadState(){ //loads PCB of running process, just before it starts
-	VM.pc = running -> pc + running -> base;
-	VM.sp = running -> sp;
-	VM.reg = running -> reg;
-	VM.ir = running -> ir;
-	VM.fileName = running -> fileName;
-	VM.base = running -> base;
-	VM.limit = running -> limit;
+void OS::loadState()
+{ //loads PCB of running process, just before it starts
+	VM.pc = running->pc + running->base;
+	VM.sp = running->sp;
+	VM.reg = running->reg;
+	VM.ir = running->ir;
+	VM.fileName = running->fileName;
+	VM.base = running->base;
+	VM.limit = running->limit;
 }
 
 
-void OS::finish(){ //get total times
+void OS::finish()
+{ //get total times
 	systemCpuUtil = (osClock - idleTotal)/osClock;
 	userCpuUtil	= userTotal/osClock;
 	throughput = progs.size()/osClock;
@@ -52,58 +56,71 @@ void OS::finish(){ //get total times
 	//os output here. Still deciding how to handle.
 }
 
-void OS::saveState(){ //saves PCB of running process upon using its timeslice, or io starts
+void OS::saveState()
+{ //saves PCB of running process upon using its timeslice, or io starts
 
-	running -> pc = VM.pc = VM.base;
-	running -> sp = VM.sp;
-	running -> reg = VM.reg;
-	running -> ir = VM.ir;
-	running -> fileName = VM.fileName;
-	running -> base = VM.base;
-	running -> limit = VM.limit;
+	running->pc = VM.pc = VM.base;
+	running->sp = VM.sp;
+	running->reg = VM.reg;
+	running->ir = VM.ir;
+	running->fileName = VM.fileName;
+	running->base = VM.base;
+	running->limit = VM.limit;
 }
 
-void OS::scheduler(){
+void OS::scheduler()
+{
 
 }
 
-void OS::prcoessFinish(){
+void OS::processFinish()
+{
 	//program output file
 }
 
-void OS::run(){
+void OS::run()
+{
 
 
 }
 
-void OS::load(){
+void OS::load()
+{
 	string file, folderCountls;
 	fstream folderList, folderCount;
 	int folderTotal;
-	system("ls -d ../io/*/ > folders");
+	if (system("ls -d -1 $PWD/../io/**/*.s > progs")) {
+		// error
+	}
 	folderList.open("folders");
 
-	system("ls -d ../io/*/ | wc -l > folderCountls");
+	if (system("ls -d ../io/*/ | wc -l > folderCountls")) {
+		// error
+	}
 	folderCount.open("folderCountls");
 	getline(folderCount, folderCountls);
 	folderCount.close();
 	folderTotal = atoi(folderCountls.c_str());
 	string prog[folderTotal];
 
-	for (int lineNumber = 0; getline(folderList, file); lineNumber++){
+	for (int lineNumber = 0; getline(folderList, file); lineNumber++)
+	{
 		file = file.substr(0, file.find_last_of("/"));
 		//printf ("%i %s\n", lineNumber, file.c_str());
 		prog[lineNumber] = file + "/" + file + ".s";
 		printf ("%i %s\n", lineNumber, prog[lineNumber].c_str());
 	}
-	system("rm folderCountls; rm folders");
+	if (system("rm -f progs")) {
+		// error
+	}
 }
 
-int main(){
-	OS.os;
+int main()
+{
+	OS os;
 	os.load();
 	os.scheduler();
-	os.run()
+	os.run();
 	return 0;
 }
 
@@ -113,7 +130,8 @@ int main(){
 // {
 // 	fAndF = argv[1]; //filesAndFolders
 // 	fAndF = "../io/"+(fAndF.substr(0, fAndF.find_last_of("."))).append("/")+fAndF;
-// 	if(argc == 1){
+// 	if(argc == 1)
+{
 // 		printf ("Please specify a Program");
 // 	}
 
@@ -133,12 +151,14 @@ int main(){
 // 	programAs = fAndF;
 // 	programAs = (programAs.substr(0, programAs.find_last_of("."))).append(".o");
 //  	ifstream asFile(programAs.c_str());
-//  	if (! asFile.good()){
+//  	if (! asFile.good())
+	{
 //  		printf ("OS: could not find assembly code file");
 //  	}
 //  	int asLine = 0, limit = 0;
 //  	asFile >> asLine;
-//  	while(!asFile.eof()){
+//  	while(!asFile.eof())
+	{
 //  		mem[limit++] = asLine;
 //  		asFile >> asLine;
 //  	}
