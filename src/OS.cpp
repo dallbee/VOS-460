@@ -11,6 +11,7 @@
 #include "vm/VirtualMachine.h"
 #include "sys/assembler/Assembler.h"
 #include <fstream>
+#include <sstream>
 #include <stdio.h>
 #include <cstdlib>
 #include <string>
@@ -47,6 +48,7 @@ OS::OS() : progs(), readyQ(), waitQ(), running(), osClock(),
 /*
  * Brings a new PCB into the Virtual Machine
  */
+/*
 void OS::loadState()
 { //loads PCB of running process, just before it starts
 	VM.pc = running->pc + running->base;
@@ -56,11 +58,12 @@ void OS::loadState()
 	VM.fileName = running->fileName;
 	VM.base = running->base;
 	VM.limit = running->limit;
-}
+}*/
 
 /**
  * [OS::finish description]
  */
+/*
 void OS::finish()
 { //get total times
 	systemCpuUtil = (osClock - idleTotal)/osClock;
@@ -68,11 +71,12 @@ void OS::finish()
 	throughput = progs.size()/osClock;
 
 	//os output here. Still deciding how to handle.
-}
+}*/
 
 /*
  * Saves the current state of the Virtual Machine into a PCB.
  */
+/*
 void OS::saveState()
 { //saves PCB of running process upon using its timeslice, or io starts
 	running->pc = VM.pc = VM.base;
@@ -82,7 +86,7 @@ void OS::saveState()
 	running->fileName = VM.fileName;
 	running->base = VM.base;
 	running->limit = VM.limit;
-}
+}*/
 
 /**
  * 
@@ -121,7 +125,7 @@ void OS::load()
 
 	ifstream progFile("progs");
 	for (string line; getline(progFile, line);) {
-		PCB * pcb = new PCB(line);
+		PCB *pcb = new PCB(line);
 		progs.push_back(pcb);
 
 		// Assemble opcodes
@@ -131,6 +135,12 @@ void OS::load()
 	 	} catch(const char* error) {
 	 		printf ("[Assembler Error] %s \n", error);
 	 	}
+
+	 	// Load object code into memory
+		for(string opCode; getline(pcb->o, opCode);) {
+			stringstream convert(opCode);
+			convert >> mem[pcb->limit++];
+		}
 	}
 
 	if (system("rm -f progs")) {

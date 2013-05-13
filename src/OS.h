@@ -20,6 +20,7 @@ using namespace std;
 class PCB {
 public:
 	PCB(string name);
+	friend class OS;
 private:
 	string name;
 
