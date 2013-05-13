@@ -75,7 +75,6 @@ using namespace std;
 
 /**
  * Dumps the VirtualMachine's contents so they can be read
- *
  */
  void VirtualMachine::machineDump() {
  	printf("==================================================\n");

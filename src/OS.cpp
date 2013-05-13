@@ -7,7 +7,6 @@
  * @file os.cpp
  */
 
-
 #include "OS.h"
 #include "vm/VirtualMachine.h"
 #include "sys/assembler/Assembler.h"
@@ -19,6 +18,9 @@
 #include <queue>
 using namespace std;
 
+/**
+ * Creates a PCB Object
+ */
 PCB::PCB(string fileName) : name(fileName), reg(), pc(), sr(),
 	sp(VirtualMachine::memSize - 1), base(), limit(), execTime(), waitTime(),
 	turnTime(), ioTime(), largestStack(),
@@ -31,6 +33,9 @@ PCB::PCB(string fileName) : name(fileName), reg(), pc(), sr(),
 	//limit = tempLimit - tempBase;
 }
 
+/**
+ * Creates an OS object
+ */
 OS::OS() : progs(), readyQ(), waitQ(), running(), osClock(),
 	tempBase(), tempLimit(), exitCode(), userTotal(), idleTotal(),
 	systemCpuUtil(), userCpuUtil(), throughput(), osOut(), processStack(),
@@ -40,6 +45,8 @@ OS::OS() : progs(), readyQ(), waitQ(), running(), osClock(),
 }
 
 /*
+ * Brings a new PCB into the Virtual Machine
+ */
 void OS::loadState()
 { //loads PCB of running process, just before it starts
 	VM.pc = running->pc + running->base;
@@ -49,8 +56,11 @@ void OS::loadState()
 	VM.fileName = running->fileName;
 	VM.base = running->base;
 	VM.limit = running->limit;
-}*/
+}
 
+/**
+ * [OS::finish description]
+ */
 void OS::finish()
 { //get total times
 	systemCpuUtil = (osClock - idleTotal)/osClock;
@@ -61,9 +71,10 @@ void OS::finish()
 }
 
 /*
+ * Saves the current state of the Virtual Machine into a PCB.
+ */
 void OS::saveState()
 { //saves PCB of running process upon using its timeslice, or io starts
-
 	running->pc = VM.pc = VM.base;
 	running->sp = VM.sp;
 	running->reg = VM.reg;
@@ -71,26 +82,39 @@ void OS::saveState()
 	running->fileName = VM.fileName;
 	running->base = VM.base;
 	running->limit = VM.limit;
-}*/
+}
 
+/**
+ * 
+ */
 void OS::scheduler()
 {
 
 }
 
+/*
+
+ */
 void OS::processFinish()
 {
 	//program output file
 }
 
+/*
+
+ */
 void OS::run()
 {
 
 
 }
 
+/*
+ * Reads and assembles all programs in the io directory.
+ */
 void OS::load()
 {
+	// Copies the name of all program files in the io directory to progs file
 	if (system("ls -d -1 $PWD/../io/**/*.s | grep -Po '(?<=\\/)\\w*(?=\\/\\w*\\.s)' > progs")) {
 		// error
 	}
@@ -103,7 +127,7 @@ void OS::load()
 		// Assemble opcodes
 	 	try {
 	 		Assembler as("../src/sys/assembler/opcodes.lst");
-	 		as.build(string("../io/" + line + "/" + line + ".o"));
+	 		as.build(string("../io/" + line + "/" + line + ".s"));
 	 	} catch(const char* error) {
 	 		printf ("[Assembler Error] %s \n", error);
 	 	}
@@ -114,6 +138,11 @@ void OS::load()
 	}
 }
 
+/**
+ * Initializes the Operating system and boots.
+ * 
+ * @return Failure status
+ */
 int main()
 {
 	OS os;
