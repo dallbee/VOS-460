@@ -25,7 +25,7 @@ public:
 	friend class OS;
 
 	VirtualMachine(string file, short (&memory)[memSize], short progLimit);
-	void execute(string programAss);
+	void run();
 	void machineDump();
 	void memoryDump(short memInt);
 

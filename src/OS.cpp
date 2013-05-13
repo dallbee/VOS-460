@@ -30,17 +30,15 @@ PCB::PCB(string fileName) : name(fileName), reg(), pc(), sr(),
 	in(string("../io/" + name + "/" + name + ".in").c_str()),
 	st(string("../io/" + name + "/" + name + ".st").c_str())
 {
-	//base  = tempBase;
-	//limit = tempLimit - tempBase;
+
 }
 
 /**
  * Creates an OS object
  */
-OS::OS() : progs(), readyQ(), waitQ(), running(), osClock(),
-	tempBase(), tempLimit(), exitCode(), userTotal(), idleTotal(),
-	systemCpuUtil(), userCpuUtil(), throughput(), osOut(), processStack(),
-	asLine(), limit(), programAs(), mem()
+OS::OS() : progs(), readyQ(), waitQ(), running(), osClock(), exitCode(), 
+	userTotal(), idleTotal(), systemCpuUtil(), userCpuUtil(), throughput(), 
+	osOut(), processStack(), asLine(), limit(), programAs(), mem()
 {
 
 }
@@ -51,6 +49,8 @@ OS::OS() : progs(), readyQ(), waitQ(), running(), osClock(),
 /*
 void OS::loadState()
 { //loads PCB of running process, just before it starts
+	// LOAD FROM ST FILE FIRST
+
 	VM.pc = running->pc + running->base;
 	VM.sp = running->sp;
 	VM.reg = running->reg;
@@ -93,7 +93,13 @@ void OS::saveState()
  */
 void OS::scheduler()
 {
+	// Place completed waits in ready queue
+	
+	// Running process terminate OR move to proper queue
+	saveState();
 
+	// Next process assigned to VM
+	loadState(readyQ.first());
 }
 
 /*
@@ -136,7 +142,7 @@ void OS::load()
 	 		printf("[Assembler Error] %s \n", error);
 	 	}
 
-	 	// Load object code into memory
+		// Load object code into memory
 		for(string opCode; getline(pcb->o, opCode);) {
 			stringstream convert(opCode);
 			convert >> mem[pcb->limit++];

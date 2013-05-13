@@ -48,9 +48,34 @@ using namespace std;
 	instructions[0x17] = &VirtualMachine::writeExec;
 	instructions[0x18] = &VirtualMachine::haltExec;
 	instructions[0x19] = &VirtualMachine::noopExec;
+}
 
-	//memoryDump(limit); //remove comment for debugging
+/**
+ * Dumps the VirtualMachine's contents so they can be read
+ */
+ void VirtualMachine::machineDump() 
+ {
+ 	printf("==================================================\n");
+ 	printf("Program Counter: \t %u\n", pc-1);
+	printf("Stack Pointer: \t %u\n", sp);
+	printf("Clock: \t \t %u\n", clock);
+ 	printf("CONST:%u ADDR:%u RS:%u I:%u RD:%u OP:%X\n", CONST, ADDR, RS, I, RD, OP );
+	printf("Filename:%s \n", fileName.c_str());
+	printf("statusReg:%X \n", sr);
+	for(int i = 0; i < regSize; ++i) {
+		printf("Register[%u] \t %u \n", i, reg[i] & 0xFFFF );
+	}
+	for(int i = memSize-1; i > sp; --i) {
+		printf("Stack[%u] \t %u \n", i, mem[i] & 0xFFFF );
+	}
+ }
 
+/**
+ * Run the virtual machine. Sets the status register upon end of time slice and 
+ * other return conditions.
+ */
+void VirtualMachine::run() 
+{
 	for(; pc != memSize and OP != 0x18;) {
 		ir = mem[pc++];
 		CONST = ir & 0xFF;
@@ -68,29 +93,9 @@ using namespace std;
 		if (OP > 0x19) {
 			throw "Unknown operation";
 		}
-		(this->*instructions[OP])();\
-		//machineDump(); //remove comment for debugging
+		(this->*instructions[OP])();
 	}
 }
-
-/**
- * Dumps the VirtualMachine's contents so they can be read
- */
- void VirtualMachine::machineDump() {
- 	printf("==================================================\n");
- 	printf("Program Counter: \t %u\n", pc-1);
-	printf("Stack Pointer: \t %u\n", sp);
-	printf("Clock: \t \t %u\n", clock);
- 	printf("CONST:%u ADDR:%u RS:%u I:%u RD:%u OP:%X\n", CONST, ADDR, RS, I, RD, OP );
-	printf("Filename:%s \n", fileName.c_str());
-	printf("statusReg:%X \n", sr);
-	for(int i = 0; i < regSize; ++i) {
-		printf("Register[%u] \t %u \n", i, reg[i] & 0xFFFF );
-	}
-	for(int i = memSize-1; i > sp; --i) {
-		printf("Stack[%u] \t %u \n", i, mem[i] & 0xFFFF );
-	}
- }
 
 /**
  * Dumps the VirtualMachine's mem[] contents so they can be read

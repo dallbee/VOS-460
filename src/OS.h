@@ -63,8 +63,6 @@ private:
 	queue<PCB *> readyQ, waitQ;
 	PCB* running;
 	int osClock;
-	short tempBase;
-	short tempLimit;
 	short exitCode;
 
 	//System Information
