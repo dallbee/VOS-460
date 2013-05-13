@@ -11,6 +11,7 @@
 
 #include "vm/VirtualMachine.h"
 #include "sys/assembler/Assembler.h"
+#include <fstream>
 #include <list>
 #include <queue>
 
@@ -18,35 +19,36 @@ using namespace std;
 
 class PCB {
 public:
-	PCB(string fileName, int tempBase, int tempLimit);
-	friend class OS;
+	PCB(string name);
 private:
-	string fileName;
+	string name;
+
+	// Program execution information
 	short reg[VirtualMachine::regSize];
 	short pc;
-	short ir;
+	short sr;
 	short sp;
 	short base;
 	short limit;
-	short sr;
-//	string input;
-//	string output;
-	string stack;
-	string errorMessage;
 
-	//Process Specific
-	int execTime;
-	int waitTime;
-	int turnTime;
-	int ioTime;
-	int LargestStack;
+	// Accounting Information
+	unsigned execTime;
+	unsigned waitTime;
+	unsigned turnTime;
+	unsigned ioTime;
+	unsigned largestStack;
+
+	// File Streams
+	fstream o;
+	fstream out;
+	fstream in;
+	fstream st;
 };
 
 class OS {
 public:
 	OS();
-	VirtualMachine VM;
-	Assembler as;
+	//VirtualMachine VM;
 	void run();
 	void load();
 	void loadState();
@@ -55,9 +57,8 @@ public:
 	void processFinish();
 	void finish();
 
-
 private:
-	list<PCB *>  progs;
+	list<PCB *> progs;
 	queue<PCB *> readyQ, waitQ;
 	PCB* running;
 	int osClock;
@@ -76,10 +77,8 @@ private:
 	fstream processStack;
 	//pcb is supposed to be private, then use ?
 
-
 	int asLine;
-	int Limit;
-	string fAndF;
+	int limit;
 	string programAs;
 	short mem[VirtualMachine::memSize];
 };

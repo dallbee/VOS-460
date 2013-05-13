@@ -11,6 +11,7 @@
 #include "OS.h"
 #include "vm/VirtualMachine.h"
 #include "sys/assembler/Assembler.h"
+#include <fstream>
 #include <stdio.h>
 #include <cstdlib>
 #include <string>
@@ -18,23 +19,27 @@
 #include <queue>
 using namespace std;
 
-PCB::PCB(string fileName, int tempBase, int tempLimit) : filename(fileName), pc(), ir(), sp(memSize - 1), base(), limit(progLimit), sr()
+PCB::PCB(string fileName) : name(fileName), reg(), pc(), sr(),
+	sp(VirtualMachine::memSize - 1), base(), limit(), execTime(), waitTime(),
+	turnTime(), ioTime(), largestStack(),
+	o(string("../io/" + name + "/" + name + ".o").c_str()),
+	out(string("../io/" + name + "/" + name + ".out").c_str()),
+	in(string("../io/" + name + "/" + name + ".in").c_str()),
+	st(string("../io/" + name + "/" + name + ".st").c_str())
 {
-	//input  = filename +".in";
-	//output = filename +"out";
-	stack  = filename + ".st";
-	reg[VirtualMachine::regSize];
-	base  = tempBase;
-	limit = tempLimit - tempBase;
-	ioTime = 0;
-	execTime = 0;
+	//base  = tempBase;
+	//limit = tempLimit - tempBase;
 }
 
-OS::OS() : userTotal(), osClock(), tempLimit(), tempBase(), itdleTotal()
+OS::OS() : progs(), readyQ(), waitQ(), running(), osClock(),
+	tempBase(), tempLimit(), exitCode(), userTotal(), idleTotal(),
+	systemCpuUtil(), userCpuUtil(), throughput(), osOut(), processStack(),
+	asLine(), limit(), programAs(), mem()
 {
 
 }
 
+/*
 void OS::loadState()
 { //loads PCB of running process, just before it starts
 	VM.pc = running->pc + running->base;
@@ -44,8 +49,7 @@ void OS::loadState()
 	VM.fileName = running->fileName;
 	VM.base = running->base;
 	VM.limit = running->limit;
-}
-
+}*/
 
 void OS::finish()
 { //get total times
@@ -56,6 +60,7 @@ void OS::finish()
 	//os output here. Still deciding how to handle.
 }
 
+/*
 void OS::saveState()
 { //saves PCB of running process upon using its timeslice, or io starts
 
@@ -66,7 +71,7 @@ void OS::saveState()
 	running->fileName = VM.fileName;
 	running->base = VM.base;
 	running->limit = VM.limit;
-}
+}*/
 
 void OS::scheduler()
 {
@@ -86,30 +91,24 @@ void OS::run()
 
 void OS::load()
 {
-	string file, folderCountls;
-	fstream folderList, folderCount;
-	int folderTotal;
-	if (system("ls -d -1 $PWD/../io/**/*.s > progs")) {
+	if (system("ls -d -1 $PWD/../io/**/*.s | grep -Po '(?<=\\/)\\w*(?=\\/\\w*\\.s)' > progs")) {
 		// error
 	}
-	folderList.open("folders");
 
-	if (system("ls -d ../io/*/ | wc -l > folderCountls")) {
-		// error
-	}
-	folderCount.open("folderCountls");
-	getline(folderCount, folderCountls);
-	folderCount.close();
-	folderTotal = atoi(folderCountls.c_str());
-	string prog[folderTotal];
+	ifstream progFile("progs");
+	for (string line; getline(progFile, line);) {
+		PCB * pcb = new PCB(line);
+		progs.push_back(pcb);
 
-	for (int lineNumber = 0; getline(folderList, file); lineNumber++)
-	{
-		file = file.substr(0, file.find_last_of("/"));
-		//printf ("%i %s\n", lineNumber, file.c_str());
-		prog[lineNumber] = file + "/" + file + ".s";
-		printf ("%i %s\n", lineNumber, prog[lineNumber].c_str());
+		// Assemble opcodes
+	 	try {
+	 		Assembler as("../src/sys/assembler/opcodes.lst");
+	 		as.build(string("../io/" + line + "/" + line + ".o"));
+	 	} catch(const char* error) {
+	 		printf ("[Assembler Error] %s \n", error);
+	 	}
 	}
+
 	if (system("rm -f progs")) {
 		// error
 	}
@@ -131,7 +130,7 @@ int main()
 // 	fAndF = argv[1]; //filesAndFolders
 // 	fAndF = "../io/"+(fAndF.substr(0, fAndF.find_last_of("."))).append("/")+fAndF;
 // 	if(argc == 1)
-{
+//  {
 // 		printf ("Please specify a Program");
 // 	}
 
@@ -152,13 +151,13 @@ int main()
 // 	programAs = (programAs.substr(0, programAs.find_last_of("."))).append(".o");
 //  	ifstream asFile(programAs.c_str());
 //  	if (! asFile.good())
-	{
+//	{
 //  		printf ("OS: could not find assembly code file");
 //  	}
 //  	int asLine = 0, limit = 0;
 //  	asFile >> asLine;
 //  	while(!asFile.eof())
-	{
+//	{
 //  		mem[limit++] = asLine;
 //  		asFile >> asLine;
 //  	}

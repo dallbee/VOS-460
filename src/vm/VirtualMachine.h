@@ -24,7 +24,7 @@ public:
 	static const int memSize = 256;
 	friend class OS;
 
-	VirtualMachine(string file, short (&memory)[memSize],short progLimit);
+	VirtualMachine(string file, short (&memory)[memSize], short progLimit);
 	void execute(string programAss);
 	void machineDump();
 	void memoryDump(short memInt);

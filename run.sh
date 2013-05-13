@@ -2,4 +2,4 @@
 
 
 cd bin
-./boot
+./os
