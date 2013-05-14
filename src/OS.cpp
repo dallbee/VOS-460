@@ -36,8 +36,8 @@ PCB::PCB(string fileName) : name(fileName), reg(), pc(), sr(),
 /**
  * Creates an OS object
  */
-OS::OS() : progs(), readyQ(), waitQ(), running(), osClock(), exitCode(), 
-	userTotal(), idleTotal(), systemCpuUtil(), userCpuUtil(), throughput(), 
+OS::OS() : progs(), readyQ(), waitQ(), running(), osClock(), exitCode(),
+	userTotal(), idleTotal(), systemCpuUtil(), userCpuUtil(), throughput(),
 	osOut(), processStack(), asLine(), limit(), programAs(), mem()
 {
 
@@ -89,17 +89,17 @@ void OS::saveState()
 }*/
 
 /**
- * 
+ *
  */
 void OS::scheduler()
 {
 	// Place completed waits in ready queue
-	
+
 	// Running process terminate OR move to proper queue
-	saveState();
+	//saveState();
 
 	// Next process assigned to VM
-	loadState(readyQ.first());
+	//loadState(readyQ.front());
 }
 
 /*
@@ -125,19 +125,21 @@ void OS::run()
 void OS::load()
 {
 	// Copies the name of all program files in the io directory to progs file
-	if (system("ls -d -1 $PWD/../io/**/*.s | grep -Po '(?<=\\/)\\w*(?=\\/\\w*\\.s)' > progs")) {
+	// if (system("ls -d -1 $PWD/../io/**/*.s | grep -Po '(?<=\\/)\\w*(?=\\/\\w*\\.s)' > progs")) {
+	if (system("ls -d ../io/**/*.s > progs")) {
 		throw "Error while attempting to get program listing";
 	}
 
 	ifstream progFile("progs");
 	for (string line; getline(progFile, line);) {
+
 		PCB *pcb = new PCB(line);
 		progs.push_back(pcb);
 
 		// Assemble opcodes
 	 	try {
 	 		Assembler as("../src/sys/assembler/opcodes.lst");
-	 		as.build(string("../io/" + line + "/" + line + ".s"));
+	 		as.build(string(line));
 	 	} catch(const char* error) {
 	 		printf("[Assembler Error] %s \n", error);
 	 	}
@@ -156,7 +158,7 @@ void OS::load()
 
 /**
  * Initializes the Operating system and boots.
- * 
+ *
  * @return Failure status
  */
 int main()
@@ -169,7 +171,7 @@ int main()
 	} catch(const char* error) {
 		printf("[Operating System Error] %s \n", error);
 	}
-	
+
 	return 0;
 }
 

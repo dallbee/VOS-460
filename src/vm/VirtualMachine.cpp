@@ -53,7 +53,7 @@ using namespace std;
 /**
  * Dumps the VirtualMachine's contents so they can be read
  */
- void VirtualMachine::machineDump() 
+ void VirtualMachine::machineDump()
  {
  	printf("==================================================\n");
  	printf("Program Counter: \t %u\n", pc-1);
@@ -71,11 +71,12 @@ using namespace std;
  }
 
 /**
- * Run the virtual machine. Sets the status register upon end of time slice and 
+ * Run the virtual machine. Sets the status register upon end of time slice and
  * other return conditions.
  */
-void VirtualMachine::run() 
+void VirtualMachine::run()
 {
+	memoryDump(limit);
 	for(; pc != memSize and OP != 0x18;) {
 		ir = mem[pc++];
 		CONST = ir & 0xFF;
@@ -85,7 +86,7 @@ void VirtualMachine::run()
 		RD = (ir >>= 1) & 0x03;
 		OP = (ir >>= 2) & 0x1F;
 		if (pc > limit){
-			throw "Virtual Machine: Program counter is past program addressing limit!"; 
+			throw "Virtual Machine: Program counter is past program addressing limit!";
 		}
 		if (sp - 1 == pc) {
 			throw "Out of memory, stack pointer and program counter collision";
