@@ -20,7 +20,7 @@
 using namespace std;
 
 /**
- * Creates a PCB Object
+ * Creates a PCB object
  */
 PCB::PCB(string fileName) : name(fileName), reg(), pc(), sr(),
 	sp(VirtualMachine::memSize - 1), base(), limit(), execTime(), waitTime(),
@@ -46,19 +46,19 @@ OS::OS() : progs(), readyQ(), waitQ(), running(), osClock(), exitCode(),
 /*
  * Brings a new PCB into the Virtual Machine
  */
-/*
+
 void OS::loadState()
 { //loads PCB of running process, just before it starts
 	// LOAD FROM ST FILE FIRST
 
-	VM.pc = running->pc + running->base;
-	VM.sp = running->sp;
-	VM.reg = running->reg;
-	VM.ir = running->ir;
-	VM.fileName = running->fileName;
-	VM.base = running->base;
-	VM.limit = running->limit;
-}*/
+	// VM.pc = running->pc + running->base;
+	// VM.sp = running->sp;
+	// VM.reg = running->reg;
+	// VM.ir = running->ir;
+	// VM.fileName = running->fileName;
+	// VM.base = running->base;
+	// VM.limit = running->limit;
+}
 
 /**
  * [OS::finish description]
@@ -115,7 +115,7 @@ void OS::processFinish()
  */
 void OS::run()
 {
-
+	//progs(1).base;
 
 }
 
@@ -125,16 +125,15 @@ void OS::run()
 void OS::load()
 {
 	// Copies the name of all program files in the io directory to progs file
-	// if (system("ls -d -1 $PWD/../io/**/*.s | grep -Po '(?<=\\/)\\w*(?=\\/\\w*\\.s)' > progs")) {
+	//if (system("ls -d -1 $PWD/../io/**/*.s | grep -Po '(?<=\\/)\\w*(?=\\/\\w*\\.s)' > progs")) {
 	if (system("ls -d ../io/**/*.s > progs")) {
 		throw "Error while attempting to get program listing";
 	}
-
 	ifstream progFile("progs");
 	for (string line; getline(progFile, line);) {
-
-		PCB *pcb = new PCB(line);
-		progs.push_back(pcb);
+		string shortName = line.substr(line.find_last_of("/")+1, line.size());
+		shortName = shortName.substr(0, shortName.find_last_of("."));
+		PCB *pcb = new PCB(shortName);
 
 		// Assemble opcodes
 	 	try {
@@ -144,13 +143,25 @@ void OS::load()
 	 		printf("[Assembler Error] %s \n", error);
 	 	}
 
-		// Load object code into memory
-		for(string opCode; getline(pcb->o, opCode);) {
-			stringstream convert(opCode);
-			convert >> mem[pcb->limit++];
-		}
-	}
+		// // Load object code into memory
+ 		ifstream asFile(((line.substr(0, line.find_last_of("."))).append(".o")).c_str());
+ 		if (! asFile.good()){
+	 		printf ("OS: could not find assembly code file");
+	 	}
 
+	 	pcb -> base = limit;
+	 	pcb -> pc   = limit;
+	 	asFile >> asLine;
+	 	while(!asFile.eof()){
+	 		mem[limit++] = asLine;
+ 			asFile >> asLine;
+	 	}
+		progs.push_back(pcb);
+
+	}
+	for(int i = 0; i < limit; ++i) { //outputting memory to make sure progs loaded into mem
+		printf("Memory[%u] \t %u \n", i, mem[i]);
+		}
 	if (system("rm -f progs")) {
 		printf("Could not remove progs file");
 	}

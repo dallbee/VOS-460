@@ -77,7 +77,7 @@ private:
 	//pcb is supposed to be private, then use ?
 
 	int asLine;
-	int limit;
+	short limit;
 	string programAs;
 	short mem[VirtualMachine::memSize];
 };
