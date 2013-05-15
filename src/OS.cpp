@@ -22,7 +22,7 @@ using namespace std;
 /**
  * Creates a PCB object
  */
-PCB::PCB(string fileName) : name(fileName), reg(), pc(), sr(),
+PCB::PCB(string fileName) : VM(), name(fileName), reg(), pc(), sr(),
 	sp(VirtualMachine::memSize - 1), base(), limit(), execTime(), waitTime(),
 	turnTime(), ioTime(), largestStack(),
 	o(string("../io/" + name + "/" + name + ".o").c_str()),
@@ -93,6 +93,8 @@ void OS::saveState()
  */
 void OS::scheduler()
 {
+	for(int i = 0; i )
+		if(waitQ.front()->ioTime <= )
 	// Place completed waits in ready queue
 
 	// Running process terminate OR move to proper queue

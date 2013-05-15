@@ -18,9 +18,9 @@ using namespace std;
 /**
  * Construct object and create registers and memory
  */
- VirtualMachine::VirtualMachine(string file, short (&memory)[memSize], short progLimit):
-	mem(memory), clock(), fileName(file), OP(), RD(), I(), RS(), ADDR(), CONST(),
-	pc(), ir(), sp(memSize - 1), base(), limit(progLimit), sr()
+ VirtualMachine::VirtualMachine():
+	mem(), clock(), fileName(), OP(), RD(), I(), RS(), ADDR(), CONST(), pc(),
+	ir(), sp(memSize - 1), base(), limit(), sr()
  {
 	instructions[0x00] = &VirtualMachine::loadExec;
 	instructions[0x01] = &VirtualMachine::storeExec;
@@ -76,7 +76,6 @@ using namespace std;
  */
 void VirtualMachine::run()
 {
-	memoryDump(limit);
 	for(; pc != memSize and OP != 0x18;) {
 		ir = mem[pc++];
 		CONST = ir & 0xFF;

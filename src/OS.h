@@ -49,7 +49,6 @@ private:
 class OS {
 public:
 	OS();
-	//VirtualMachine VM;
 	void run();
 	void load();
 	void loadState();
@@ -59,6 +58,7 @@ public:
 	void finish();
 
 private:
+	VirtualMachine VM;
 	list<PCB *> progs;
 	queue<PCB *> readyQ, waitQ;
 	PCB* running;
@@ -74,7 +74,6 @@ private:
 
 	fstream osOut;
 	fstream processStack;
-	//pcb is supposed to be private, then use ?
 
 	int asLine;
 	short limit;

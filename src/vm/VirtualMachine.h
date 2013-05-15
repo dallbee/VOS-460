@@ -23,7 +23,7 @@ public:
 	static const int regSize = 4;
 	static const int memSize = 256;
 
-	VirtualMachine(string file, short (&memory)[memSize], short progLimit);
+	VirtualMachine();
 	void run();
 	void machineDump();
 	void memoryDump(short memInt);
@@ -32,7 +32,7 @@ private:
 	friend class OS;
 
 	short reg[regSize];
-	short (&mem)[memSize];
+	short mem[memSize];
 	unsigned clock;
 	string fileName;
 
