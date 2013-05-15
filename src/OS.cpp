@@ -152,7 +152,7 @@ void OS::load()
 
 		for(string opCode; getline(pcb->oFile, opCode);) {
 			stringstream convert(opCode);
-			convert >> mem[limit++];
+			convert >> VM->mem[limit++];
 		}
 
 		progs.push_back(pcb);

@@ -78,7 +78,6 @@ private:
 	int asLine;
 	short limit;
 	string programAs;
-	short mem[VirtualMachine::memSize];
 };
 
 #endif
