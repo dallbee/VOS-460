@@ -75,7 +75,9 @@ using namespace std;
  */
 void VirtualMachine::run()
 {
+	unsigned timeslice = clock;
 	for(; pc != memSize and OP != 0x18;) {
+		timeslice++;
 		ir = mem[pc++];
 		CONST = ir & 0xFF;
 		ADDR = ir & 0xFF;
@@ -83,15 +85,34 @@ void VirtualMachine::run()
 		I =  (ir >>= 2) & 0x01;
 		RD = (ir >>= 1) & 0x03;
 		OP = (ir >>= 2) & 0x1F;
-		if (pc > limit){
-			throw "Virtual Machine: Program counter is past program addressing limit!";
+
+		if ((clock - timeslice) > 15){//Time slice
+			sr &= 0xFF1F; //clears bits 5,6,7
 		}
-		if (sp - 1 == pc) {
-			throw "Out of memory, stack pointer and program counter collision";
+
+		if (pc > limit or pc < base){ //Reference out of bounds
+			sr = (sr & 0xFF5F) | 64;
 		}
-		if (OP > 0x19) {
-			throw "Unknown operation";
+		else if (sp - 1 == pc){ //Stack Overflow
+			sr = (sr & 0xFF7F) | 96;
 		}
+		else if (sp == 256){ //Stack Underflow
+			sr = (sr & 0xFF9F) | 128;
+		}
+
+		if (OP > 0x19){ //Invalid Opcode
+			sr = (sr & 0xFFAF) | 160;
+		}
+		else if (OP == 0x18){//Halt
+			sr = (sr & 0xFF3F) | 32;
+		}
+		else if (OP == 0x16){ //Read Operations
+			sr = (sr & 0xFFCF) | 192;
+		}
+		else if (OP == 0x17){ //Write Operation
+			sr |= 224;
+		}
+
 		(this->*instructions[OP])();
 	}
 }
@@ -133,7 +154,7 @@ inline short VirtualMachine::popStack()
  */
 inline void VirtualMachine::setCarry(int value)
 {
-	sr &= 0x0000;
+	sr &= 0xFFFE;
 	sr = (value & 0x10000) ? (sr | 1) : sr;
 }
 
@@ -143,7 +164,7 @@ inline void VirtualMachine::setCarry(int value)
  */
 inline void VirtualMachine::setCarryRight()
 {
-	sr &= 0x0000;
+	sr &= 0xFFFE;
 	sr = (reg[RD] & 0x0001) ? (sr | 1) : sr;
 }
 
@@ -153,7 +174,7 @@ inline void VirtualMachine::setCarryRight()
  */
 inline void VirtualMachine::setGreater()
 {
-	sr = (sr & 0x0002) | 2;
+	sr = (sr & 0xFFFD) | 2;
 }
 
 /**
@@ -162,7 +183,7 @@ inline void VirtualMachine::setGreater()
  */
 inline void VirtualMachine::setEqual()
 {
-	sr = (sr & 0x0004) | 4;
+	sr = (sr & 0xFFFB) | 4;
 }
 
 /**
@@ -171,7 +192,7 @@ inline void VirtualMachine::setEqual()
  */
 inline void VirtualMachine::setLess()
 {
-	sr = (sr & 0x0008) | 8;
+	sr = (sr & 0xFFF7) | 8;
 }
 
 /**

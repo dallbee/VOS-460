@@ -7,6 +7,21 @@
  * @file os.cpp
  */
 
+//TO DO:
+ //.st files for the stacks being saved out. needed in the loadState() and the saveState()
+ 	//just barely started. commented out still.
+
+ //fill in case statement's code
+
+ //VM.run() must no longer be a for loop, as we need to time slice it.
+
+ //time slicing, I wasn't sure how we want to implement this. I don't see how our case statement
+ 	//will ever let our VM run, as all 3 bits it checks signify error codes. There is no mask for
+ 	//continue running this code.
+
+ //delete the PCB and processes' stack file on processFinish()
+
+
 #include "OS.h"
 #include "vm/VirtualMachine.h"
 #include "sys/assembler/Assembler.h"
@@ -127,6 +142,9 @@ void OS::loadState()
 	VM.limit = running->limit;
 	VM.inFile = running->inFile;
 	VM.outFile = running->outFile;
+	// for (int i = 0; getline(); ++i){
+	// 	running->stFile >> VM.mem[VM.sp-i] ;
+	// }
 }
 
 /*
@@ -142,6 +160,9 @@ void OS::saveState()
 	running->limit = VM.limit;
 	running->inFile = VM.inFile;
 	running->outFile = VM.outFile;
+	// for (int i = VM.sp; i < VM.memSize; --i){
+	// 	running->stFile >> VM.mem[i] ;
+	// }
 }
 
 /*
@@ -161,7 +182,7 @@ void OS::run()
 			// Load stack from .st file
 		}
 
-		switch(VM.run()) {
+		switch((running->sr >> 5) & 7) { //Looks only at the 3 VM return status bits
 			// Time slice
 			case 0:
 				break;
@@ -172,18 +193,22 @@ void OS::run()
 
 			// Reference out of bounds
 			case 2:
+				printf("Virtual Machine: Reference out of bounds\n");
 				break;
 
 			// Stack Overflow
 			case 3:
+				printf("Virtual Machine: Stack overflow!\n");
 				break;
 
 			// Stack Underflow
 			case 4:
+				printf("Virtual Machine: Stack underflow\n");
 				break;
 
 			// Invalid Opcode
 			case 5:
+				printf("Virtual Machine: Invalid Opcode\n");
 				break;
 
 			// Read Operation
