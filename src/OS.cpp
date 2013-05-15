@@ -89,9 +89,6 @@ void OS::load()
 		progs.push_back(pcb);
 		readyQ.push(pcb);
 	}
-	//for(int i = 0; i < limit; ++i) { //outputting memory to make sure progs loaded into mem
-    //printf("Memory[%u] \t %u \n", i, VM.mem[i]);
-    //}
 }
 
 /**
@@ -152,8 +149,52 @@ void OS::saveState()
  */
 void OS::run()
 {
-	//progs(1).base;
+	while(running or waitQ.size()) {
 
+		if ( ! running and waitQ.size()) {
+			// noop until wait queue is ready.
+			// Then run scheduler
+		}
+		loadState();
+
+		if(running->sp < VM.memSize) {
+			// Load stack from .st file
+		}
+
+		switch(VM.run()) {
+			// Time slice
+			case 0:
+				break;
+
+			// Halt
+			case 1:
+				break;
+
+			// Reference out of bounds
+			case 2:
+				break;
+
+			// Stack Overflow
+			case 3:
+				break;
+
+			// Stack Underflow
+			case 4:
+				break;
+
+			// Invalid Opcode
+			case 5:
+				break;
+
+			// Read Operation
+			case 6:
+				break;
+
+			// Write Operation
+			case 7:
+				break;
+		}
+	}
 }
 
 /*
@@ -167,7 +208,15 @@ void OS::processFinish()
 	float throughput = (float)progs.size()/(float)VM.clock/10000.0;
 
 	running->outFile->precision(2);
-	*running->outFile << endl << "[Program Statistics]" << endl;
+
+	*running->outFile << endl << "[Process Information]" << endl;
+	*running->outFile << "CPU Time: " << running->execTime << endl;
+	*running->outFile << "Waiting Time: " << running->waitTime << endl;
+	*running->outFile << "Turnaround Time: " << running->turnTime << endl;
+	*running->outFile << "I/O Time: " << running->ioTime << endl;
+	*running->outFile << "Largest Stack Size: " << running->largestStack << endl;
+
+	*running->outFile << endl << "[System Information]" << endl;
 	*running->outFile << "System Time: " << systemTime << endl;
 	*running->outFile << "System CPU Util: " << systemCpuUtil << "%" << endl;
 	*running->outFile << "User CPU Util: " << userCpuUtil << "%" << endl;
