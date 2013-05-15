@@ -93,15 +93,22 @@ void OS::saveState()
  */
 void OS::scheduler()
 {
-	//for(int i = 0; i )
-	//	if(waitQ.front()->ioTime <= 1)
-	// Place completed waits in ready queue
+	for(int i = 0; i < waitQ.size(); ++i) {
+		if(waitQ.front()->ioTime <= VM->clock) {
+			readyQ.push(waitQ.front());
+			waitQ.pop();
+		} else {
+			waitQ.push(waitQ.front());
+			waitQ.pop();
+		}
+	}
 
-	// Running process terminate OR move to proper queue
-	//saveState();
-
-	// Next process assigned to VM
-	//loadState(readyQ.front());
+	if(readyQ.size) {
+		running = readyQ.front();
+		readyQ.pop();
+	} else {
+		running = NULL;
+	}
 }
 
 /*
