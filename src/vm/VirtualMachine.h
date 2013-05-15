@@ -24,6 +24,7 @@ public:
 	static const int memSize = 256;
 
 	VirtualMachine();
+	virtual ~VirtualMachine() {};
 	void run();
 	void machineDump();
 	void memoryDump(short memInt);
@@ -34,7 +35,8 @@ private:
 	short reg[regSize];
 	short mem[memSize];
 	unsigned clock;
-	string fileName;
+	fstream* outFile;
+	fstream* inFile;
 
 	typedef void(VirtualMachine::*FunctionPointer)();
 	FunctionPointer instructions[26];

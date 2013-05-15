@@ -18,6 +18,7 @@ using namespace std;
 class Assembler {
 public:
 	Assembler(const string &opListPath);
+	virtual ~Assembler() {};
 	void build(const string &sourcePath);
 
 private:

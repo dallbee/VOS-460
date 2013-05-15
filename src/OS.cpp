@@ -21,80 +21,74 @@ using namespace std;
 
 /**
  * Creates a PCB object
+ * Responsible for setting up the main file streams for the entire system
  */
-PCB::PCB(string fileName) : name(fileName), reg(), pc(), sr(),
+PCB::PCB(string fileName) : name(fileName), reg(), pc(), sr(), ir(),
 	sp(VirtualMachine::memSize - 1), base(), limit(), execTime(), waitTime(),
 	turnTime(), ioTime(), largestStack(),
-	oFile(string("../io/" + name + "/" + name + ".o").c_str()),
-	outFile(string("../io/" + name + "/" + name + ".out").c_str()),
-	inFile(string("../io/" + name + "/" + name + ".in").c_str()),
-	stFile(string("../io/" + name + "/" + name + ".st").c_str())
+	oFile(new fstream(string("../io/" + name + "/" + name + ".o").c_str())),
+	outFile(new fstream(string("../io/" + name + "/" + name +".out").c_str())),
+	inFile(new fstream(string("../io/" + name + "/" + name + ".in").c_str())),
+	stFile(new fstream(string("../io/" + name + "/" + name + ".st").c_str()))
 {
-	printf("%s\n", string("../io/" + name + "/" + name + ".o").c_str());
+}
+
+/**
+ * Deconstructs the PCB object
+ */
+PCB::~PCB()
+{
+	delete oFile;
+	delete outFile;
+	delete inFile;
+	delete stFile;
 }
 
 /**
  * Creates an OS object
  */
-OS::OS() : VM(), progs(), readyQ(), waitQ(), running(), osClock(), exitCode(),
-	userTotal(), idleTotal(), systemCpuUtil(), userCpuUtil(), throughput(),
-	osOut(), processStack(), asLine(), limit(), programAs(), mem()
+OS::OS() : VM(), progs(), readyQ(), waitQ(), running(), exitCode(), userTotal(),
+	idleTotal(), osOut(), processStack(), asLine(), limit(), programAs()
 {
-
 }
 
 /*
  * Brings a new PCB into the Virtual Machine
  */
-
 void OS::loadState()
-{ //loads PCB of running process, just before it starts
-	// LOAD FROM ST FILE FIRST
-
-	// VM.pc = running->pc + running->base;
-	// VM.sp = running->sp;
-	// VM.reg = running->reg;
-	// VM.ir = running->ir;
-	// VM.fileName = running->fileName;
-	// VM.base = running->base;
-	// VM.limit = running->limit;
+{
+	copy(&running->reg[0], &running->reg[VM.regSize], VM.reg);
+	VM.pc = running->pc + running->base;
+	VM.sp = running->sp;
+	VM.sr = running->sr;
+	VM.base = running->base;
+	VM.limit = running->limit;
+	VM.inFile = running->inFile;
+	VM.outFile = running->outFile;
 }
-
-/**
- * [OS::finish description]
- */
-/*
-void OS::finish()
-{ //get total times
-	systemCpuUtil = (osClock - idleTotal)/osClock;
-	userCpuUtil	= userTotal/osClock;
-	throughput = progs.size()/osClock;
-
-	//os output here. Still deciding how to handle.
-}*/
 
 /*
  * Saves the current state of the Virtual Machine into a PCB.
  */
-/*
 void OS::saveState()
-{ //saves PCB of running process upon using its timeslice, or io starts
-	running->pc = VM.pc = VM.base;
+{
+	copy(&VM.reg[0], &VM.reg[VM.regSize], running->reg);
+	running->pc = VM.pc - VM.base;
 	running->sp = VM.sp;
-	running->reg = VM.reg;
-	running->ir = VM.ir;
-	running->fileName = VM.fileName;
+	running->sr = VM.sr;
 	running->base = VM.base;
 	running->limit = VM.limit;
-}*/
+	running->inFile = VM.inFile;
+	running->outFile = VM.outFile;
+}
 
 /**
- *
+ * Organizes the Wait and Ready queues, and sets up the appropriate PCB to run.
  */
 void OS::scheduler()
 {
-	for(int i = 0; i < waitQ.size(); ++i) {
-		if(waitQ.front()->ioTime <= VM->clock) {
+	for(unsigned i = 0; i < waitQ.size(); ++i) {
+		if(waitQ.front()->ioTime <= VM.clock) {
 			readyQ.push(waitQ.front());
 			waitQ.pop();
 		} else {
@@ -103,7 +97,7 @@ void OS::scheduler()
 		}
 	}
 
-	if(readyQ.size) {
+	if(readyQ.size()) {
 		running = readyQ.front();
 		readyQ.pop();
 	} else {
@@ -116,7 +110,17 @@ void OS::scheduler()
  */
 void OS::processFinish()
 {
-	//program output file
+	int systemTime = 0;
+	float systemCpuUtil = ((float)(VM.clock - idleTotal)/(float)VM.clock)*100.0;
+	float userCpuUtil = ((float)userTotal/(float)VM.clock)*100.0;
+	float throughput = (float)progs.size()/(float)VM.clock/10000.0;
+
+	running->outFile->precision(2);
+	*running->outFile << endl << "[Program Statistics]" << endl;
+	*running->outFile << "System Time: " << systemTime << endl;
+	*running->outFile << "System CPU Utilization: " << systemCpuUtil << "%" << endl;
+	*running->outFile << "User CPU Utilization: " << userCpuUtil << "%" << endl;
+	*running->outFile << "Throughput: " << throughput << endl;
 }
 
 /*
@@ -157,14 +161,17 @@ void OS::load()
 		pcb->base = limit;
 		pcb->pc = limit;
 
-		for(string opCode; getline(pcb->oFile, opCode);) {
+		for(string opCode; getline(*pcb->oFile, opCode);) {
 			stringstream convert(opCode);
-			convert >> VM->mem[limit++];
+			convert >> VM.mem[limit++];
 		}
 
 		progs.push_back(pcb);
 		readyQ.push(pcb);
 	}
+	//for(int i = 0; i < limit; ++i) { //outputting memory to make sure progs loaded into mem
+    //printf("Memory[%u] \t %u \n", i, VM.mem[i]);
+    //}
 }
 
 /**

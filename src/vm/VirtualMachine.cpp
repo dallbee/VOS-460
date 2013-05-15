@@ -19,8 +19,8 @@ using namespace std;
  * Construct object and create registers and memory
  */
  VirtualMachine::VirtualMachine():
-	mem(), clock(), fileName(), OP(), RD(), I(), RS(), ADDR(), CONST(), pc(),
-	ir(), sp(memSize - 1), base(), limit(), sr()
+	mem(), clock(), OP(), RD(), I(), RS(), ADDR(), CONST(), pc(), ir(),
+	sp(memSize - 1), base(), limit(), sr()
  {
 	instructions[0x00] = &VirtualMachine::loadExec;
 	instructions[0x01] = &VirtualMachine::storeExec;
@@ -60,7 +60,6 @@ using namespace std;
 	printf("Stack Pointer: \t %u\n", sp);
 	printf("Clock: \t \t %u\n", clock);
  	printf("CONST:%u ADDR:%u RS:%u I:%u RD:%u OP:%X\n", CONST, ADDR, RS, I, RD, OP );
-	printf("Filename:%s \n", fileName.c_str());
 	printf("statusReg:%X \n", sr);
 	for(int i = 0; i < regSize; ++i) {
 		printf("Register[%u] \t %u \n", i, reg[i] & 0xFFFF );
@@ -479,9 +478,7 @@ void VirtualMachine::returnExec()
  */
 void VirtualMachine::readExec()
 {
-	fileName = (fileName.substr(0, fileName.find_last_of("."))).append(".in");
-	ifstream inputFile(fileName.c_str());
-	inputFile >> reg[RD];
+	*inFile >> reg[RD];
 	clock += 28;
 }
 
@@ -490,9 +487,7 @@ void VirtualMachine::readExec()
  */
 void VirtualMachine::writeExec()
 {
-	fileName = (fileName.substr(0, fileName.find_last_of("."))).append(".out");
-	ofstream outputFile(fileName.c_str());
-	outputFile << reg[RD];
+	*outFile << reg[RD];
 	clock += 28;
 }
 

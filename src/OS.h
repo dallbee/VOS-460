@@ -20,6 +20,7 @@ using namespace std;
 class PCB {
 public:
 	PCB(string name);
+	virtual ~PCB();
 private:
 	friend class OS;
 	string name;
@@ -28,6 +29,7 @@ private:
 	short reg[VirtualMachine::regSize];
 	short pc;
 	short sr;
+	short ir;
 	short sp;
 	short base;
 	short limit;
@@ -40,37 +42,34 @@ private:
 	unsigned largestStack;
 
 	// File Streams
-	fstream oFile;
-	fstream outFile;
-	fstream inFile;
-	fstream stFile;
+	fstream *oFile;
+	fstream *outFile;
+	fstream *inFile;
+	fstream *stFile;
 };
 
 class OS {
 public:
 	OS();
+	virtual ~OS() {};
 	void run();
 	void load();
 	void loadState();
 	void saveState();
 	void scheduler();
 	void processFinish();
-	void finish();
+	void output();
 
 private:
 	VirtualMachine VM;
 	list<PCB *> progs;
 	queue<PCB *> readyQ, waitQ;
 	PCB* running;
-	int osClock;
 	short exitCode;
 
 	//System Information
 	int userTotal;
 	int idleTotal;
-	int systemCpuUtil;
-	int userCpuUtil;
-	int throughput;
 
 	fstream osOut;
 	fstream processStack;
