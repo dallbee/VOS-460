@@ -53,86 +53,6 @@ OS::OS() : VM(), progs(), readyQ(), waitQ(), running(), exitCode(), userTotal(),
 }
 
 /*
- * Brings a new PCB into the Virtual Machine
- */
-void OS::loadState()
-{
-	copy(&running->reg[0], &running->reg[VM.regSize], VM.reg);
-	VM.pc = running->pc + running->base;
-	VM.sp = running->sp;
-	VM.sr = running->sr;
-	VM.base = running->base;
-	VM.limit = running->limit;
-	VM.inFile = running->inFile;
-	VM.outFile = running->outFile;
-}
-
-/*
- * Saves the current state of the Virtual Machine into a PCB.
- */
-void OS::saveState()
-{
-	copy(&VM.reg[0], &VM.reg[VM.regSize], running->reg);
-	running->pc = VM.pc - VM.base;
-	running->sp = VM.sp;
-	running->sr = VM.sr;
-	running->base = VM.base;
-	running->limit = VM.limit;
-	running->inFile = VM.inFile;
-	running->outFile = VM.outFile;
-}
-
-/**
- * Organizes the Wait and Ready queues, and sets up the appropriate PCB to run.
- */
-void OS::scheduler()
-{
-	for(unsigned i = 0; i < waitQ.size(); ++i) {
-		if(waitQ.front()->ioTime <= VM.clock) {
-			readyQ.push(waitQ.front());
-			waitQ.pop();
-		} else {
-			waitQ.push(waitQ.front());
-			waitQ.pop();
-		}
-	}
-
-	if(readyQ.size()) {
-		running = readyQ.front();
-		readyQ.pop();
-	} else {
-		running = NULL;
-	}
-}
-
-/*
-
- */
-void OS::processFinish()
-{
-	int systemTime = 0;
-	float systemCpuUtil = ((float)(VM.clock - idleTotal)/(float)VM.clock)*100.0;
-	float userCpuUtil = ((float)userTotal/(float)VM.clock)*100.0;
-	float throughput = (float)progs.size()/(float)VM.clock/10000.0;
-
-	running->outFile->precision(2);
-	*running->outFile << endl << "[Program Statistics]" << endl;
-	*running->outFile << "System Time: " << systemTime << endl;
-	*running->outFile << "System CPU Utilization: " << systemCpuUtil << "%" << endl;
-	*running->outFile << "User CPU Utilization: " << userCpuUtil << "%" << endl;
-	*running->outFile << "Throughput: " << throughput << endl;
-}
-
-/*
-
- */
-void OS::run()
-{
-	//progs(1).base;
-
-}
-
-/*
  * Reads and assembles all programs in the io directory.
  */
 void OS::load()
@@ -175,6 +95,86 @@ void OS::load()
 }
 
 /**
+ * Organizes the Wait and Ready queues, and sets up the appropriate PCB to run.
+ */
+void OS::schedule()
+{
+	for(unsigned i = 0; i < waitQ.size(); ++i) {
+		if(waitQ.front()->ioTime <= VM.clock) {
+			readyQ.push(waitQ.front());
+			waitQ.pop();
+		} else {
+			waitQ.push(waitQ.front());
+			waitQ.pop();
+		}
+	}
+
+	if(readyQ.size()) {
+		running = readyQ.front();
+		readyQ.pop();
+	} else {
+		running = NULL;
+	}
+}
+
+/*
+ * Brings a new PCB into the Virtual Machine
+ */
+void OS::loadState()
+{
+	copy(&running->reg[0], &running->reg[VM.regSize], VM.reg);
+	VM.pc = running->pc + running->base;
+	VM.sp = running->sp;
+	VM.sr = running->sr;
+	VM.base = running->base;
+	VM.limit = running->limit;
+	VM.inFile = running->inFile;
+	VM.outFile = running->outFile;
+}
+
+/*
+ * Saves the current state of the Virtual Machine into a PCB.
+ */
+void OS::saveState()
+{
+	copy(&VM.reg[0], &VM.reg[VM.regSize], running->reg);
+	running->pc = VM.pc - VM.base;
+	running->sp = VM.sp;
+	running->sr = VM.sr;
+	running->base = VM.base;
+	running->limit = VM.limit;
+	running->inFile = VM.inFile;
+	running->outFile = VM.outFile;
+}
+
+/*
+
+ */
+void OS::run()
+{
+	//progs(1).base;
+
+}
+
+/*
+
+ */
+void OS::processFinish()
+{
+	int systemTime = 0;
+	float systemCpuUtil = ((float)(VM.clock - idleTotal)/(float)VM.clock)*100.0;
+	float userCpuUtil = ((float)userTotal/(float)VM.clock)*100.0;
+	float throughput = (float)progs.size()/(float)VM.clock/10000.0;
+
+	running->outFile->precision(2);
+	*running->outFile << endl << "[Program Statistics]" << endl;
+	*running->outFile << "System Time: " << systemTime << endl;
+	*running->outFile << "System CPU Util: " << systemCpuUtil << "%" << endl;
+	*running->outFile << "User CPU Util: " << userCpuUtil << "%" << endl;
+	*running->outFile << "Throughput: " << throughput << endl;
+}
+
+/**
  * Initializes the Operating system and boots.
  *
  * @return Failure status
@@ -184,7 +184,7 @@ int main()
 	try {
 		OS os;
 		os.load();
-		os.scheduler();
+		os.schedule();
 		os.run();
 	} catch(const char* error) {
 		printf("[Operating System Error] %s \n", error);

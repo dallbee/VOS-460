@@ -52,13 +52,12 @@ class OS {
 public:
 	OS();
 	virtual ~OS() {};
-	void run();
 	void load();
+	void schedule();
 	void loadState();
 	void saveState();
-	void scheduler();
+	void run();
 	void processFinish();
-	void output();
 
 private:
 	VirtualMachine VM;
