@@ -124,46 +124,37 @@ void OS::run()
  */
 void OS::load()
 {
-	// Copies the name of all program files in the io directory to progs file
-	//if (system("ls -d -1 $PWD/../io/**/*.s | grep -Po '(?<=\\/)\\w*(?=\\/\\w*\\.s)' > progs")) {
+	// Copies the paths of all program files in the io directory to progs file
 	if (system("ls -d ../io/**/*.s > progs")) {
 		throw "Error while attempting to get program listing";
 	}
+
 	ifstream progFile("progs");
 	for (string line; getline(progFile, line);) {
-		string shortName = line.substr(line.find_last_of("/")+1, line.size());
-		shortName = shortName.substr(0, shortName.find_last_of("."));
-		PCB *pcb = new PCB(shortName);
+		string name = line.substr(line.find_last_of("/") + 1, line.size())
+						.substr(0, name.find_last_of("."));
+
+		PCB *pcb = new PCB(name);
 
 		// Assemble opcodes
-	 	try {
-	 		Assembler as("../src/sys/assembler/opcodes.lst");
-	 		as.build(string(line));
-	 	} catch(const char* error) {
-	 		printf("[Assembler Error] %s \n", error);
-	 	}
-
-		// // Load object code into memory
- 		ifstream asFile(((line.substr(0, line.find_last_of("."))).append(".o")).c_str());
- 		if (! asFile.good()){
-	 		printf ("OS: could not find assembly code file");
-	 	}
-
-	 	pcb -> base = limit;
-	 	pcb -> pc   = limit;
-	 	asFile >> asLine;
-	 	while(!asFile.eof()){
-	 		mem[limit++] = asLine;
- 			asFile >> asLine;
-	 	}
-		progs.push_back(pcb);
-
-	}
-	for(int i = 0; i < limit; ++i) { //outputting memory to make sure progs loaded into mem
-		printf("Memory[%u] \t %u \n", i, mem[i]);
+		try {
+			Assembler as("../src/sys/assembler/opcodes.lst");
+			as.build(string(line));
+		} catch(const char* error) {
+			printf("[Assembler Error] %s \n", error);
 		}
-	if (system("rm -f progs")) {
-		printf("Could not remove progs file");
+
+		// Load object code into memory
+		pcb->base = limit;
+		pcb->pc = limit;
+
+		for(string opCode; getline(pcb->o, opCode);) {
+			stringstream convert(opCode);
+			convert >> mem[limit++];
+		}
+
+		progs.push_back(pcb);
+		readyQ.push_back(pcb);
 	}
 }
 
@@ -190,7 +181,7 @@ int main()
 
 // int main(int argc, char *argv[])
 // {
-// 	fAndF = argv[1]; //filesAndFolders
+//	fAndF = argv[1]; //filesAndFolders
 // 	fAndF = "../io/"+(fAndF.substr(0, fAndF.find_last_of("."))).append("/")+fAndF;
 // 	if(argc == 1)
 //  {

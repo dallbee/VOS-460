@@ -20,8 +20,8 @@ using namespace std;
 class PCB {
 public:
 	PCB(string name);
-	friend class OS;
 private:
+	friend class OS;
 	string name;
 
 	// Program execution information
