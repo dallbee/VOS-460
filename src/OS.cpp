@@ -22,21 +22,21 @@ using namespace std;
 /**
  * Creates a PCB object
  */
-PCB::PCB(string fileName) : VM(), name(fileName), reg(), pc(), sr(),
+PCB::PCB(string fileName) : name(fileName), reg(), pc(), sr(),
 	sp(VirtualMachine::memSize - 1), base(), limit(), execTime(), waitTime(),
 	turnTime(), ioTime(), largestStack(),
-	o(string("../io/" + name + "/" + name + ".o").c_str()),
-	out(string("../io/" + name + "/" + name + ".out").c_str()),
-	in(string("../io/" + name + "/" + name + ".in").c_str()),
-	st(string("../io/" + name + "/" + name + ".st").c_str())
+	oFile(string("../io/" + name + "/" + name + ".o").c_str()),
+	outFile(string("../io/" + name + "/" + name + ".out").c_str()),
+	inFile(string("../io/" + name + "/" + name + ".in").c_str()),
+	stFile(string("../io/" + name + "/" + name + ".st").c_str())
 {
-
+	printf("%s\n", string("../io/" + name + "/" + name + ".o").c_str());
 }
 
 /**
  * Creates an OS object
  */
-OS::OS() : progs(), readyQ(), waitQ(), running(), osClock(), exitCode(),
+OS::OS() : VM(), progs(), readyQ(), waitQ(), running(), osClock(), exitCode(),
 	userTotal(), idleTotal(), systemCpuUtil(), userCpuUtil(), throughput(),
 	osOut(), processStack(), asLine(), limit(), programAs(), mem()
 {
@@ -93,8 +93,8 @@ void OS::saveState()
  */
 void OS::scheduler()
 {
-	for(int i = 0; i )
-		if(waitQ.front()->ioTime <= )
+	//for(int i = 0; i )
+	//	if(waitQ.front()->ioTime <= 1)
 	// Place completed waits in ready queue
 
 	// Running process terminate OR move to proper queue
@@ -133,8 +133,8 @@ void OS::load()
 
 	ifstream progFile("progs");
 	for (string line; getline(progFile, line);) {
-		string name = line.substr(line.find_last_of("/") + 1, line.size())
-						.substr(0, name.find_last_of("."));
+		string name = line.substr(line.find_last_of("/") + 1,
+		    line.find_last_of(".") - line.find_last_of("/") - 1);
 
 		PCB *pcb = new PCB(name);
 
@@ -150,13 +150,13 @@ void OS::load()
 		pcb->base = limit;
 		pcb->pc = limit;
 
-		for(string opCode; getline(pcb->o, opCode);) {
+		for(string opCode; getline(pcb->oFile, opCode);) {
 			stringstream convert(opCode);
 			convert >> mem[limit++];
 		}
 
 		progs.push_back(pcb);
-		readyQ.push_back(pcb);
+		readyQ.push(pcb);
 	}
 }
 

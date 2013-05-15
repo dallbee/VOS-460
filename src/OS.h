@@ -40,10 +40,10 @@ private:
 	unsigned largestStack;
 
 	// File Streams
-	fstream o;
-	fstream out;
-	fstream in;
-	fstream st;
+	fstream oFile;
+	fstream outFile;
+	fstream inFile;
+	fstream stFile;
 };
 
 class OS {
