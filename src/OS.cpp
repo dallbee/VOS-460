@@ -9,7 +9,6 @@
 
 //TO DO:
  //.st files for the stacks being saved out. needed in the loadState() and the saveState()
- 	//just barely started. commented out still.
 
  //fill in case statement's code
 
@@ -19,7 +18,6 @@
  	//will ever let our VM run, as all 3 bits it checks signify error codes. There is no mask for
  	//continue running this code.
 
- //delete the PCB and processes' stack file on processFinish()
 
 
 #include "OS.h"
@@ -249,6 +247,8 @@ void OS::processFinish()
 	*running->outFile << "System CPU Util: " << systemCpuUtil << "%" << endl;
 	*running->outFile << "User CPU Util: " << userCpuUtil << "%" << endl;
 	*running->outFile << "Throughput: " << throughput << endl;
+	remove(string("../io/" + running->name + "/" + running->name + ".st").c_str());
+	delete running;
 }
 
 /**
