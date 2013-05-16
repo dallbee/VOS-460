@@ -90,7 +90,6 @@ void OS::load()
 			stringstream convert(opCode);
 			convert >> VM.mem[limit++];
 		}
-
 		progs.push_back(pcb);
 		readyQ.push(pcb);
 	}
@@ -171,6 +170,7 @@ void OS::saveState()
  */
 void OS::run()
 {
+	VM.run();
 	while(active or waitQ.size()) {
 
 		if ( ! active and waitQ.size()) {

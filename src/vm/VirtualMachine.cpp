@@ -56,7 +56,7 @@ using namespace std;
  void VirtualMachine::machineDump()
  {
  	printf("==================================================\n");
- 	printf("Program Counter: \t %u\n", pc-1);
+ 	printf("Program Counter: \t %u\n", pc);
 	printf("Stack Pointer: \t %u\n", sp);
 	printf("Clock: \t \t %u\n", clock);
  	printf("CONST:%u ADDR:%u RS:%u I:%u RD:%u OP:%X\n", CONST, ADDR, RS, I, RD, OP );
@@ -74,7 +74,7 @@ using namespace std;
  * other return conditions.
  */
 void VirtualMachine::run()
-{
+{machineDump();
 	for(int timeslice = 0; timeslice < 15 and sr & 0xEF; ++timeslice) {
 		ir = mem[pc++];
 		sr &= 0xFF1F;
