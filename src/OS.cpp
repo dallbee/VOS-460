@@ -101,6 +101,8 @@ void OS::load()
  */
 void OS::schedule()
 {
+	VM.clock += 5;
+
 	for(unsigned i = 0; i < waitQ.size(); ++i) {
 		if(waitQ.front()->ioTime <= VM.clock) {
 			waitQ.front()->ioTime += (VM.clock + waitQ.front()->tempClock);
@@ -247,9 +249,9 @@ void OS::processFinish()
 	float userCpuUtil = ((float)userTotal/(float)VM.clock)*100.0;
 	float throughput = (float)progs.size()/(float)VM.clock/10000.0;
 
-	active->outFile->precision(2);
-
+	active->largestStack = VirtualMachine::memSize - active->largestStack;
 	active->turnTime = active->execTime + active->waitTime + active->ioTime;
+	//active->outFile->precision(2);
 
 	*active->outFile << endl << "[Process Information]" << endl;
 	*active->outFile << "CPU Time: " << active->execTime << endl;
@@ -263,6 +265,7 @@ void OS::processFinish()
 	*active->outFile << "System CPU Util: " << systemCpuUtil << "%" << endl;
 	*active->outFile << "User CPU Util: " << userCpuUtil << "%" << endl;
 	*active->outFile << "Throughput: " << throughput << endl;
+
 	remove(string("../io/" + active->name + "/" + active->name +".st").c_str());
 	delete active;
 }
