@@ -103,6 +103,8 @@ void OS::schedule()
 {
 	for(unsigned i = 0; i < waitQ.size(); ++i) {
 		if(waitQ.front()->ioTime <= VM.clock) {
+			waitQ.front()->ioTime += (VM.clock + waitQ.front()->tempClock);
+			waitQ.front()->tempClock = VM.clock;
 			readyQ.push(waitQ.front());
 			waitQ.pop();
 		} else {
