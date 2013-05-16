@@ -76,10 +76,9 @@ using namespace std;
 void VirtualMachine::run()
 {//machineDump();
 	sr &= 0xFF1F;
-	for(int timeslice = 0; timeslice < 15 and !(sr & 0xFF1F); ++timeslice) {
+	for(int timeslice = 0; timeslice < 15 and !(sr & 0xE0); ++timeslice) {
 		machineDump();
 		ir = mem[pc++];
-		sr &= 0xFF1F;
 		CONST = ir & 0xFF;
 		ADDR = ir & 0xFF;
 		RS = (ir >>= 6) & 0x03;
