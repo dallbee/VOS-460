@@ -75,13 +75,13 @@ using namespace std;
  */
 void VirtualMachine::run()
 {
-	for(int timeslice = 0; timeslice < 15; ++timeslice) {
+	for(int timeslice = 0; timeslice < 15 and sr & 0xEF; ++timeslice) {
 		ir = mem[pc++];
 		sr &= 0xFF1F;
 		CONST = ir & 0xFF;
 		ADDR = ir & 0xFF;
 		RS = (ir >>= 6) & 0x03;
-		I =  (ir >>= 2) & 0x01;
+		I = (ir >>= 2) & 0x01;
 		RD = (ir >>= 1) & 0x03;
 		OP = (ir >>= 2) & 0x1F;
 
@@ -255,6 +255,7 @@ inline int VirtualMachine::getOverflow()
 void VirtualMachine::loadExec()
 {
 	reg[RD] = I ? CONST : mem[ADDR];
+	clock += 3;
 }
 
 /**
@@ -263,6 +264,7 @@ void VirtualMachine::loadExec()
 void VirtualMachine::storeExec()
 {
 	mem[ADDR] = reg[RD];
+	clock += 3;
 }
 
 /**
@@ -453,6 +455,7 @@ void VirtualMachine::callExec()
 	pushStack(reg[2]);
 	pushStack(reg[3]);
 	pc = ADDR;
+	clock += 3;
 }
 
 /**
@@ -466,6 +469,7 @@ void VirtualMachine::returnExec()
 	reg[0] = popStack();
 	sr = popStack();
 	pc = popStack();
+	clock += 3;
 }
 
 /**
@@ -482,12 +486,4 @@ void VirtualMachine::readExec()
 void VirtualMachine::writeExec()
 {
 	*outFile << reg[RD];
-}
-
-/**
- * Halts the VirtualMachine
- */
-void VirtualMachine::haltExec()
-{
-	pc = memSize;
 }

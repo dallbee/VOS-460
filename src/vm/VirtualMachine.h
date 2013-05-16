@@ -95,7 +95,7 @@ private:
 	void returnExec();
 	void readExec();
 	void writeExec();
-	void haltExec();
+	void haltExec() {};
 	void noopExec() {};
 };
 
