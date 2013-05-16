@@ -98,13 +98,13 @@ void OS::load()
 	 		*pcb->oFile >> assLine;
 	 	}
 		pcb->limit = limit;
-		printf("%s:\tpc:%ib:%i\tl:%i\n", pcb->name.c_str(), pcb->pc, pcb->base, pcb->limit);
+		// printf("%s:\tpc:%ib:%i\tl:%i\n", pcb->name.c_str(), pcb->pc, pcb->base, pcb->limit);
 		progs.push_back(pcb);
 		readyQ.push(pcb);
 	}
-	for(int i = 0; i < VM.memSize; ++i) {
-		printf("Memory[%u] \t %u \n", i, VM.mem[i] & 0xFFFF );
-	}
+	// for(int i = 0; i < VM.memSize; ++i) {
+	// 	printf("Memory[%u] \t %u \n", i, VM.mem[i] & 0xFFFF );
+	// }
 }
 
 /**
@@ -171,7 +171,6 @@ void OS::saveState()
 	active->tempClock = VM.clock;
 	copy(&VM.reg[0], &VM.reg[VM.regSize], active->reg);
 	active->pc = VM.pc;
-	printf("%i\n", VM.pc);
 	active->sp = VM.sp;
 	active->sr = VM.sr;
 	active->base = VM.base;
@@ -202,7 +201,7 @@ void OS::run()
 		}
 
 		loadState();
-		printf("==================================================\n%s\n",active->name.c_str() );
+		// printf("==================================================\n%s\n",active->name.c_str() );
 
 		VM.run();
 		active->execTime += (VM.clock - active->tempClock);

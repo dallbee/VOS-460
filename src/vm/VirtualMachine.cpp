@@ -86,7 +86,7 @@ void VirtualMachine::run()
 		I = (ir >>= 2) & 0x01;
 		RD = (ir >>= 1) & 0x03;
 		OP = (ir >>= 2) & 0x1F;
-		machineDump();
+		//machineDump();
 
 		(this->*instructions[OP])();
 		++clock;
@@ -115,7 +115,7 @@ void VirtualMachine::run()
 		else if (OP == 0x17) { // Write Operation
 			sr |= 224;
 		}
-		machineDump();
+		//machineDump();
 	}
 }
 
@@ -459,7 +459,6 @@ void VirtualMachine::jumpgExec()
  */
 void VirtualMachine::callExec()
 {
-	printf("IT WENT TO CALL EXEC\n");
 	pushStack(pc);
 	pushStack(sr);
 	pushStack(reg[0]);
@@ -497,6 +496,5 @@ void VirtualMachine::readExec()
  */
 void VirtualMachine::writeExec()
 {
-	printf("IT GOT HERE\n");
 	*outFile << reg[RD];
 }
