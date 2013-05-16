@@ -142,9 +142,11 @@ void OS::loadState()
 	VM.limit = running->limit;
 	VM.inFile = running->inFile;
 	VM.outFile = running->outFile;
-	// for (int i = 0; getline(); ++i){
-	// 	running->stFile >> VM.mem[VM.sp-i] ;
-	// }
+	string line ="";
+	for (int i = VM.memSize; getline(*(running->stFile), line); --i){
+		stringstream convert(line);
+		convert >> VM.mem[i] ;
+	}
 }
 
 /*
@@ -160,9 +162,9 @@ void OS::saveState()
 	running->limit = VM.limit;
 	running->inFile = VM.inFile;
 	running->outFile = VM.outFile;
-	// for (int i = VM.sp; i < VM.memSize; --i){
-	// 	running->stFile >> VM.mem[i] ;
-	// }
+	for (int i = VM.sp; i < VM.memSize; ++i){
+		*(running->stFile) << VM.mem[i];
+	}
 }
 
 /*
