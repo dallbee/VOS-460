@@ -259,8 +259,12 @@ inline int VirtualMachine::getOverflow()
  */
 void VirtualMachine::loadExec()
 {
-	reg[RD] = I ? CONST : mem[ADDR];
-	clock += 3;
+	if(I) {
+		reg[RD] = CONST;
+	} else {
+		reg[RD] = mem[ADDR];
+		clock += 3;
+	}
 }
 
 /**
