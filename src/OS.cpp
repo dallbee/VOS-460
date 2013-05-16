@@ -33,7 +33,7 @@ PCB::PCB(string fileName) : name(fileName), reg(), pc(), sr(), ir(),
 	oFile(new fstream(string("../io/" + name + "/" + name + ".o").c_str())),
 	outFile(new fstream(string("../io/" + name + "/" + name +".out").c_str())),
 	inFile(new fstream(string("../io/" + name + "/" + name + ".in").c_str())),
-	stFile(new fstream(string("../io/" + name + "/" + name + ".st").c_str()))
+	stFile(new fstream())
 {
 }
 
@@ -130,8 +130,8 @@ void OS::loadState()
 {
 	active->waitTime += (VM.clock - active->tempClock);
 	active->tempClock = VM.clock;
-	copy(&active->reg[0], &active->reg[VM.regSize], VM.reg);
-	VM.pc = active->pc;
+	copy(&active->reg[0], &active->reg[VM.regSize - 1], VM.reg);
+	VM.pc = active->pc + active->base;
 	VM.sp = active->sp;
 	VM.sr = active->sr;
 	VM.base = active->base;
@@ -141,10 +141,15 @@ void OS::loadState()
 	VM.largestStack = active->largestStack;
 
 	string line ="";
-	for (int i = VM.memSize; getline(*(active->stFile), line); --i){
+
+	active->outFile->open(string("../io/" + active->name + "/" +
+	                      active->name + ".st").c_str(), ios::in);
+
+	for (int i = VM.memSize; getline(*(active->stFile), line); --i) {
 		stringstream convert(line);
 		convert >> VM.mem[i] ;
 	}
+	active->outFile->close();
 }
 
 /*
@@ -153,19 +158,23 @@ void OS::loadState()
 void OS::saveState()
 {
 	active->tempClock = VM.clock;
-	copy(&VM.reg[0], &VM.reg[VM.regSize], active->reg);
-	active->pc = VM.pc;
+	copy(&VM.reg[0], &VM.reg[VM.regSize - 1], active->reg);
+	active->pc = VM.pc - VM.base;
 	active->sp = VM.sp;
 	active->sr = VM.sr;
 	active->base = VM.base;
 	active->limit = VM.limit;
 	active->inFile = VM.inFile;
 	active->outFile = VM.outFile;
-	active->largestStack =VM.largestStack;
+	active->largestStack = VM.largestStack;
 
-	for (int i = VM.sp; i < VM.memSize; ++i){
-		*(active->stFile) << VM.mem[i];
+	active->outFile->open(string("../io/" + active->name + "/" + active->name +
+	                      ".st").c_str(), ios::in | ios::out | ios::trunc);
+
+	for (int i = VM.sp; i < VM.memSize; ++i) {
+		*(active->outFile) << VM.mem[i] << endl;
 	}
+	active->outFile->close();
 }
 
 /*
