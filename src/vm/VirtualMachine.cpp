@@ -88,7 +88,7 @@ void VirtualMachine::run()
 
 		(this->*instructions[OP])();
 		++clock;
-		if (sp > largestStack){
+		if (sp < largestStack){
 			largestStack = sp;
 		}
 
