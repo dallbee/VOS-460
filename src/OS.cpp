@@ -86,13 +86,24 @@ void OS::load()
 		pcb->base = limit;
 		pcb->pc = limit;
 
-		for(string opCode; getline(*pcb->oFile, opCode);) {
-			stringstream convert(opCode);
-			convert >> VM.mem[limit++];
-		}
+		// for(string opCode; getline(*(pcb->oFile), opCode);) {
+		// 	stringstream convert(opCode.c_str());
+		// 	convert >> VM.mem[limit++];
+		// 	printf("%s\n",opCode.c_str());
+		// }
+		int assLine = 0;
+	  	*pcb->oFile >> assLine;
+		while(!((*pcb->oFile).eof())){
+	 		VM.mem[limit++] = assLine;
+	 		*pcb->oFile >> assLine;
+	 	}
 		pcb->limit = limit;
+		printf("%s:\tpc:%ib:%i\tl:%i\n", pcb->name.c_str(), pcb->pc, pcb->base, pcb->limit);
 		progs.push_back(pcb);
 		readyQ.push(pcb);
+	}
+	for(int i = 0; i < VM.memSize; ++i) {
+		printf("Memory[%u] \t %u \n", i, VM.mem[i] & 0xFFFF );
 	}
 }
 
@@ -131,7 +142,7 @@ void OS::loadState()
 	active->waitTime += (VM.clock - active->tempClock);
 	active->tempClock = VM.clock;
 	copy(&active->reg[0], &active->reg[VM.regSize], VM.reg);
-	VM.pc = active->pc + active->base;
+	VM.pc = active->pc;
 	VM.sp = active->sp;
 	VM.sr = active->sr;
 	VM.base = active->base;
@@ -159,7 +170,8 @@ void OS::saveState()
 {
 	active->tempClock = VM.clock;
 	copy(&VM.reg[0], &VM.reg[VM.regSize], active->reg);
-	active->pc = VM.pc - VM.base;
+	active->pc = VM.pc;
+	printf("%i\n", VM.pc);
 	active->sp = VM.sp;
 	active->sr = VM.sr;
 	active->base = VM.base;

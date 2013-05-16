@@ -94,7 +94,7 @@ void VirtualMachine::run()
 			largestStack = sp;
 		}
 
-		if (pc > limit + base or pc < base) { // Reference out of bounds
+		if (pc > limit or pc < base) { // Reference out of bounds
 			sr = (sr & 0xFF5F) | 64;
 		}
 		else if (sp - 1 == pc) { // Stack Overflow
