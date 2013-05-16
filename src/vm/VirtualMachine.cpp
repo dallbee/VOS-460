@@ -75,9 +75,7 @@ using namespace std;
  */
 void VirtualMachine::run()
 {
-	unsigned timeslice = clock;
-	for(; pc != memSize and OP != 0x18;) {
-		timeslice++;
+	for(int timeslice = 0; timeslice < 15; ++timeslice) {
 		ir = mem[pc++];
 		CONST = ir & 0xFF;
 		ADDR = ir & 0xFF;
@@ -86,7 +84,7 @@ void VirtualMachine::run()
 		RD = (ir >>= 1) & 0x03;
 		OP = (ir >>= 2) & 0x1F;
 
-		if ((clock - timeslice) > 15){//Time slice
+		if ((clock - timeslice) >= 15){//Time slice
 			sr &= 0xFF1F; //clears bits 5,6,7
 		}
 
