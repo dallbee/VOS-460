@@ -96,7 +96,7 @@ private:
 	void readExec();
 	void writeExec();
 	void haltExec();
-	void noopExec();
+	void noopExec() {};
 };
 
 #endif

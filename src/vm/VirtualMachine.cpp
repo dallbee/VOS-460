@@ -112,6 +112,7 @@ void VirtualMachine::run()
 		}
 
 		(this->*instructions[OP])();
+		++clock;
 	}
 }
 
@@ -258,7 +259,6 @@ inline int VirtualMachine::getOverflow()
 void VirtualMachine::loadExec()
 {
 	reg[RD] = I ? CONST : mem[ADDR];
-	++clock;
 }
 
 /**
@@ -267,7 +267,6 @@ void VirtualMachine::loadExec()
 void VirtualMachine::storeExec()
 {
 	mem[ADDR] = reg[RD];
-	++clock;
 }
 
 /**
@@ -279,7 +278,6 @@ void VirtualMachine::addExec()
 	int value = I ? reg[RD] + CONST : reg[RD] + reg[RS];
 	reg[RD] = value & 0xFFFF;
 	setCarry(value);
-	++clock;
 }
 
 /**
@@ -293,7 +291,6 @@ void VirtualMachine::addcExec()
 	int value = I ? reg[RD] + CONST + carry: reg[RD] + reg[RS] + carry;
 	reg[RD] = value & 0xFFFF;
 	setCarry(value);
-	++clock;
 }
 
 /**
@@ -305,7 +302,6 @@ void VirtualMachine::subExec()
 	int value = I ? reg[RD] - CONST : reg[RD] - reg[RS];
 	reg[RD] = value & 0xFFFF;
 	setCarry(value);
-	++clock;
 }
 
 
@@ -320,7 +316,6 @@ void VirtualMachine::subcExec()
 	int value = I ? reg[RD] - CONST - carry : reg[RD] - reg[RS] - carry;
 	reg[RD] = value & 0xFFFF;
 	setCarry(value);
-	++clock;
 }
 
 /**
@@ -330,7 +325,6 @@ void VirtualMachine::subcExec()
 void VirtualMachine::andExec()
 {
 	reg[RD] &= I ? CONST : reg[RS];
-	++clock;
 }
 
 /**
@@ -340,7 +334,6 @@ void VirtualMachine::andExec()
 void VirtualMachine::xorExec()
 {
 	reg[RD] ^= I ? CONST : reg[RS];
-	++clock;
 }
 
 /**
@@ -349,7 +342,6 @@ void VirtualMachine::xorExec()
 void VirtualMachine::complExec()
 {
 	reg[RD] = ~reg[RD];
-	++clock;
 }
 
 /**
@@ -360,7 +352,6 @@ void VirtualMachine::shlExec()
 	int value = reg[RD] << 1;
 	reg[RD] = value & 0xFFFF;
 	setCarry(value);
-	++clock;
 }
 
 /**
@@ -370,7 +361,6 @@ void VirtualMachine::shrExec()
 {
 	setCarryRight();
 	reg[RD] = (unsigned)reg[RD] >> 1;
-	++clock;
 }
 
 /**
@@ -382,7 +372,6 @@ void VirtualMachine::shraExec()
 {
 	setCarryRight();
 	reg[RD] >>= 1;
-	++clock;
 }
 
 /**
@@ -402,7 +391,6 @@ void VirtualMachine::comprExec()
 		setGreater();
 	}
 
-	++clock;
 }
 
 /**
@@ -411,7 +399,6 @@ void VirtualMachine::comprExec()
 void VirtualMachine::getstatExec()
 {
 	reg[RD] = sr;
-	++clock;
 }
 
 /**
@@ -420,7 +407,6 @@ void VirtualMachine::getstatExec()
 void VirtualMachine::putstatExec()
 {
 	sr = reg[RD];
-	++clock;
 }
 
 /**
@@ -429,7 +415,6 @@ void VirtualMachine::putstatExec()
 void VirtualMachine::jumpExec()
 {
 	pc = ADDR;
-	++clock;
 }
 
 /**
@@ -439,7 +424,6 @@ void VirtualMachine::jumpExec()
 void VirtualMachine::jumplExec()
 {
 	pc = getLess() ? ADDR : pc;
-	++clock;
 }
 
 /**
@@ -449,7 +433,6 @@ void VirtualMachine::jumplExec()
 void VirtualMachine::jumpeExec()
 {
 	pc = getEqual() ? ADDR : pc;
-	++clock;
 }
 
 
@@ -460,7 +443,6 @@ void VirtualMachine::jumpeExec()
 void VirtualMachine::jumpgExec()
 {
 	pc = getGreater() ? ADDR : pc;
-	++clock;
 }
 
 /**
@@ -475,7 +457,6 @@ void VirtualMachine::callExec()
 	pushStack(reg[2]);
 	pushStack(reg[3]);
 	pc = ADDR;
-	clock += 4;
 }
 
 /**
@@ -489,7 +470,6 @@ void VirtualMachine::returnExec()
 	reg[0] = popStack();
 	sr = popStack();
 	pc = popStack();
-	clock += 4;
 }
 
 /**
@@ -498,7 +478,6 @@ void VirtualMachine::returnExec()
 void VirtualMachine::readExec()
 {
 	*inFile >> reg[RD];
-	clock += 28;
 }
 
 /**
@@ -507,7 +486,6 @@ void VirtualMachine::readExec()
 void VirtualMachine::writeExec()
 {
 	*outFile << reg[RD];
-	clock += 28;
 }
 
 /**
@@ -516,13 +494,4 @@ void VirtualMachine::writeExec()
 void VirtualMachine::haltExec()
 {
 	pc = memSize;
-	++clock;
-}
-
-/**
- * Only increments the CPU clock
- */
-void VirtualMachine::noopExec()
-{
-	++clock;
 }
