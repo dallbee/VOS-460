@@ -1,1 +1,13 @@
-30
+
+[Process Information]
+CPU Time: 4
+Waiting Time: 73
+Turnaround Time: 77
+I/O Time: 0
+Largest Stack Size: 255
+
+[System Information]
+System Time: 0
+System CPU Util: 1e+02%
+User CPU Util: 0%
+Throughput: 3.9e-06

@@ -75,9 +75,8 @@ using namespace std;
  */
 void VirtualMachine::run()
 {//machineDump();
-
-	for(int timeslice = 0; timeslice < 15 and !(sr & 0xEF); ++timeslice) {
-		printf("does it get here?\n");
+	sr &= 0xFF1F;
+	for(int timeslice = 0; timeslice < 15 and !(sr & 0xFF1F); ++timeslice) {
 		machineDump();
 		ir = mem[pc++];
 		sr &= 0xFF1F;

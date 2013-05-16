@@ -90,6 +90,7 @@ void OS::load()
 			stringstream convert(opCode);
 			convert >> VM.mem[limit++];
 		}
+		pcb->limit = limit;
 		progs.push_back(pcb);
 		readyQ.push(pcb);
 	}
@@ -177,6 +178,8 @@ void OS::run()
 			schedule();// Then run scheduler
 		}
 		loadState();
+	printf("==================================================\n%s\n",active->name.c_str() );
+
 		VM.run();
 		active->execTime += (VM.clock - active->tempClock);
 		switch((active->sr >> 5) & 7) { //Looks only at the 3 VM return status bits
