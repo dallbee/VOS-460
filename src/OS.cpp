@@ -141,7 +141,7 @@ void OS::loadState()
 	VM.inFile = running->inFile;
 	VM.outFile = running->outFile;
 	string line ="";
-	//probably needs error handling if no stFile exists.
+
 	for (int i = VM.memSize; getline(*(running->stFile), line); --i){
 		stringstream convert(line);
 		convert >> VM.mem[i] ;
@@ -161,6 +161,7 @@ void OS::saveState()
 	running->limit = VM.limit;
 	running->inFile = VM.inFile;
 	running->outFile = VM.outFile;
+
 	for (int i = VM.sp; i < VM.memSize; ++i){
 		*(running->stFile) << VM.mem[i];
 	}
