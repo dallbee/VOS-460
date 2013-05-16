@@ -35,6 +35,7 @@ private:
 	short limit;
 
 	// Accounting Information
+	unsigned tempClock;
 	unsigned execTime;
 	unsigned waitTime;
 	unsigned turnTime;
@@ -68,6 +69,7 @@ private:
 
 	//System Information
 	int startClock;
+	int waitClock;
 	int userTotal;
 	int idleTotal;
 

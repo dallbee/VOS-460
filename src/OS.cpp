@@ -28,7 +28,7 @@ using namespace std;
  * Responsible for setting up the main file streams for the entire system
  */
 PCB::PCB(string fileName) : name(fileName), reg(), pc(), sr(), ir(),
-	sp(VirtualMachine::memSize - 1), base(), limit(), execTime(), waitTime(),
+	sp(VirtualMachine::memSize - 1), base(), limit(), tempClock(), execTime(), waitTime(),
 	turnTime(), ioTime(), largestStack(),
 	oFile(new fstream(string("../io/" + name + "/" + name + ".o").c_str())),
 	outFile(new fstream(string("../io/" + name + "/" + name +".out").c_str())),
@@ -124,7 +124,8 @@ void OS::schedule()
  */
 void OS::loadState()
 {
-	startClock = VM.clock;
+	active->waitTime += (VM.clock - active->tempClock);
+	active->tempClock = VM.clock;
 	copy(&active->reg[0], &active->reg[VM.regSize], VM.reg);
 	VM.pc = active->pc + active->base;
 	VM.sp = active->sp;
@@ -145,6 +146,7 @@ void OS::loadState()
  */
 void OS::saveState()
 {
+	active->tempClock = VM.clock;
 	copy(&VM.reg[0], &VM.reg[VM.regSize], active->reg);
 	active->pc = VM.pc - VM.base;
 	active->sp = VM.sp;
@@ -175,7 +177,7 @@ void OS::run()
 		if(active->sp < VM.memSize) {
 			// Load stack from .st file
 		}
-		active->execTime += VM.clock - startClock;
+		active->execTime += (VM.clock - active->tempClock);
 		switch((active->sr >> 5) & 7) { //Looks only at the 3 VM return status bits
 			// Time slice
 			case 0:
@@ -214,14 +216,14 @@ void OS::run()
 
 			// Read Operation
 			case 6:
-				active->ioTime = VM.clock + 28;
+				active->ioTime = VM.clock + 27;
 				saveState();
 				waitQ.push(active);
 				break;
 
 			// Write Operation
 			case 7:
-				active->ioTime = VM.clock + 28;
+				active->ioTime = VM.clock + 27;
 				saveState();
 				waitQ.push(active);
 				break;
