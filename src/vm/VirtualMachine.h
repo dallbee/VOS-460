@@ -36,6 +36,7 @@ private:
 	unsigned clock;
 	fstream* outFile;
 	fstream* inFile;
+	string name;
 
 	typedef void(VirtualMachine::*FunctionPointer)();
 	FunctionPointer instructions[26];

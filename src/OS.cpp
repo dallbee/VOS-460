@@ -31,8 +31,8 @@ PCB::PCB(string fileName) : name(fileName), reg(), pc(), sr(), ir(),
 	sp(VirtualMachine::memSize - 1), base(), limit(), tempClock(), execTime(),
 	waitTime(), turnTime(), ioTime(), largestStack(),
 	oFile(new fstream(string("../io/" + name + "/" + name + ".o").c_str())),
-	outFile(new fstream(string("../io/" + name + "/" + name +".out").c_str())),
-	inFile(new fstream(string("../io/" + name + "/" + name + ".in").c_str())),
+	outFile(new fstream()),
+	inFile(new fstream(string("../io/" + name + "/" + name + ".in").c_str(), ios::in)),
 	stFile(new fstream())
 {
 }
@@ -115,8 +115,7 @@ void OS::schedule()
 	VM.clock += 5;
 
 	for(unsigned i = 0; i < waitQ.size(); ++i) {
-		if(waitQ.front()->ioTime <= VM.clock) {
-			waitQ.front()->ioTime += (VM.clock + waitQ.front()->tempClock);
+		if((waitQ.front()->tempClock + 27) <= VM.clock) {
 			waitQ.front()->tempClock = VM.clock;
 			readyQ.push(waitQ.front());
 			waitQ.pop();
@@ -146,6 +145,7 @@ void OS::loadState()
 	VM.pc = active->pc;
 	VM.sp = active->sp;
 	VM.sr = active->sr;
+	VM.name = active->name;
 	VM.base = active->base;
 	VM.limit = active->limit;
 	VM.inFile = active->inFile;
@@ -175,6 +175,7 @@ void OS::saveState()
 	active->pc = VM.pc;
 	active->sp = VM.sp;
 	active->sr = VM.sr;
+	active->name = VM.name;
 	active->base = VM.base;
 	active->limit = VM.limit;
 	active->inFile = VM.inFile;
@@ -182,7 +183,7 @@ void OS::saveState()
 	active->largestStack = VM.largestStack;
 
 	active->outFile->open(string("../io/" + active->name + "/" + active->name +
-	                      ".st").c_str(), ios::out | ios::trunc);
+	                      ".st").c_str(), ios::out);
 
 	for (int i = VM.sp; i < VM.memSize - 1; ++i) {
 		*(active->outFile) << VM.mem[i] << endl;
@@ -198,7 +199,7 @@ void OS::run()
 	while(active or waitQ.size()) {
 
 		if ( ! active and waitQ.size()) {
-			VM.clock += waitQ.front()->ioTime - 5;// noop until waitQ is ready.
+			VM.clock += 17;// noop until waitQ is ready.
 			schedule();// Then run scheduler
 		}
 
@@ -248,14 +249,14 @@ void OS::run()
 
 			// Read Operation
 			case 6:
-				active->ioTime = VM.clock + 27;
+				active->ioTime += 27;
 				saveState();
 				waitQ.push(active);
 				break;
 
 			// Write Operation
 			case 7:
-				active->ioTime = VM.clock + 27;
+				active->ioTime += 27;
 				saveState();
 				waitQ.push(active);
 				break;
@@ -271,9 +272,9 @@ void OS::run()
 void OS::processFinish()
 {
 
-	if (system("cp -r /home/taylor/VOS-460.git/io/* /home/taylor/VOS-460.git/copy")) {
-		throw "Error copying folder";
-	}
+	// if (system("cp -r /home/taylor/VOS-460.git/io/* /home/taylor/VOS-460.git/copy")) {
+	// 	throw "Error copying folder";
+	// }
 
 	printf("%s FINISHED! \n", active->name.c_str());
 	int systemTime = 0;
@@ -283,6 +284,9 @@ void OS::processFinish()
 
 	active->turnTime = (active->execTime + active->waitTime + active->ioTime)
 		/ 10000.0;
+
+	active->outFile->open(string("../io/" + active->name + "/" + active->name +
+	                      ".st").c_str(), ios::out | ios::trunc);
 
 	*active->outFile << endl << "[Process Information]" << endl;
 	*active->outFile << "CPU Time: " << active->execTime << endl;
@@ -297,7 +301,8 @@ void OS::processFinish()
 	*active->outFile << "User CPU Util: " << userCpuUtil << "%" << endl;
 	*active->outFile << "Throughput: " << throughput << endl;
 
-	remove(string("../io/" + active->name + "/" + active->name +".st").c_str());
+	active->outFile->close();
+	// remove(string("../io/" + active->name + "/" + active->name +".st").c_str());
 	delete active;
 }
 

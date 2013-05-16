@@ -495,6 +495,9 @@ void VirtualMachine::readExec()
  */
 void VirtualMachine::writeExec()
 {
-	*outFile << reg[RD];
+	outFile->open(string("../io/" + name + "/" + name + ".st").c_str(),
+	              ios::out | ios::trunc);
+	*outFile << reg[RD] << endl;
+	outFile->close();
 	printf("%i\n",reg[RD] );
 }
