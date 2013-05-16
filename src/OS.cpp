@@ -131,7 +131,7 @@ void OS::loadState()
 	active->waitTime += (VM.clock - active->tempClock);
 	active->tempClock = VM.clock;
 	copy(&active->reg[0], &active->reg[VM.regSize], VM.reg);
-	VM.pc = active->pc + active->base;
+	VM.pc = active->pc;
 	VM.sp = active->sp;
 	VM.sr = active->sr;
 	VM.base = active->base;
@@ -154,7 +154,7 @@ void OS::saveState()
 {
 	active->tempClock = VM.clock;
 	copy(&VM.reg[0], &VM.reg[VM.regSize], active->reg);
-	active->pc = VM.pc - VM.base;
+	active->pc = VM.pc;
 	active->sp = VM.sp;
 	active->sr = VM.sr;
 	active->base = VM.base;
@@ -180,7 +180,7 @@ void OS::run()
 			schedule();// Then run scheduler
 		}
 		loadState();
-	printf("==================================================\n%s\n",active->name.c_str() );
+		printf("==================================================\n%s\n",active->name.c_str() );
 
 		VM.run();
 		active->execTime += (VM.clock - active->tempClock);

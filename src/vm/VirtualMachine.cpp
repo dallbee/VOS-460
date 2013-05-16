@@ -59,7 +59,8 @@ using namespace std;
  	printf("Program Counter: \t %u\n", pc);
 	printf("Stack Pointer: \t %u\n", sp);
 	printf("Clock: \t \t %u\n", clock);
- 	printf("CONST:%u ADDR:%u RS:%u I:%u RD:%u OP:%X\n", CONST, ADDR, RS, I, RD, OP );
+	printf("Limit: \t \t %u\n", limit);
+ 	printf("CONST:%i ADDR:%u RS:%u I:%u RD:%u OP:%X\n", CONST, ADDR, RS, I, RD, OP );
 	printf("statusReg:%X \n", sr);
 	for(int i = 0; i < regSize; ++i) {
 		printf("Register[%u] \t %u \n", i, reg[i] & 0xFFFF );
@@ -104,7 +105,7 @@ void VirtualMachine::run()
 		else if (OP > 0x19) { // Invalid Opcode
 			sr = (sr & 0xFFAF) | 160;
 		}
-		else if (OP == 0x18) { // Halt
+		else if (OP == 0x18 or pc == limit) { // Halt
 			sr = (sr & 0xFF3F) | 32;
 		}
 		else if (OP == 0x16) { // Read Operations
