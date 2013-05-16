@@ -79,14 +79,14 @@ void VirtualMachine::run()
 {//machineDump();
 	sr &= 0xFF1F;
 	for(int timeslice = 0; timeslice < 15 and !(sr & 0xE0); ++timeslice) {
-		machineDump();
 		ir = mem[pc++];
 		CONST = ir & 0xFF;
-		ADDR = ir & 0xFF;
+		ADDR = (ir & 0xFF) + base;
 		RS = (ir >>= 6) & 0x03;
 		I = (ir >>= 2) & 0x01;
 		RD = (ir >>= 1) & 0x03;
 		OP = (ir >>= 2) & 0x1F;
+		machineDump();
 
 		(this->*instructions[OP])();
 		++clock;
@@ -115,6 +115,7 @@ void VirtualMachine::run()
 		else if (OP == 0x17) { // Write Operation
 			sr |= 224;
 		}
+		machineDump();
 	}
 }
 
@@ -458,6 +459,7 @@ void VirtualMachine::jumpgExec()
  */
 void VirtualMachine::callExec()
 {
+	printf("IT WENT TO CALL EXEC\n");
 	pushStack(pc);
 	pushStack(sr);
 	pushStack(reg[0]);
@@ -495,5 +497,6 @@ void VirtualMachine::readExec()
  */
 void VirtualMachine::writeExec()
 {
+	printf("IT GOT HERE\n");
 	*outFile << reg[RD];
 }
