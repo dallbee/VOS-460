@@ -54,6 +54,7 @@ private:
 	short base;
 	short limit;
 	short sr;
+	short largestStack;
 
 	void pushStack(short pcbItem);
 	short popStack();

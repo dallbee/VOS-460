@@ -87,6 +87,9 @@ void VirtualMachine::run()
 
 		(this->*instructions[OP])();
 		++clock;
+		if (sp > largestStack){
+			largestStack = sp;
+		}
 
 		if (pc > limit or pc < base) { // Reference out of bounds
 			sr = (sr & 0xFF5F) | 64;

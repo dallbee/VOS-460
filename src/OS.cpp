@@ -136,6 +136,8 @@ void OS::loadState()
 	VM.limit = active->limit;
 	VM.inFile = active->inFile;
 	VM.outFile = active->outFile;
+	VM.largestStack = active->largestStack;
+
 	string line ="";
 	for (int i = VM.memSize; getline(*(active->stFile), line); --i){
 		stringstream convert(line);
@@ -157,6 +159,7 @@ void OS::saveState()
 	active->limit = VM.limit;
 	active->inFile = VM.inFile;
 	active->outFile = VM.outFile;
+	active->largestStack =VM.largestStack;
 
 	for (int i = VM.sp; i < VM.memSize; ++i){
 		*(active->stFile) << VM.mem[i];
@@ -171,14 +174,11 @@ void OS::run()
 	while(active or waitQ.size()) {
 
 		if ( ! active and waitQ.size()) {
-			// noop until wait queue is ready.
-			// Then run scheduler
+			VM.clock++;// noop until wait queue is ready.
+			schedule();// Then run scheduler
 		}
 		loadState();
 
-		if(active->sp < VM.memSize) {
-			// Load stack from .st file
-		}
 		active->execTime += (VM.clock - active->tempClock);
 		switch((active->sr >> 5) & 7) { //Looks only at the 3 VM return status bits
 			// Time slice
@@ -230,6 +230,7 @@ void OS::run()
 				waitQ.push(active);
 				break;
 		}
+	schedule();
 	}
 }
 
@@ -245,6 +246,8 @@ void OS::processFinish()
 	float throughput = (float)progs.size()/(float)VM.clock/10000.0;
 
 	active->outFile->precision(2);
+
+	active->turnTime = active->execTime + active->waitTime + active->ioTime;
 
 	*active->outFile << endl << "[Process Information]" << endl;
 	*active->outFile << "CPU Time: " << active->execTime << endl;
