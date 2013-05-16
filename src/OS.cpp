@@ -28,8 +28,8 @@ using namespace std;
  * Responsible for setting up the main file streams for the entire system
  */
 PCB::PCB(string fileName) : name(fileName), reg(), pc(), sr(), ir(),
-	sp(VirtualMachine::memSize - 1), base(), limit(), tempClock(), execTime(), waitTime(),
-	turnTime(), ioTime(), largestStack(),
+	sp(VirtualMachine::memSize - 1), base(), limit(), tempClock(), execTime(),
+	waitTime(), turnTime(), ioTime(), largestStack(),
 	oFile(new fstream(string("../io/" + name + "/" + name + ".o").c_str())),
 	outFile(new fstream(string("../io/" + name + "/" + name +".out").c_str())),
 	inFile(new fstream(string("../io/" + name + "/" + name + ".in").c_str())),
@@ -130,7 +130,7 @@ void OS::loadState()
 {
 	active->waitTime += (VM.clock - active->tempClock);
 	active->tempClock = VM.clock;
-	copy(&active->reg[0], &active->reg[VM.regSize - 1], VM.reg);
+	copy(&active->reg[0], &active->reg[VM.regSize], VM.reg);
 	VM.pc = active->pc + active->base;
 	VM.sp = active->sp;
 	VM.sr = active->sr;
@@ -158,7 +158,7 @@ void OS::loadState()
 void OS::saveState()
 {
 	active->tempClock = VM.clock;
-	copy(&VM.reg[0], &VM.reg[VM.regSize - 1], active->reg);
+	copy(&VM.reg[0], &VM.reg[VM.regSize], active->reg);
 	active->pc = VM.pc - VM.base;
 	active->sp = VM.sp;
 	active->sr = VM.sr;
@@ -169,25 +169,26 @@ void OS::saveState()
 	active->largestStack = VM.largestStack;
 
 	active->outFile->open(string("../io/" + active->name + "/" + active->name +
-	                      ".st").c_str(), ios::in | ios::out | ios::trunc);
+	                      ".st").c_str(), ios::out | ios::trunc);
 
-	for (int i = VM.sp; i < VM.memSize; ++i) {
+	for (int i = VM.sp; i < VM.memSize - 1; ++i) {
 		*(active->outFile) << VM.mem[i] << endl;
 	}
 	active->outFile->close();
 }
 
 /*
-
+ * Executes the VM and handles its return statuses
  */
 void OS::run()
 {
 	while(active or waitQ.size()) {
 
 		if ( ! active and waitQ.size()) {
-			VM.clock++;// noop until wait queue is ready.
+			VM.clock += waitQ.front()->ioTime - 5;// noop until waitQ is ready.
 			schedule();// Then run scheduler
 		}
+
 		loadState();
 		printf("==================================================\n%s\n",active->name.c_str() );
 
@@ -243,7 +244,7 @@ void OS::run()
 				waitQ.push(active);
 				break;
 		}
-	schedule();
+		schedule();
 	}
 }
 
@@ -260,7 +261,6 @@ void OS::processFinish()
 
 	active->turnTime = (active->execTime + active->waitTime + active->ioTime)
 		/ 10000.0;
-	//active->outFile->precision(2);
 
 	*active->outFile << endl << "[Process Information]" << endl;
 	*active->outFile << "CPU Time: " << active->execTime << endl;

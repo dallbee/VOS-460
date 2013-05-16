@@ -60,13 +60,14 @@ using namespace std;
 	printf("Stack Pointer: \t %u\n", sp);
 	printf("Clock: \t \t %u\n", clock);
 	printf("Limit: \t \t %u\n", limit);
+	printf("Base: \t \t %u\n", base);
  	printf("CONST:%i ADDR:%u RS:%u I:%u RD:%u OP:%X\n", CONST, ADDR, RS, I, RD, OP );
-	printf("statusReg:%X \n", sr);
+	printf("statusReg:%X \n", sr & 0xE0);
 	for(int i = 0; i < regSize; ++i) {
-		printf("Register[%u] \t %u \n", i, reg[i] & 0xFFFF );
+		printf("Register[%u] \t %i \n", i, reg[i] );
 	}
 	for(int i = memSize-1; i > sp; --i) {
-		printf("Stack[%u] \t %u \n", i, mem[i] & 0xFFFF );
+		printf("Stack[%u] \t %u \n", i, mem[i] );
 	}
  }
 
@@ -93,7 +94,7 @@ void VirtualMachine::run()
 			largestStack = sp;
 		}
 
-		if (pc > limit or pc < base) { // Reference out of bounds
+		if (pc > limit + base or pc < base) { // Reference out of bounds
 			sr = (sr & 0xFF5F) | 64;
 		}
 		else if (sp - 1 == pc) { // Stack Overflow
