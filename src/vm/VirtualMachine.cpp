@@ -77,6 +77,7 @@ void VirtualMachine::run()
 {
 	for(int timeslice = 0; timeslice < 15; ++timeslice) {
 		ir = mem[pc++];
+		sr &= 0xFF1F;
 		CONST = ir & 0xFF;
 		ADDR = ir & 0xFF;
 		RS = (ir >>= 6) & 0x03;
@@ -84,35 +85,30 @@ void VirtualMachine::run()
 		RD = (ir >>= 1) & 0x03;
 		OP = (ir >>= 2) & 0x1F;
 
-		if ((clock - timeslice) >= 15){//Time slice
-			sr &= 0xFF1F; //clears bits 5,6,7
-		}
-
-		if (pc > limit or pc < base){ //Reference out of bounds
-			sr = (sr & 0xFF5F) | 64;
-		}
-		else if (sp - 1 == pc){ //Stack Overflow
-			sr = (sr & 0xFF7F) | 96;
-		}
-		else if (sp == 256){ //Stack Underflow
-			sr = (sr & 0xFF9F) | 128;
-		}
-
-		if (OP > 0x19){ //Invalid Opcode
-			sr = (sr & 0xFFAF) | 160;
-		}
-		else if (OP == 0x18){//Halt
-			sr = (sr & 0xFF3F) | 32;
-		}
-		else if (OP == 0x16){ //Read Operations
-			sr = (sr & 0xFFCF) | 192;
-		}
-		else if (OP == 0x17){ //Write Operation
-			sr |= 224;
-		}
-
 		(this->*instructions[OP])();
 		++clock;
+
+		if (pc > limit or pc < base) { // Reference out of bounds
+			sr = (sr & 0xFF5F) | 64;
+		}
+		else if (sp - 1 == pc) { // Stack Overflow
+			sr = (sr & 0xFF7F) | 96;
+		}
+		else if (sp == 256) { // Stack Underflow
+			sr = (sr & 0xFF9F) | 128;
+		}
+		else if (OP > 0x19) { // Invalid Opcode
+			sr = (sr & 0xFFAF) | 160;
+		}
+		else if (OP == 0x18) { // Halt
+			sr = (sr & 0xFF3F) | 32;
+		}
+		else if (OP == 0x16) { // Read Operations
+			sr = (sr & 0xFFCF) | 192;
+		}
+		else if (OP == 0x17) { // Write Operation
+			sr |= 224;
+		}
 	}
 }
 
