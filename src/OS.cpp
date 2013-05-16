@@ -12,15 +12,15 @@
 
 
 #include "OS.h"
-#include "vm/VirtualMachine.h"
 #include "sys/assembler/Assembler.h"
-#include <fstream>
-#include <sstream>
-#include <stdio.h>
+#include "vm/VirtualMachine.h"
 #include <cstdlib>
-#include <string>
+#include <fstream>
 #include <list>
 #include <queue>
+#include <sstream>
+#include <stdio.h>
+#include <string>
 using namespace std;
 
 /**
@@ -98,7 +98,7 @@ void OS::load()
 	 		*pcb->oFile >> assLine;
 	 	}
 		pcb->limit = limit;
-		// printf("%s:\tpc:%ib:%i\tl:%i\n", pcb->name.c_str(), pcb->pc, pcb->base, pcb->limit);
+		printf("%s:\tpc:%ib:%i\tl:%i\n", pcb->name.c_str(), pcb->pc, pcb->base, pcb->limit);
 		progs.push_back(pcb);
 		readyQ.push(pcb);
 	}
@@ -139,6 +139,7 @@ void OS::schedule()
  */
 void OS::loadState()
 {
+	printf("loadState() called\n");
 	active->waitTime += (VM.clock - active->tempClock);
 	active->tempClock = VM.clock;
 	copy(&active->reg[0], &active->reg[VM.regSize], VM.reg);
@@ -168,6 +169,7 @@ void OS::loadState()
  */
 void OS::saveState()
 {
+	printf("saveState() called\n");
 	active->tempClock = VM.clock;
 	copy(&VM.reg[0], &VM.reg[VM.regSize], active->reg);
 	active->pc = VM.pc;
@@ -201,7 +203,7 @@ void OS::run()
 		}
 
 		loadState();
-		// printf("==================================================\n%s\n",active->name.c_str() );
+		printf("==================================================\n%s\n",active->name.c_str() );
 
 		VM.run();
 		active->execTime += (VM.clock - active->tempClock);
@@ -214,6 +216,9 @@ void OS::run()
 
 			// Halt
 			case 1:
+				int asdf;
+				*active->outFile >> asdf;
+				printf("Out File: %i\n", asdf);
 				processFinish();
 				break;
 
@@ -265,6 +270,12 @@ void OS::run()
  */
 void OS::processFinish()
 {
+
+	if (system("cp -r /home/taylor/VOS-460.git/io/* /home/taylor/VOS-460.git/copy")) {
+		throw "Error copying folder";
+	}
+
+	printf("%s FINISHED! \n", active->name.c_str());
 	int systemTime = 0;
 	float systemCpuUtil = ((float)(VM.clock - idleTotal)/(float)VM.clock)*100.0;
 	float userCpuUtil = ((float)userTotal / (float)VM.clock) * 100.0;

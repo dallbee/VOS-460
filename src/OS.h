@@ -9,8 +9,8 @@
 #ifndef OS_H
 #define OS_H
 
-#include "vm/VirtualMachine.h"
 #include "sys/assembler/Assembler.h"
+#include "vm/VirtualMachine.h"
 #include <fstream>
 #include <list>
 #include <queue>

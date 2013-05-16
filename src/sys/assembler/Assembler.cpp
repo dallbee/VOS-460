@@ -8,13 +8,13 @@
  */
 
 #include "Assembler.h"
-#include <map>
-#include <string>
-#include <sstream>
-#include <fstream>
-#include <iterator>
-#include <iostream>
 #include <algorithm>
+#include <fstream>
+#include <iostream>
+#include <iterator>
+#include <map>
+#include <sstream>
+#include <string>
 using namespace std;
 
 /**

@@ -8,11 +8,11 @@
  */
 
 #include "VirtualMachine.h"
+#include <fstream>
 #include <map>
 #include <set>
-#include <string>
-#include <fstream>
 #include <stdio.h>
+#include <string>
 using namespace std;
 
 /**
@@ -76,7 +76,7 @@ using namespace std;
  * other return conditions.
  */
 void VirtualMachine::run()
-{//machineDump();
+{
 	sr &= 0xFF1F;
 	for(int timeslice = 0; timeslice < 15 and !(sr & 0xE0); ++timeslice) {
 		ir = mem[pc++];
@@ -86,7 +86,7 @@ void VirtualMachine::run()
 		I = (ir >>= 2) & 0x01;
 		RD = (ir >>= 1) & 0x03;
 		OP = (ir >>= 2) & 0x1F;
-		//machineDump();
+		machineDump();
 
 		(this->*instructions[OP])();
 		++clock;
@@ -115,7 +115,6 @@ void VirtualMachine::run()
 		else if (OP == 0x17) { // Write Operation
 			sr |= 224;
 		}
-		//machineDump();
 	}
 }
 
@@ -497,4 +496,5 @@ void VirtualMachine::readExec()
 void VirtualMachine::writeExec()
 {
 	*outFile << reg[RD];
+	printf("%i\n",reg[RD] );
 }
