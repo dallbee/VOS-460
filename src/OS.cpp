@@ -16,7 +16,7 @@
 
  //time slicing, I wasn't sure how we want to implement this. I don't see how our case statement
  	//will ever let our VM run, as all 3 bits it checks signify error codes. There is no mask for
- 	//continue running this code.
+ 	//continue active this code.
 
 
 
@@ -60,7 +60,7 @@ PCB::~PCB()
 /**
  * Creates an OS object
  */
-OS::OS() : VM(), progs(), readyQ(), waitQ(), running(), exitCode(), userTotal(),
+OS::OS() : VM(), progs(), readyQ(), waitQ(), active(), exitCode(), userTotal(),
 	idleTotal(), osOut(), processStack(), asLine(), limit(), programAs()
 {
 }
@@ -120,10 +120,10 @@ void OS::schedule()
 	}
 
 	if(readyQ.size()) {
-		running = readyQ.front();
+		active = readyQ.front();
 		readyQ.pop();
 	} else {
-		running = NULL;
+		active = NULL;
 	}
 }
 
@@ -132,17 +132,17 @@ void OS::schedule()
  */
 void OS::loadState()
 {
-	copy(&running->reg[0], &running->reg[VM.regSize], VM.reg);
-	VM.pc = running->pc + running->base;
-	VM.sp = running->sp;
-	VM.sr = running->sr;
-	VM.base = running->base;
-	VM.limit = running->limit;
-	VM.inFile = running->inFile;
-	VM.outFile = running->outFile;
+	copy(&active->reg[0], &active->reg[VM.regSize], VM.reg);
+	VM.pc = active->pc + active->base;
+	VM.sp = active->sp;
+	VM.sr = active->sr;
+	VM.base = active->base;
+	VM.limit = active->limit;
+	VM.inFile = active->inFile;
+	VM.outFile = active->outFile;
 	string line ="";
 
-	for (int i = VM.memSize; getline(*(running->stFile), line); --i){
+	for (int i = VM.memSize; getline(*(active->stFile), line); --i){
 		stringstream convert(line);
 		convert >> VM.mem[i] ;
 	}
@@ -153,17 +153,17 @@ void OS::loadState()
  */
 void OS::saveState()
 {
-	copy(&VM.reg[0], &VM.reg[VM.regSize], running->reg);
-	running->pc = VM.pc - VM.base;
-	running->sp = VM.sp;
-	running->sr = VM.sr;
-	running->base = VM.base;
-	running->limit = VM.limit;
-	running->inFile = VM.inFile;
-	running->outFile = VM.outFile;
+	copy(&VM.reg[0], &VM.reg[VM.regSize], active->reg);
+	active->pc = VM.pc - VM.base;
+	active->sp = VM.sp;
+	active->sr = VM.sr;
+	active->base = VM.base;
+	active->limit = VM.limit;
+	active->inFile = VM.inFile;
+	active->outFile = VM.outFile;
 
 	for (int i = VM.sp; i < VM.memSize; ++i){
-		*(running->stFile) << VM.mem[i];
+		*(active->stFile) << VM.mem[i];
 	}
 }
 
@@ -172,19 +172,19 @@ void OS::saveState()
  */
 void OS::run()
 {
-	while(running or waitQ.size()) {
+	while(active or waitQ.size()) {
 
-		if ( ! running and waitQ.size()) {
+		if ( ! active and waitQ.size()) {
 			// noop until wait queue is ready.
 			// Then run scheduler
 		}
 		loadState();
 
-		if(running->sp < VM.memSize) {
+		if(active->sp < VM.memSize) {
 			// Load stack from .st file
 		}
 
-		switch((running->sr >> 5) & 7) { //Looks only at the 3 VM return status bits
+		switch((active->sr >> 5) & 7) { //Looks only at the 3 VM return status bits
 			// Time slice
 			case 0:
 				break;
@@ -225,7 +225,8 @@ void OS::run()
 }
 
 /*
-
+ * Generates accounting information about the process, removes the PCB, and
+ * outputs that information to a file.
  */
 void OS::processFinish()
 {
@@ -234,22 +235,22 @@ void OS::processFinish()
 	float userCpuUtil = ((float)userTotal/(float)VM.clock)*100.0;
 	float throughput = (float)progs.size()/(float)VM.clock/10000.0;
 
-	running->outFile->precision(2);
+	active->outFile->precision(2);
 
-	*running->outFile << endl << "[Process Information]" << endl;
-	*running->outFile << "CPU Time: " << running->execTime << endl;
-	*running->outFile << "Waiting Time: " << running->waitTime << endl;
-	*running->outFile << "Turnaround Time: " << running->turnTime << endl;
-	*running->outFile << "I/O Time: " << running->ioTime << endl;
-	*running->outFile << "Largest Stack Size: " << running->largestStack << endl;
+	*active->outFile << endl << "[Process Information]" << endl;
+	*active->outFile << "CPU Time: " << active->execTime << endl;
+	*active->outFile << "Waiting Time: " << active->waitTime << endl;
+	*active->outFile << "Turnaround Time: " << active->turnTime << endl;
+	*active->outFile << "I/O Time: " << active->ioTime << endl;
+	*active->outFile << "Largest Stack Size: " << active->largestStack << endl;
 
-	*running->outFile << endl << "[System Information]" << endl;
-	*running->outFile << "System Time: " << systemTime << endl;
-	*running->outFile << "System CPU Util: " << systemCpuUtil << "%" << endl;
-	*running->outFile << "User CPU Util: " << userCpuUtil << "%" << endl;
-	*running->outFile << "Throughput: " << throughput << endl;
-	remove(string("../io/" + running->name + "/" + running->name + ".st").c_str());
-	delete running;
+	*active->outFile << endl << "[System Information]" << endl;
+	*active->outFile << "System Time: " << systemTime << endl;
+	*active->outFile << "System CPU Util: " << systemCpuUtil << "%" << endl;
+	*active->outFile << "User CPU Util: " << userCpuUtil << "%" << endl;
+	*active->outFile << "Throughput: " << throughput << endl;
+	remove(string("../io/" + active->name + "/" + active->name +".st").c_str());
+	delete active;
 }
 
 /**

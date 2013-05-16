@@ -63,7 +63,7 @@ private:
 	VirtualMachine VM;
 	list<PCB *> progs;
 	queue<PCB *> readyQ, waitQ;
-	PCB* running;
+	PCB* active;
 	short exitCode;
 
 	//System Information
