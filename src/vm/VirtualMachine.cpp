@@ -74,8 +74,11 @@ using namespace std;
  * other return conditions.
  */
 void VirtualMachine::run()
-{machineDump();
-	for(int timeslice = 0; timeslice < 15 and sr & 0xEF; ++timeslice) {
+{//machineDump();
+
+	for(int timeslice = 0; timeslice < 15 and !(sr & 0xEF); ++timeslice) {
+		printf("does it get here?\n");
+		machineDump();
 		ir = mem[pc++];
 		sr &= 0xFF1F;
 		CONST = ir & 0xFF;

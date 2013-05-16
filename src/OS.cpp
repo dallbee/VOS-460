@@ -170,7 +170,6 @@ void OS::saveState()
  */
 void OS::run()
 {
-	VM.run();
 	while(active or waitQ.size()) {
 
 		if ( ! active and waitQ.size()) {
@@ -178,7 +177,7 @@ void OS::run()
 			schedule();// Then run scheduler
 		}
 		loadState();
-
+		VM.run();
 		active->execTime += (VM.clock - active->tempClock);
 		switch((active->sr >> 5) & 7) { //Looks only at the 3 VM return status bits
 			// Time slice
