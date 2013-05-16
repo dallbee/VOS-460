@@ -8,16 +8,7 @@
  */
 
 //TO DO:
- //.st files for the stacks being saved out. needed in the loadState() and the saveState()
-
  //fill in case statement's code
-
- //VM.run() must no longer be a for loop, as we need to time slice it.
-
- //time slicing, I wasn't sure how we want to implement this. I don't see how our case statement
- 	//will ever let our VM run, as all 3 bits it checks signify error codes. There is no mask for
- 	//continue active this code.
-
 
 
 #include "OS.h"
