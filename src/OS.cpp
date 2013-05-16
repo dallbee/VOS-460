@@ -67,6 +67,8 @@ void OS::load()
 	}
 
 	ifstream progFile("progs");
+
+	Assembler as("../src/sys/assembler/opcodes.lst");
 	for (string line; getline(progFile, line);) {
 		string name = line.substr(line.find_last_of("/") + 1,
 		    line.find_last_of(".") - line.find_last_of("/") - 1);
@@ -75,7 +77,6 @@ void OS::load()
 
 		// Assemble opcodes
 		try {
-			Assembler as("../src/sys/assembler/opcodes.lst");
 			as.build(string(line));
 		} catch(const char* error) {
 			printf("[Assembler Error] %s \n", error);

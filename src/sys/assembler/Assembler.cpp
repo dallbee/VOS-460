@@ -56,7 +56,7 @@ Assembler::Assembler(const string &opListPath): line(), lineNumber(), opCodes(),
 
 	// Verify data existence
 	if (opCodes.empty()) {
-		throw "Could not read data in from operation codes file";
+		printf ("Could not read data in from operation codes file\n");
 	}
 }
 
