@@ -38,7 +38,7 @@ private:
 	unsigned tempClock;
 	unsigned execTime;
 	unsigned waitTime;
-	unsigned turnTime;
+	float turnTime;
 	unsigned ioTime;
 	unsigned largestStack;
 
