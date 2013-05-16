@@ -187,38 +187,51 @@ void OS::run()
 		switch((active->sr >> 5) & 7) { //Looks only at the 3 VM return status bits
 			// Time slice
 			case 0:
+				saveState();
+				readyQ.push(active);
 				break;
 
 			// Halt
 			case 1:
+				processFinish();
 				break;
 
 			// Reference out of bounds
 			case 2:
 				printf("Virtual Machine: Reference out of bounds\n");
+				processFinish();
 				break;
 
 			// Stack Overflow
 			case 3:
 				printf("Virtual Machine: Stack overflow!\n");
+				processFinish();
 				break;
 
 			// Stack Underflow
 			case 4:
 				printf("Virtual Machine: Stack underflow\n");
+				processFinish();
 				break;
 
 			// Invalid Opcode
 			case 5:
 				printf("Virtual Machine: Invalid Opcode\n");
+				processFinish();
 				break;
 
 			// Read Operation
 			case 6:
+				active->ioTime = VM.clock + 28;
+				saveState();
+				waitQ.push(active);
 				break;
 
 			// Write Operation
 			case 7:
+				active->ioTime = VM.clock + 28;
+				saveState();
+				waitQ.push(active);
 				break;
 		}
 	}
