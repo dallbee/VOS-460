@@ -124,6 +124,7 @@ void OS::schedule()
  */
 void OS::loadState()
 {
+	startClock = VM.clock;
 	copy(&active->reg[0], &active->reg[VM.regSize], VM.reg);
 	VM.pc = active->pc + active->base;
 	VM.sp = active->sp;
@@ -133,7 +134,6 @@ void OS::loadState()
 	VM.inFile = active->inFile;
 	VM.outFile = active->outFile;
 	string line ="";
-
 	for (int i = VM.memSize; getline(*(active->stFile), line); --i){
 		stringstream convert(line);
 		convert >> VM.mem[i] ;
@@ -179,41 +179,48 @@ void OS::run()
 		switch((active->sr >> 5) & 7) { //Looks only at the 3 VM return status bits
 			// Time slice
 			case 0:
+				active->execTime += VM.clock - startClock;
 				saveState();
 				readyQ.push(active);
 				break;
 
 			// Halt
 			case 1:
+				active->execTime += VM.clock - startClock;
 				processFinish();
 				break;
 
 			// Reference out of bounds
 			case 2:
+				active->execTime += VM.clock - startClock;
 				printf("Virtual Machine: Reference out of bounds\n");
 				processFinish();
 				break;
 
 			// Stack Overflow
 			case 3:
+				active->execTime += VM.clock - startClock;
 				printf("Virtual Machine: Stack overflow!\n");
 				processFinish();
 				break;
 
 			// Stack Underflow
 			case 4:
+				active->execTime += VM.clock - startClock;
 				printf("Virtual Machine: Stack underflow\n");
 				processFinish();
 				break;
 
 			// Invalid Opcode
 			case 5:
+				active->execTime += VM.clock - startClock;
 				printf("Virtual Machine: Invalid Opcode\n");
 				processFinish();
 				break;
 
 			// Read Operation
 			case 6:
+				active->execTime += VM.clock - startClock;
 				active->ioTime = VM.clock + 28;
 				saveState();
 				waitQ.push(active);
@@ -221,6 +228,7 @@ void OS::run()
 
 			// Write Operation
 			case 7:
+				active->execTime += VM.clock - startClock;
 				active->ioTime = VM.clock + 28;
 				saveState();
 				waitQ.push(active);

@@ -67,6 +67,7 @@ private:
 	short exitCode;
 
 	//System Information
+	int startClock;
 	int userTotal;
 	int idleTotal;
 
