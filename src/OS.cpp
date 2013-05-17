@@ -31,8 +31,8 @@ PCB::PCB(string fileName) : name(fileName), reg(), pc(), sr(), ir(),
 	sp(VirtualMachine::memSize - 1), base(), limit(), tempClock(), execTime(),
 	waitTime(), turnTime(), ioTime(), largestStack(),
 	oFile(new fstream(string("../io/" + name + "/" + name + ".o").c_str())),
-	outFile(new fstream()),
-	inFile(new fstream(string("../io/" + name + "/" + name + ".in").c_str(), ios::in)),
+	outFile(new fstream(string("../io/" + name + "/" + name +".out").c_str())),
+	inFile(new fstream(string("../io/" + name + "/" + name + ".in").c_str())),
 	stFile(new fstream())
 {
 }
@@ -86,11 +86,6 @@ void OS::load()
 		pcb->base = limit;
 		pcb->pc = limit;
 
-		// for(string opCode; getline(*(pcb->oFile), opCode);) {
-		// 	stringstream convert(opCode.c_str());
-		// 	convert >> VM.mem[limit++];
-		// 	printf("%s\n",opCode.c_str());
-		// }
 		int assLine = 0;
 	  	*pcb->oFile >> assLine;
 		while(!((*pcb->oFile).eof())){
@@ -102,9 +97,9 @@ void OS::load()
 		progs.push_back(pcb);
 		readyQ.push(pcb);
 	}
-	// for(int i = 0; i < VM.memSize; ++i) {
-	// 	printf("Memory[%u] \t %u \n", i, VM.mem[i] & 0xFFFF );
-	// }
+	for(int i = 0; i < VM.memSize; ++i) {
+		printf("Memory[%u] \t %u \n", i, VM.mem[i] & 0xFFFF );
+	}
 }
 
 /**
@@ -145,7 +140,6 @@ void OS::loadState()
 	VM.pc = active->pc;
 	VM.sp = active->sp;
 	VM.sr = active->sr;
-	VM.name = active->name;
 	VM.base = active->base;
 	VM.limit = active->limit;
 	VM.inFile = active->inFile;
@@ -175,7 +169,6 @@ void OS::saveState()
 	active->pc = VM.pc;
 	active->sp = VM.sp;
 	active->sr = VM.sr;
-	active->name = VM.name;
 	active->base = VM.base;
 	active->limit = VM.limit;
 	active->inFile = VM.inFile;
@@ -183,7 +176,7 @@ void OS::saveState()
 	active->largestStack = VM.largestStack;
 
 	active->outFile->open(string("../io/" + active->name + "/" + active->name +
-	                      ".st").c_str(), ios::out);
+	                      ".st").c_str(), ios::out | ios::trunc);
 
 	for (int i = VM.sp; i < VM.memSize - 1; ++i) {
 		*(active->outFile) << VM.mem[i] << endl;
@@ -285,9 +278,6 @@ void OS::processFinish()
 	active->turnTime = (active->execTime + active->waitTime + active->ioTime)
 		/ 10000.0;
 
-	active->outFile->open(string("../io/" + active->name + "/" + active->name +
-	                      ".st").c_str(), ios::out | ios::trunc);
-
 	*active->outFile << endl << "[Process Information]" << endl;
 	*active->outFile << "CPU Time: " << active->execTime << endl;
 	*active->outFile << "Waiting Time: " << active->waitTime << endl;
@@ -301,8 +291,7 @@ void OS::processFinish()
 	*active->outFile << "User CPU Util: " << userCpuUtil << "%" << endl;
 	*active->outFile << "Throughput: " << throughput << endl;
 
-	active->outFile->close();
-	// remove(string("../io/" + active->name + "/" + active->name +".st").c_str());
+//	remove(string("../io/" + active->name + "/" + active->name +".st").c_str());
 	delete active;
 }
 
