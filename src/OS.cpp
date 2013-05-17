@@ -31,7 +31,7 @@ PCB::PCB(string fileName) : name(fileName), reg(), pc(), sr(), ir(),
 	sp(VirtualMachine::memSize - 1), base(), limit(), tempClock(), execTime(),
 	waitTime(), turnTime(), ioTime(), largestStack(),
 	oFile(new fstream(string("../io/" + name + "/" + name + ".o").c_str())),
-	outFile(new fstream(string("../io/" + name + "/" + name +".out").c_str())),
+	outFile(new ofstream(string("../io/" + name + "/" + name + ".out").c_str())),
 	inFile(new fstream(string("../io/" + name + "/" + name + ".in").c_str())),
 	stFile(new fstream())
 {
@@ -146,16 +146,16 @@ void OS::loadState()
 	VM.outFile = active->outFile;
 	VM.largestStack = active->largestStack;
 
-	string line ="";
+	string line = "";
 
-	active->outFile->open(string("../io/" + active->name + "/" +
+	active->stFile->open(string("../io/" + active->name + "/" +
 	                      active->name + ".st").c_str(), ios::in);
 
 	for (int i = VM.memSize; getline(*(active->stFile), line); --i) {
 		stringstream convert(line);
 		convert >> VM.mem[i] ;
 	}
-	active->outFile->close();
+	active->stFile->close();
 }
 
 /*
@@ -175,13 +175,13 @@ void OS::saveState()
 	active->outFile = VM.outFile;
 	active->largestStack = VM.largestStack;
 
-	active->outFile->open(string("../io/" + active->name + "/" + active->name +
+	active->stFile->open(string("../io/" + active->name + "/" + active->name +
 	                      ".st").c_str(), ios::out | ios::trunc);
 
 	for (int i = VM.sp; i < VM.memSize - 1; ++i) {
-		*(active->outFile) << VM.mem[i] << endl;
+		*active->stFile << VM.mem[i] << endl;
 	}
-	active->outFile->close();
+	active->stFile->close();
 }
 
 /*
@@ -210,9 +210,6 @@ void OS::run()
 
 			// Halt
 			case 1:
-				int asdf;
-				*active->outFile >> asdf;
-				printf("Out File: %i\n", asdf);
 				processFinish();
 				break;
 
@@ -264,11 +261,6 @@ void OS::run()
  */
 void OS::processFinish()
 {
-
-	// if (system("cp -r /home/taylor/VOS-460.git/io/* /home/taylor/VOS-460.git/copy")) {
-	// 	throw "Error copying folder";
-	// }
-
 	printf("%s FINISHED! \n", active->name.c_str());
 	int systemTime = 0;
 	float systemCpuUtil = ((float)(VM.clock - idleTotal)/(float)VM.clock)*100.0;
@@ -291,7 +283,7 @@ void OS::processFinish()
 	*active->outFile << "User CPU Util: " << userCpuUtil << "%" << endl;
 	*active->outFile << "Throughput: " << throughput << endl;
 
-//	remove(string("../io/" + active->name + "/" + active->name +".st").c_str());
+	remove(string("../io/" + active->name + "/" + active->name +".st").c_str());
 	delete active;
 }
 

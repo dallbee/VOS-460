@@ -34,7 +34,7 @@ private:
 	short reg[regSize];
 	short mem[memSize];
 	unsigned clock;
-	fstream* outFile;
+	ofstream* outFile;
 	fstream* inFile;
 	string name;
 

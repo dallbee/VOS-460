@@ -44,7 +44,7 @@ private:
 
 	// File Streams
 	fstream *oFile;
-	fstream *outFile;
+	ofstream *outFile;
 	fstream *inFile;
 	fstream *stFile;
 };
