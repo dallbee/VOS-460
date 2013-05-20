@@ -86,7 +86,8 @@ void VirtualMachine::run()
 		I = (ir >>= 2) & 0x01;
 		RD = (ir >>= 1) & 0x03;
 		OP = (ir >>= 2) & 0x1F;
-		machineDump();
+		//machineDump();
+		printf("Stack Pointer: %i\n", sp);
 
 		(this->*instructions[OP])();
 		++clock;

@@ -177,7 +177,7 @@ void OS::saveState()
 
 	active->stFile->open(string("../io/" + active->name + "/" + active->name +
 	                      ".st").c_str(), ios::out | ios::trunc);
-
+	
 	for (int i = VM.sp; i < VM.memSize - 1; ++i) {
 		*active->stFile << VM.mem[i] << endl;
 	}
