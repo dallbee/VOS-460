@@ -2,8 +2,8 @@
  * Definition of the os class
  *
  * @authors Dylan Allbee, Taylor Sanchez
- * @version 2.1
- * @date 15 May, 2013
+ * @version .1
+ * @date 10 May, 2013
  * @file os.h
  */
 #ifndef OS_H

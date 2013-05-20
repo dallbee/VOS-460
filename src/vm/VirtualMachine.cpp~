@@ -2,8 +2,8 @@
  * Implementation of the VirtualMachine class
  *
  * @authors Dylan Allbee, Taylor Sanchez
- * @version 2.3
- * @date 16 May, 2013
+ * @version 1.0
+ * @date 28 April, 2013
  * @file VirtualMachine.cpp
  */
 
