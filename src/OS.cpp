@@ -148,10 +148,12 @@ void OS::loadState()
 	active->stFile->open(string("../io/" + active->name + "/" +
 	                      active->name + ".st").c_str(), ios::in);
 
-	for (int i = VM.memSize; getline(*(active->stFile), line); --i) {
+	for (int i = VM.sp; i < VM.memSize ; ++i) {
+		getline(*(active->stFile), line);
 		stringstream convert(line);
 		convert >> VM.mem[i] ;
 	}
+	printf("Output .st to Stack\n");
 	active->stFile->close();
 }
 
@@ -174,10 +176,11 @@ void OS::saveState()
 
 	active->stFile->open(string("../io/" + active->name + "/" + active->name +
 	                      ".st").c_str(), ios::out | ios::trunc);
-	
+
 	for (int i = VM.sp; i < VM.memSize - 1; ++i) {
 		*active->stFile << VM.mem[i] << endl;
 	}
+	printf("Input Stack to .st\n");
 	active->stFile->close();
 }
 
@@ -194,7 +197,7 @@ void OS::run()
 		}
 
 		loadState();
-		printf("==================================================\n%s\n",active->name.c_str() );
+		printf("}\n{==================================================\n%s\n",active->name.c_str() );
 
 		VM.run();
 		active->execTime += (VM.clock - active->tempClock);
