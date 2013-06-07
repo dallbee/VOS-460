@@ -62,7 +62,7 @@ using namespace std;
 	printf("Limit: \t \t %u\n", limit);
 	printf("Base: \t \t %u\n", base);
  	printf("CONST:%i ADDR:%u RS:%u I:%u RD:%u OP:%X\n", CONST, ADDR, RS, I, RD, OP );
-	printf("statusReg:%X \n", sr & 0xE0);
+	printf("statusReg:%X \n", sr);
 	for(int i = 0; i < regSize; ++i) {
 		printf("Register[%u] \t %i \n", i, reg[i] );
 	}
@@ -156,7 +156,7 @@ inline short VirtualMachine::popStack()
  */
 inline void VirtualMachine::setCarry(int value)
 {
-	sr &= 0xFFFE;
+	sr &= 0x0000;
 	sr = (value & 0x10000) ? (sr | 1) : sr;
 }
 
@@ -166,7 +166,7 @@ inline void VirtualMachine::setCarry(int value)
  */
 inline void VirtualMachine::setCarryRight()
 {
-	sr &= 0xFFFE;
+	sr &= 0x0000;
 	sr = (reg[RD] & 0x0001) ? (sr | 1) : sr;
 }
 
@@ -176,6 +176,7 @@ inline void VirtualMachine::setCarryRight()
  */
 inline void VirtualMachine::setGreater()
 {
+	sr &= 0x0000;
 	sr = (sr & 0xFFFD) | 2;
 }
 
@@ -185,6 +186,7 @@ inline void VirtualMachine::setGreater()
  */
 inline void VirtualMachine::setEqual()
 {
+	sr &= 0x0000;
 	sr = (sr & 0xFFFB) | 4;
 }
 
@@ -194,6 +196,7 @@ inline void VirtualMachine::setEqual()
  */
 inline void VirtualMachine::setLess()
 {
+	sr &= 0x0000;
 	sr = (sr & 0xFFF7) | 8;
 }
 
@@ -202,6 +205,7 @@ inline void VirtualMachine::setLess()
  */
 inline void VirtualMachine::setOverflow()
 {
+	sr &= 0x0000;
 	sr |= 16;
 }
 
