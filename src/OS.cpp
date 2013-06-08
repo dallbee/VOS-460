@@ -59,7 +59,7 @@ OS::OS() : VM(), progs(), readyQ(), waitQ(), active(), exitCode(), userTotal(),
 void OS::load()
 {
 	// Copies the paths of all program files in the io directory to progs file
-	if (system("ls -d ../io/**/*.s > progs")) {
+	if (system("ls -d ../io/*/*.s > progs")) {
 		throw "Error while attempting to get program listing";
 	}
 
@@ -83,20 +83,22 @@ void OS::load()
 		pcb->base = limit;
 		pcb->pc = limit;
 
-		int assLine = 0;
-	  	*pcb->oFile >> assLine;
-		while(!((*pcb->oFile).eof())){
-	 		VM.mem[limit++] = assLine;
-	 		*pcb->oFile >> assLine;
+		int programLine = 0;
+	  	*pcb->oFile >> programLine;
+		while(pcb->oFile->good()){
+	 		VM.mem[limit++] = programLine;
+	 		*pcb->oFile >> programLine;
 	 	}
+
 		pcb->limit = limit;
-		printf("%s:\tpc:%ib:%i\tl:%i\n", pcb->name.c_str(), pcb->pc, pcb->base, pcb->limit);
 		progs.push_back(pcb);
 		readyQ.push(pcb);
 	}
+	/*
 	for(int i = 0; i < VM.memSize; ++i) {
 		printf("Memory[%u] \t %u \n", i, VM.mem[i] & 0xFFFF );
 	}
+	*/
 }
 
 /**
@@ -130,9 +132,9 @@ void OS::schedule()
  */
 void OS::loadState()
 {
-	printf("loadState() called\n");
 	active->waitTime += (VM.clock - active->tempClock);
 	active->tempClock = VM.clock;
+
 	copy(&active->reg[0], &active->reg[VM.regSize], VM.reg);
 	VM.pc = active->pc;
 	VM.sp = active->sp;
@@ -143,17 +145,19 @@ void OS::loadState()
 	VM.outFile = active->outFile;
 	VM.largestStack = active->largestStack;
 
+	// CHECKED UP TO THIS LINE
+	// DID NOT CHECK CLOCK STUFF
+
 	string line = "";
 
 	active->stFile->open(string("../io/" + active->name + "/" +
 	                      active->name + ".st").c_str(), ios::in);
 
-	for (int i = VM.sp; i < VM.memSize ; ++i) {
-		getline(*(active->stFile), line);
+	while (getline(*(active->stFile), line)) {
 		stringstream convert(line);
-		convert >> VM.mem[i] ;
+		convert >> VM.mem[VM.sp++];
 	}
-	printf("Output .st to Stack\n");
+
 	active->stFile->close();
 }
 
@@ -162,8 +166,8 @@ void OS::loadState()
  */
 void OS::saveState()
 {
-	printf("saveState() called\n");
 	active->tempClock = VM.clock;
+
 	copy(&VM.reg[0], &VM.reg[VM.regSize], active->reg);
 	active->pc = VM.pc;
 	active->sp = VM.sp;
@@ -177,10 +181,10 @@ void OS::saveState()
 	active->stFile->open(string("../io/" + active->name + "/" + active->name +
 	                      ".st").c_str(), ios::out | ios::trunc);
 
-	for (int i = VM.sp; i < VM.memSize - 1; ++i) {
-		*active->stFile << VM.mem[i] << endl;
+	while (VM.sp < VM.memSize - 1) {
+		*active->stFile << VM.mem[++VM.sp] << endl;
 	}
-	printf("Input Stack to .st\n");
+
 	active->stFile->close();
 }
 
@@ -197,7 +201,7 @@ void OS::run()
 		}
 
 		loadState();
-		printf("}\n{==================================================\n%s\n",active->name.c_str() );
+		//printf("}\n{==================================================\n%s\n",active->name.c_str() );
 
 		VM.run();
 		active->execTime += (VM.clock - active->tempClock);
