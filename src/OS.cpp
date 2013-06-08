@@ -65,7 +65,6 @@ void OS::load()
 	}
 
 	ifstream progFile("progs");
-
 	Assembler as("../src/sys/assembler/opcodes.lst");
 	for (string line; getline(progFile, line);) {
 		string name = line.substr(line.find_last_of("/") + 1,
@@ -93,6 +92,7 @@ void OS::load()
 		pcb->limit = limit;
 		progs.push_back(pcb);
 		readyQ.push(pcb);
+		printf("%s:\tbase:%i\tlimit:%i\n", pcb->name.c_str(), pcb->base, pcb->limit );
 	}
 	//VM.memoryDump(VirtualMachine::memSize-1); //Output Memory after progs load
 }
@@ -195,11 +195,9 @@ void OS::run()
 				}
 				waitQ.push(waitQ.front());
 				waitQ.pop();
-			if (leastWait)
-			VM.clock   += leastWait;
-			systemTime += leastWait;
-			idleTotal  += leastWait;
-			printf("leastWait:%i\n", leastWait );
+				VM.clock   += leastWait;
+				systemTime += leastWait;
+				idleTotal  += leastWait;
 			}
 			schedule();// Then run scheduler
 		}
@@ -229,7 +227,6 @@ void OS::run()
 				printf("Culprit: %s, ", active->name.c_str());
 				printf("Base:%i Limit:%i PC:%i\n", active->base, active->limit, active->pc );
 				saveState();
-
 				break;
 
 			// Stack Overflow

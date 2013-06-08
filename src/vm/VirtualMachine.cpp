@@ -500,6 +500,6 @@ void VirtualMachine::readExec()
  */
 void VirtualMachine::writeExec()
 {
-	*outFile << (unsigned)reg[RD] << endl;
+	*outFile << reg[RD] << endl;
 	//printf("%i\n",reg[RD] );
 }
