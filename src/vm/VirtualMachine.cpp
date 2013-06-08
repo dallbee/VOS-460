@@ -86,9 +86,10 @@ void VirtualMachine::run()
 		I = (ir >>= 2) & 0x01;
 		RD = (ir >>= 1) & 0x03;
 		OP = (ir >>= 2) & 0x1F;
-
+		//machineDump();
 		(this->*instructions[OP])();
 		++clock;
+
 		if (sp < largestStack){
 			largestStack = sp;
 		}
@@ -114,6 +115,7 @@ void VirtualMachine::run()
 		else if (OP == 0x17) { // Write Operation
 			sr |= 224;
 		}
+		//machineDump();
 	}
 }
 
@@ -499,5 +501,5 @@ void VirtualMachine::readExec()
 void VirtualMachine::writeExec()
 {
 	*outFile << reg[RD] << endl;
-	printf("%i\n",reg[RD] );
+	//printf("%i\n",reg[RD] );
 }

@@ -36,11 +36,13 @@ private:
 
 	// Accounting Information
 	unsigned tempClock;
+	//Process Info
 	unsigned execTime;
 	unsigned waitTime;
 	float turnTime;
 	unsigned ioTime;
 	unsigned largestStack;
+	float userTotal;
 
 	// File Streams
 	fstream *oFile;
@@ -68,8 +70,11 @@ private:
 	short exitCode;
 
 	//System Information
-	int startClock;
-	int waitClock;
+	int systemTime;
+	float systemCpuUtil;
+	float userCpuUtil;
+	float throughput;
+
 	int userTotal;
 	int idleTotal;
 
