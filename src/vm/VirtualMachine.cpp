@@ -90,8 +90,8 @@ void VirtualMachine::run()
 		(this->*instructions[OP])();
 		++clock;
 
-		if (sp < largestStack){
-			largestStack = sp;
+		if (memSize - sp > largestStack) {
+			largestStack = memSize - sp;
 		}
 
 		if (pc > limit or pc < base) { // Reference out of bounds
@@ -501,5 +501,4 @@ void VirtualMachine::readExec()
 void VirtualMachine::writeExec()
 {
 	*outFile << reg[RD] << endl;
-	//printf("%i\n",reg[RD] );
 }
