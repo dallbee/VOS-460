@@ -144,9 +144,6 @@ void OS::loadState()
 	VM.outFile = active->outFile;
 	VM.largestStack = active->largestStack;
 
-	// CHECKED UP TO THIS LINE
-	// DID NOT CHECK CLOCK STUFF
-
 	string line = "";
 
 	active->stFile->open(string("../io/" + active->name + "/" +
@@ -154,9 +151,13 @@ void OS::loadState()
 
 	while (getline(*(active->stFile), line)) {
 		stringstream convert(line);
-		convert >> VM.mem[VM.sp++];
+		convert >> VM.mem[VM.sp--];
 	}
 
+	active->stFile->close();
+
+	active->stFile->open(string("../io/" + active->name + "/" + active->name +
+	                      ".st").c_str(), ios::out | ios::trunc);
 	active->stFile->close();
 }
 
@@ -169,7 +170,7 @@ void OS::saveState()
 
 	copy(&VM.reg[0], &VM.reg[VM.regSize], active->reg);
 	active->pc = VM.pc;
-	active->sp = VM.sp;
+	active->sp = VM.memSize - 1;
 	active->sr = VM.sr;
 	active->base = VM.base;
 	active->limit = VM.limit;
@@ -180,8 +181,8 @@ void OS::saveState()
 	active->stFile->open(string("../io/" + active->name + "/" + active->name +
 	                      ".st").c_str(), ios::out | ios::trunc);
 
-	while (VM.sp < VM.memSize - 1) {
-		*active->stFile << VM.mem[++VM.sp] << endl;
+	for (int i = VM.memSize - 1; i > VM.sp; --i) {
+		*active->stFile << VM.mem[i] << endl;
 	}
 
 	active->stFile->close();
@@ -204,9 +205,9 @@ void OS::run()
 				}
 				waitQ.push(waitQ.front());
 				waitQ.pop();
-				VM.clock   += leastWait;
+				VM.clock += leastWait;
 				systemTime += leastWait;
-				idleTotal  += leastWait;
+				idleTotal += leastWait;
 			}
 			schedule();// Then run scheduler
 		}
@@ -222,7 +223,7 @@ void OS::run()
 				//printf("Saved %s \n",active->name.c_str());
 				saveState();
 				readyQ.push(active);
-				VM.clock   += 5; //Cost of context switch
+				VM.clock += 5; //Cost of context switch
 				systemTime += 5; //Cost of context switch
 				break;
 
