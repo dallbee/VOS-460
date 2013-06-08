@@ -20,7 +20,7 @@ using namespace std;
  */
  VirtualMachine::VirtualMachine():
 	mem(), clock(), OP(), RD(), I(), RS(), ADDR(), CONST(), pc(), ir(),
-	sp(memSize - 1), base(), limit(), sr()
+	sp(memSize - 1), base(), limit(), sr(), largestStack(memSize - 1)
  {
 	instructions[0x00] = &VirtualMachine::loadExec;
 	instructions[0x01] = &VirtualMachine::storeExec;
@@ -86,11 +86,10 @@ void VirtualMachine::run()
 		I = (ir >>= 2) & 0x01;
 		RD = (ir >>= 1) & 0x03;
 		OP = (ir >>= 2) & 0x1F;
-		machineDump();
-		//printf("Stack Pointer: %i\n", sp);
-
+		//machineDump();
 		(this->*instructions[OP])();
 		++clock;
+
 		if (sp < largestStack){
 			largestStack = sp;
 		}
@@ -501,5 +500,5 @@ void VirtualMachine::readExec()
 void VirtualMachine::writeExec()
 {
 	*outFile << reg[RD] << endl;
-	printf("%i\n",reg[RD] );
+	//printf("%i\n",reg[RD] );
 }

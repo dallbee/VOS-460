@@ -26,7 +26,7 @@ using namespace std;
  */
 PCB::PCB(string fileName) : name(fileName), reg(), pc(), sr(), ir(),
 	sp(VirtualMachine::memSize - 1), base(), limit(), tempClock(), execTime(),
-	waitTime(), turnTime(), ioTime(), largestStack(),
+	waitTime(), ioTime(), largestStack(VirtualMachine::memSize - 1),
 	oFile(new fstream(string("../io/" + name + "/" + name + ".o").c_str())),
 	outFile(new ofstream(string("../io/" + name + "/" + name + ".out").c_str())),
 	inFile(new fstream(string("../io/" + name + "/" + name + ".in").c_str())),
@@ -48,8 +48,9 @@ PCB::~PCB()
 /**
  * Creates an OS object
  */
-OS::OS() : VM(), progs(), readyQ(), waitQ(), active(), exitCode(), userTotal(),
-	idleTotal(), osOut(), processStack(), asLine(), limit(), programAs()
+OS::OS() : VM(), progs(), readyQ(), waitQ(), active(), exitCode(), systemTime(),
+	systemCpuUtil(), userCpuUtil(), throughput(), idleTotal(),
+	osOut(), processStack(), asLine(), limit(), programAs()
 {
 }
 
@@ -90,13 +91,10 @@ void OS::load()
 	 		*pcb->oFile >> assLine;
 	 	}
 		pcb->limit = limit;
-		printf("%s:\tpc:%ib:%i\tl:%i\n", pcb->name.c_str(), pcb->pc, pcb->base, pcb->limit);
 		progs.push_back(pcb);
 		readyQ.push(pcb);
 	}
-	for(int i = 0; i < VM.memSize; ++i) {
-		printf("Memory[%u] \t %u \n", i, VM.mem[i] & 0xFFFF );
-	}
+	//VM.memoryDump(VirtualMachine::memSize-1); //Output Memory after progs load
 }
 
 /**
@@ -104,8 +102,6 @@ void OS::load()
  */
 void OS::schedule()
 {
-	VM.clock += 5;
-
 	for(unsigned i = 0; i < waitQ.size(); ++i) {
 		if((waitQ.front()->tempClock + 27) <= VM.clock) {
 			waitQ.front()->tempClock = VM.clock;
@@ -130,7 +126,6 @@ void OS::schedule()
  */
 void OS::loadState()
 {
-	printf("loadState() called\n");
 	active->waitTime += (VM.clock - active->tempClock);
 	active->tempClock = VM.clock;
 	copy(&active->reg[0], &active->reg[VM.regSize], VM.reg);
@@ -153,7 +148,6 @@ void OS::loadState()
 		stringstream convert(line);
 		convert >> VM.mem[i] ;
 	}
-	printf("Output .st to Stack\n");
 	active->stFile->close();
 }
 
@@ -162,7 +156,6 @@ void OS::loadState()
  */
 void OS::saveState()
 {
-	printf("saveState() called\n");
 	active->tempClock = VM.clock;
 	copy(&VM.reg[0], &VM.reg[VM.regSize], active->reg);
 	active->pc = VM.pc;
@@ -180,7 +173,6 @@ void OS::saveState()
 	for (int i = VM.sp; i < VM.memSize - 1; ++i) {
 		*active->stFile << VM.mem[i] << endl;
 	}
-	printf("Input Stack to .st\n");
 	active->stFile->close();
 }
 
@@ -193,19 +185,30 @@ void OS::run()
 
 		if ( ! active and waitQ.size()) {
 			VM.clock += 17;// noop until waitQ is ready.
+			unsigned leastWait = -1;
+			leastWait >>= 1;
+			for(unsigned i = 0; i < waitQ.size(); ++i) {
+				if (VM.clock - waitQ.front()->tempClock < leastWait){
+					leastWait = VM.clock - waitQ.front()->tempClock;
+				}
+			VM.clock   += leastWait;
+			systemTime += leastWait;
+			idleTotal  += leastWait;
+			}
 			schedule();// Then run scheduler
 		}
 
 		loadState();
-		printf("}\n{==================================================\n%s\n",active->name.c_str() );
-
 		VM.run();
-		active->execTime += (VM.clock - active->tempClock);
+		active->execTime  += VM.clock - active->tempClock;
+
 		switch((active->sr >> 5) & 7) { //Looks only at the 3 VM return status bits
 			// Time slice
 			case 0:
 				saveState();
 				readyQ.push(active);
+				VM.clock   += 5; //Cost of context switch
+				systemTime += 5; //Cost of context switch
 				break;
 
 			// Halt
@@ -216,24 +219,29 @@ void OS::run()
 			// Reference out of bounds
 			case 2:
 				printf("Virtual Machine: Reference out of bounds\n");
+				printf("Culprit: %s ", active->name.c_str());
+				printf("Base:%i Limit:%i PC:%i\n", active->base, active->limit, active->pc );
 				processFinish();
 				break;
 
 			// Stack Overflow
 			case 3:
 				printf("Virtual Machine: Stack overflow!\n");
+				printf("Culprit: %s \n", active->name.c_str());
 				processFinish();
 				break;
 
 			// Stack Underflow
 			case 4:
 				printf("Virtual Machine: Stack underflow\n");
+				printf("Culprit: %s \n", active->name.c_str());
 				processFinish();
 				break;
 
 			// Invalid Opcode
 			case 5:
 				printf("Virtual Machine: Invalid Opcode\n");
+				printf("Culprit: %s \n", active->name.c_str());
 				processFinish();
 				break;
 
@@ -262,18 +270,17 @@ void OS::run()
 void OS::processFinish()
 {
 	printf("%s FINISHED! \n", active->name.c_str());
-	int systemTime = 0;
-	float systemCpuUtil = ((float)(VM.clock - idleTotal)/(float)VM.clock)*100.0;
-	float userCpuUtil = ((float)userTotal / (float)VM.clock) * 100.0;
-	float throughput = (float)progs.size() / (float)VM.clock / 10000.0;
 
-	active->turnTime = (active->execTime + active->waitTime + active->ioTime)
-		/ 10000.0;
+	systemCpuUtil = ((float)(VM.clock - idleTotal)/(float)VM.clock)*100.0;
+	userCpuUtil = ((float)active->execTime / (float)VM.clock) * 100.0;
+	throughput = (float)progs.size() / (float)VM.clock * 10000.0;
+
+	active->largestStack = VirtualMachine::memSize - active->largestStack - 1;
 
 	*active->outFile << endl << "[Process Information]" << endl;
 	*active->outFile << "CPU Time: " << active->execTime << endl;
 	*active->outFile << "Waiting Time: " << active->waitTime << endl;
-	*active->outFile << "Turnaround Time: " << active->turnTime << endl;
+	*active->outFile << "Turnaround Time: " << VM.clock << endl;
 	*active->outFile << "I/O Time: " << active->ioTime << endl;
 	*active->outFile << "Largest Stack Size: " << active->largestStack << endl;
 
@@ -281,7 +288,7 @@ void OS::processFinish()
 	*active->outFile << "System Time: " << systemTime << endl;
 	*active->outFile << "System CPU Util: " << systemCpuUtil << "%" << endl;
 	*active->outFile << "User CPU Util: " << userCpuUtil << "%" << endl;
-	*active->outFile << "Throughput: " << throughput << endl;
+	*active->outFile << "Throughput: " << throughput << " Per Second" << endl;
 
 	remove(string("../io/" + active->name + "/" + active->name +".st").c_str());
 	delete active;
