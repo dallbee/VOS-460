@@ -155,11 +155,6 @@ void OS::loadState()
 	}
 
 	active->stFile->close();
-
-	// Ensure that file is cleared after reading
-	active->stFile->open(string("../io/" + active->name + "/" + active->name +
-	                      ".st").c_str(), ios::out | ios::trunc);
-	active->stFile->close();
 }
 
 /*
