@@ -156,6 +156,7 @@ void OS::loadState()
 
 	active->stFile->close();
 
+	// Ensure that file is cleared after reading
 	active->stFile->open(string("../io/" + active->name + "/" + active->name +
 	                      ".st").c_str(), ios::out | ios::trunc);
 	active->stFile->close();
@@ -292,8 +293,6 @@ void OS::processFinish()
 	systemCpuUtil = ((float)(VM.clock - idleTotal)/(float)VM.clock)*100.0;
 	userCpuUtil = ((float)active->execTime / (float)VM.clock) * 100.0;
 	throughput = (float)progs.size() / (float)VM.clock * 10000.0;
-
-	active->largestStack = VirtualMachine::memSize - active->largestStack - 1;
 
 	*active->outFile << endl << "[Process Information]" << endl;
 	*active->outFile << "CPU Time: " << active->execTime << " ticks" << endl;
