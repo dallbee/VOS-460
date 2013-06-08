@@ -20,7 +20,8 @@ using namespace std;
  */
  VirtualMachine::VirtualMachine():
 	mem(), clock(), outFile(), inFile(), name(), OP(), RD(), I(), RS(), ADDR(),
-	CONST(), pc(), ir(), sp(memSize - 1), base(), limit(), sr(), largestStack()
+	CONST(), pc(), ir(), sp(memSize - 1), base(), limit(), sr(),
+	largestStack(memSize - 1)
  {
 	instructions[0x00] = &VirtualMachine::loadExec;
 	instructions[0x01] = &VirtualMachine::storeExec;
@@ -90,8 +91,8 @@ void VirtualMachine::run()
 		(this->*instructions[OP])();
 		++clock;
 
-		if (memSize - sp - 1 > largestStack) {
-			largestStack = memSize - sp - 1;
+		if (sp < largestStack) {
+			largestStack = sp;
 		}
 
 		if (pc > limit or pc < base) { // Reference out of bounds

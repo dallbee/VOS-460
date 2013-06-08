@@ -26,7 +26,7 @@ using namespace std;
  */
 PCB::PCB(string fileName) : name(fileName), reg(), pc(), sr(), ir(),
 	sp(VirtualMachine::memSize - 1), base(), limit(), tempClock(), execTime(),
-	waitTime(), turnTime(), ioTime(), largestStack(),
+	waitTime(), turnTime(), ioTime(), largestStack(VirtualMachine::memSize - 1),
 	oFile(new fstream(string("../io/" + name + "/" + name + ".o").c_str())),
 	outFile(new ofstream(string("../io/" + name + "/" + name + ".out").c_str())),
 	inFile(new fstream(string("../io/" + name + "/" + name + ".in").c_str())),
@@ -293,6 +293,7 @@ void OS::processFinish()
 	systemCpuUtil = ((float)(VM.clock - idleTotal)/(float)VM.clock)*100.0;
 	userCpuUtil = ((float)active->execTime / (float)VM.clock) * 100.0;
 	throughput = (float)progs.size() / (float)VM.clock * 10000.0;
+	active->largestStack = VM.memSize - active->largestStack - 1;
 
 	*active->outFile << endl << "[Process Information]" << endl;
 	*active->outFile << "CPU Time: " << active->execTime << " ticks" << endl;
