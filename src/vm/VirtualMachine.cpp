@@ -115,6 +115,7 @@ void VirtualMachine::run()
 		else if (OP == 0x17) { // Write Operation
 			sr |= 224;
 		}
+		//machineDump();
 	}
 }
 
@@ -499,6 +500,6 @@ void VirtualMachine::readExec()
  */
 void VirtualMachine::writeExec()
 {
-	*outFile << reg[RD] << endl;
+	*outFile << (unsigned)reg[RD] << endl;
 	//printf("%i\n",reg[RD] );
 }

@@ -103,7 +103,7 @@ void OS::load()
 void OS::schedule()
 {
 	for(unsigned i = 0; i < waitQ.size(); ++i) {
-		if((waitQ.front()->tempClock + 27) <= VM.clock) {
+		if((waitQ.front()->tempClock) <= VM.clock) {
 			waitQ.front()->tempClock = VM.clock;
 			readyQ.push(waitQ.front());
 			waitQ.pop();
@@ -149,6 +149,8 @@ void OS::loadState()
 		convert >> VM.mem[i] ;
 	}
 	active->stFile->close();
+	// printf("%s LOADED! \n", active->name.c_str());
+
 }
 
 /*
@@ -156,7 +158,7 @@ void OS::loadState()
  */
 void OS::saveState()
 {
-	active->tempClock = VM.clock;
+	// printf("%s SAVED! \n", active->name.c_str());
 	copy(&VM.reg[0], &VM.reg[VM.regSize], active->reg);
 	active->pc = VM.pc;
 	active->sp = VM.sp;
@@ -188,23 +190,28 @@ void OS::run()
 			unsigned leastWait = -1;
 			leastWait >>= 1;
 			for(unsigned i = 0; i < waitQ.size(); ++i) {
-				if (VM.clock - waitQ.front()->tempClock < leastWait){
-					leastWait = VM.clock - waitQ.front()->tempClock;
+				if (waitQ.front()->tempClock - VM.clock < leastWait){
+					leastWait = waitQ.front()->tempClock - VM.clock;
 				}
+				waitQ.push(waitQ.front());
+				waitQ.pop();
+			if (leastWait)
 			VM.clock   += leastWait;
 			systemTime += leastWait;
 			idleTotal  += leastWait;
+			printf("leastWait:%i\n", leastWait );
 			}
 			schedule();// Then run scheduler
 		}
-
 		loadState();
+		//printf("Loaded %s \n",active->name.c_str());
 		VM.run();
 		active->execTime  += VM.clock - active->tempClock;
 
 		switch((active->sr >> 5) & 7) { //Looks only at the 3 VM return status bits
 			// Time slice
 			case 0:
+				//printf("Saved %s \n",active->name.c_str());
 				saveState();
 				readyQ.push(active);
 				VM.clock   += 5; //Cost of context switch
@@ -219,34 +226,36 @@ void OS::run()
 			// Reference out of bounds
 			case 2:
 				printf("Virtual Machine: Reference out of bounds\n");
-				printf("Culprit: %s ", active->name.c_str());
+				printf("Culprit: %s, ", active->name.c_str());
 				printf("Base:%i Limit:%i PC:%i\n", active->base, active->limit, active->pc );
-				processFinish();
+				saveState();
+
 				break;
 
 			// Stack Overflow
 			case 3:
 				printf("Virtual Machine: Stack overflow!\n");
 				printf("Culprit: %s \n", active->name.c_str());
-				processFinish();
+				saveState();
 				break;
 
 			// Stack Underflow
 			case 4:
 				printf("Virtual Machine: Stack underflow\n");
 				printf("Culprit: %s \n", active->name.c_str());
-				processFinish();
+				saveState();
 				break;
 
 			// Invalid Opcode
 			case 5:
 				printf("Virtual Machine: Invalid Opcode\n");
 				printf("Culprit: %s \n", active->name.c_str());
-				processFinish();
+				saveState();
 				break;
 
 			// Read Operation
 			case 6:
+				active->tempClock = VM.clock +27;
 				active->ioTime += 27;
 				saveState();
 				waitQ.push(active);
@@ -254,6 +263,7 @@ void OS::run()
 
 			// Write Operation
 			case 7:
+				active->tempClock = VM.clock + 27;
 				active->ioTime += 27;
 				saveState();
 				waitQ.push(active);
@@ -278,14 +288,14 @@ void OS::processFinish()
 	active->largestStack = VirtualMachine::memSize - active->largestStack - 1;
 
 	*active->outFile << endl << "[Process Information]" << endl;
-	*active->outFile << "CPU Time: " << active->execTime << endl;
-	*active->outFile << "Waiting Time: " << active->waitTime << endl;
-	*active->outFile << "Turnaround Time: " << VM.clock << endl;
-	*active->outFile << "I/O Time: " << active->ioTime << endl;
+	*active->outFile << "CPU Time: " << active->execTime << " ticks" << endl;
+	*active->outFile << "Waiting Time: " << active->waitTime<< " ticks" << endl;
+	*active->outFile << "Turnaround Time: " << VM.clock << " ticks" << endl;
+	*active->outFile << "I/O Time: " << active->ioTime << " ticks" << endl;
 	*active->outFile << "Largest Stack Size: " << active->largestStack << endl;
 
 	*active->outFile << endl << "[System Information]" << endl;
-	*active->outFile << "System Time: " << systemTime << endl;
+	*active->outFile << "System Time: " << systemTime << " ticks" << endl;
 	*active->outFile << "System CPU Util: " << systemCpuUtil << "%" << endl;
 	*active->outFile << "User CPU Util: " << userCpuUtil << "%" << endl;
 	*active->outFile << "Throughput: " << throughput << " Per Second" << endl;
