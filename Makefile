@@ -1,6 +1,6 @@
 CC     = g++
 CFLAGS = -g -O3 -pedantic -ansi -Werror
-WFLAGS = -Wall -Wextra -Wshadow -Wpointer-arith -Wstrict-overflow=5
+WFLAGS = -Wall -Wextra -Wshadow -Wpointer-arith -Wstrict-overflow=5 -Wstrict-aliasing
 FLAGS = $(CFLAGS) $(WFLAGS)
 TARGETDIR = bin
 SRCDIR = src
