@@ -132,7 +132,6 @@ void OS::schedule()
 void OS::loadState()
 {
 	active->waitTime += (VM.clock - active->tempClock);
-	active->tempClock = VM.clock;
 
 	copy(&active->reg[0], &active->reg[VM.regSize], VM.reg);
 	VM.pc = active->pc;
@@ -162,8 +161,6 @@ void OS::loadState()
  */
 void OS::saveState()
 {
-	active->tempClock = VM.clock;
-
 	copy(&VM.reg[0], &VM.reg[VM.regSize], active->reg);
 	active->pc = VM.pc;
 	active->sp = VM.memSize - 1;
