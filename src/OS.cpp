@@ -206,14 +206,12 @@ void OS::run()
 		}
 
 		loadState();
-		//printf("Loaded %s \n",active->name.c_str());
 		VM.run();
 		active->execTime += (VM.clock - active->tempClock);
 
 		switch((active->sr >> 5) & 7) { //Looks only at the 3 VM return status bits
 			// Time slice
 			case 0:
-				//printf("Saved %s \n",active->name.c_str());
 				saveState();
 				readyQ.push(active);
 				VM.clock += 5; //Cost of context switch
@@ -229,7 +227,6 @@ void OS::run()
 			case 2:
 				printf("Virtual Machine: Reference out of bounds\n");
 				printf("Culprit: %s, ", active->name.c_str());
-				printf("Base:%i Limit:%i PC:%i\n", active->base, active->limit, active->pc );
 				saveState();
 				break;
 
