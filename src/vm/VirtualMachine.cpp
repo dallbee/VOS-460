@@ -19,9 +19,9 @@ using namespace std;
  * Construct object and create registers and memory
  */
  VirtualMachine::VirtualMachine():
-	mem(), clock(), outFile(), inFile(), name(), OP(), RD(), I(), RS(), ADDR(),
-	CONST(), pc(), ir(), sp(memSize - 1), base(), limit(), sr(),
-	largestStack(memSize - 1)
+	reg(), mem(), frames(), clock(), outFile(), inFile(), name(), OP(), RD(),
+	I(), RS(), ADDR(), CONST(), pc(), ir(), sp(memSize - 1), base(), limit(),
+	sr(), largestStack(memSize - 1)
  {
 	instructions[0x00] = &VirtualMachine::loadExec;
 	instructions[0x01] = &VirtualMachine::storeExec;

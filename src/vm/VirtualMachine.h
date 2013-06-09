@@ -10,11 +10,11 @@
 #ifndef VIRTUAL_MACHINE_H
 #define VIRTUAL_MACHINE_H
 
-
 #include <fstream>
 #include <stdio.h>
 #include <string>
 #include <vector>
+#include <map>
 using namespace std;
 
 class VirtualMachine {
@@ -33,6 +33,11 @@ private:
 
 	short reg[regSize];
 	short mem[memSize];
+	short pageTable[32];
+	short lruFrames[32];
+	map<short, short> buffer;
+	short buffer[32];
+
 	unsigned clock;
 	ofstream* outFile;
 	fstream* inFile;
