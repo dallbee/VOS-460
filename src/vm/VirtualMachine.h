@@ -28,30 +28,18 @@ public:
 	void machineDump();
 	void memoryDump(short memInt);
 
-private:
+protected:
 	friend class OS;
 
 	short reg[regSize];
 	short mem[memSize];
-	short pageTable[32];
-	short lruFrames[32];
+	short frames[32];
 	map<short, short> buffer;
-	short buffer[32];
 
 	unsigned clock;
 	ofstream* outFile;
 	fstream* inFile;
 	string name;
-
-	typedef void(VirtualMachine::*FunctionPointer)();
-	FunctionPointer instructions[26];
-
-	int OP;
-	int RD;
-	int I;
-	int RS;
-	unsigned char ADDR;
-	signed char CONST;
 
 	short pc;
 	short ir;
@@ -60,6 +48,17 @@ private:
 	short limit;
 	short sr;
 	short largestStack;
+
+private:
+	int OP;
+	int RD;
+	int I;
+	int RS;
+	unsigned char ADDR;
+	signed char CONST;
+
+	typedef void(VirtualMachine::*FunctionPointer)();
+	FunctionPointer instructions[26];
 
 	void pushStack(short pcbItem);
 	short popStack();

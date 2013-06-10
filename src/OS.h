@@ -51,6 +51,19 @@ private:
 	fstream *stFile;
 };
 
+class Memory : public VirtualMachine {
+public:
+	Memory();
+	virtual ~Memory() {};
+
+	// [] Operator -> & Designates setter
+	short operator [](int i) const;
+    short & operator [](int i)
+
+private:
+	short page[32];
+};
+
 class OS {
 public:
 	OS();
@@ -63,7 +76,7 @@ public:
 	void processFinish();
 
 private:
-	VirtualMachine VM;
+	Memory VM;
 	list<PCB *> progs;
 	queue<PCB *> readyQ, waitQ;
 	PCB* active;
@@ -74,7 +87,6 @@ private:
 	float systemCpuUtil;
 	float userCpuUtil;
 	float throughput;
-
 	int userTotal;
 	int idleTotal;
 

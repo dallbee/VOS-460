@@ -45,6 +45,11 @@ PCB::~PCB()
 	delete stFile;
 }
 
+Memory::Memory()
+{
+
+}
+
 /**
  * Creates an OS object
  */
