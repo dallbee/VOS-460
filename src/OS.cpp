@@ -308,10 +308,15 @@ void OS::processFinish()
  */
 int main( int argc, char *argv[])
 {
-	string cacheAlg = argv[1];
-	if(argc != 2 or cacheAlg == "lru" or cacheAlg == "fifo"){
+	string cacheAlg;
+
+	if (argc == 2) {
+		cacheAlg = argv[1];
+	}
+
+	if (cacheAlg != "lru" and cacheAlg != "fifo") {
 		printf ("Please specify a cache algorithm to use: -lru or -fifo");
-		return(1);
+		return 1;
 	}
 
 	try {

@@ -2,4 +2,4 @@
 
 make
 cd bin
-./os
+./os -fifo
