@@ -309,13 +309,14 @@ void OS::processFinish()
 int main( int argc, char *argv[])
 {
 	string cacheAlg = argv[1];
-	if(argc == 1 or cacheAlg.compare("lru") != 0 or cacheAlg.compare("fifo") != 0){
+	if(argc != 2 or cacheAlg.compare("lru") != 0 or cacheAlg.compare("fifo") != 0){
 		printf ("Please specify a cache algorithm to use: -lru or -fifo");
 		return(1);
 	}
 
 	try {
 		OS os;
+		// OS os(cacheAlg);
 		os.load();
 		os.schedule();
 		os.run();
