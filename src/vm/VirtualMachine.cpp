@@ -13,17 +13,37 @@
 #include <set>
 #include <stdio.h>
 #include <string>
+
+#include <cstdlib>
 using namespace std;
 
-Memory::Memory(int memSize): mem(memSize)
+Memory::Memory(int memSize, int tlbSize): mem(memSize), bufferSize(tlbSize)
 {
+}
+
+short Memory::operator [](int logical) const
+{
+	map<short, short>::const_iterator it = buffer.find(logical >> 3);
+
+	if (it == buffer.end()) {
+		// trap to OS
+		printf("OKAY");
+		exit(1);
+	}
+
+	return mem[logical];
+}
+
+short & Memory::operator [](int logical)
+{
+	return operator [](logical);
 }
 
 /**
  * Construct object and create registers and memory
  */
  VirtualMachine::VirtualMachine():
-	tlbKey(), tlbValue(), reg(), mem(memSize), frames(), clock(), outFile(),
+	reg(), mem(memSize, tlbSize), frames(), clock(), outFile(),
 	inFile(), name(), pc(), ir(), sp(memSize - 1), base(), limit(), sr(),
 	largestStack(memSize - 1), OP(), RD(),	I(),  RS(), ADDR(), CONST()
  {

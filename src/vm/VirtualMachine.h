@@ -19,14 +19,16 @@ using namespace std;
 
 class Memory {
 public:
-	Memory(int memSize);
+	Memory(int memSize, int tlbSize);
 	virtual ~Memory() {};
 
-	short operator [](int index) const;
-    short & operator [](int index);
+	short operator [](int logical) const;
+	short & operator [](int logical);
 
 private:
 	vector<short> mem;
+	map<short, short> buffer;
+	int bufferSize;
 };
 
 class VirtualMachine {
@@ -44,12 +46,9 @@ public:
 protected:
 	friend class OS;
 
-	short tlbKey[tlbSize];
-	short tlbValue[tlbSize]; //I honestly an not sure I follow the instructions.
 	short reg[regSize];
 	Memory mem;
 	short frames[32];
-	map<short, short> buffer;
 
 	unsigned clock;
 	ofstream* outFile;
