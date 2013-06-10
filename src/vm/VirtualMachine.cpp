@@ -15,12 +15,16 @@
 #include <string>
 using namespace std;
 
+Memory::Memory(int memSize): mem(memSize)
+{
+}
+
 /**
  * Construct object and create registers and memory
  */
  VirtualMachine::VirtualMachine():
-	tlbKey(), tlbValue(), reg(), mem(), frames(), clock(), outFile(), inFile(),
-	name(), pc(), ir(), sp(memSize - 1), base(), limit(), sr(),
+	tlbKey(), tlbValue(), reg(), mem(memSize), frames(), clock(), outFile(),
+	inFile(), name(), pc(), ir(), sp(memSize - 1), base(), limit(), sr(),
 	largestStack(memSize - 1), OP(), RD(),	I(),  RS(), ADDR(), CONST()
  {
 	instructions[0x00] = &VirtualMachine::loadExec;
@@ -49,10 +53,6 @@ using namespace std;
 	instructions[0x17] = &VirtualMachine::writeExec;
 	instructions[0x18] = &VirtualMachine::haltExec;
 	instructions[0x19] = &VirtualMachine::noopExec;
-}
-
-Memory::Memory(int memSize): mem(memSize)
-{
 }
 
 /**
