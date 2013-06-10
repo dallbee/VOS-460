@@ -13,37 +13,70 @@
 #include <set>
 #include <stdio.h>
 #include <string>
-
-#include <cstdlib>
 using namespace std;
 
-Memory::Memory(int memSize, int tlbSize): mem(memSize), bufferSize(tlbSize)
+/**
+ * Construct object and create registers and memory
+ */
+PageTable::PageTable() : table()
+{
+}
+
+short PageTable::operator [](int pageNo) const
+{
+	if (table[pageNo] & 1) {
+		throw "Page Table Miss";
+	}
+
+	return table[pageNo >> 2];
+}
+
+short & PageTable::operator [](int pageNo)
+{
+	// Set dirty bit
+	table[pageNo] |= 2;
+
+	return operator [](pageNo);
+}
+
+/**
+ * Construct object and create registers and memory
+ */
+Memory::Memory(int memSize, int tlbSize, short &sp, PageTable* page):
+	mem(memSize), bufferSize(tlbSize), stackPointer(sp), pageTable(page)
 {
 }
 
 short Memory::operator [](int logical) const
 {
-	map<short, short>::const_iterator it = buffer.find(logical >> 3);
-
-	if (it == buffer.end()) {
-		// trap to OS
-		printf("OKAY");
-		exit(1);
+	if (logical >= stackPointer) {
+		return mem[logical];
 	}
 
-	return mem[logical];
+	int pageNo = logical >> 3;
+	map<short, short>::const_iterator it = buffer.find(pageNo);
+
+	if (it == buffer.end() or it->second & 1) {
+		throw "TLB Miss";
+	}
+
+	return mem[((it->second >> 2) << 3) | (logical & 0x7)];
 }
 
 short & Memory::operator [](int logical)
 {
-	return operator [](logical);
+	if (logical >= stackPointer) {
+		return mem[logical];
+	}
+
+	return pageTable->operator[](logical >> 3);
 }
 
 /**
  * Construct object and create registers and memory
  */
  VirtualMachine::VirtualMachine():
-	reg(), mem(memSize, tlbSize), frames(), clock(), outFile(),
+	reg(), mem(memSize, tlbSize, sp, pageTable), frames(), clock(), outFile(),
 	inFile(), name(), pc(), ir(), sp(memSize - 1), base(), limit(), sr(),
 	largestStack(memSize - 1), OP(), RD(),	I(),  RS(), ADDR(), CONST()
  {
@@ -102,45 +135,51 @@ short & Memory::operator [](int logical)
  */
 void VirtualMachine::run()
 {
-	sr &= 0xFF1F;
+	sr &= 0xF81F;
 	for(int timeslice = 0; timeslice < 15 and !(sr & 0xE0); ++timeslice) {
-		ir = mem[pc++];
-		CONST = ir & 0xFF;
-		ADDR = (ir & 0xFF) + base;
-		RS = (ir >>= 6) & 0x03;
-		I = (ir >>= 2) & 0x01;
-		RD = (ir >>= 1) & 0x03;
-		OP = (ir >>= 2) & 0x1F;
-		//machineDump();
-		(this->*instructions[OP])();
-		++clock;
+
+		try {
+			ir = mem[pc];
+
+			CONST = ir & 0xFF;
+			ADDR = (ir & 0xFF) + base;
+			RS = (ir >>= 6) & 0x03;
+			I = (ir >>= 2) & 0x01;
+			RD = (ir >>= 1) & 0x03;
+			OP = (ir >>= 2) & 0x1F;
+			(this->*instructions[OP])();
+			++pc;
+		} catch(const char* error) {
+			sr |= 0x0400;
+		}
 
 		if (sp < largestStack) {
 			largestStack = sp;
 		}
 
 		if (pc > limit or pc < base) { // Reference out of bounds
-			sr = (sr & 0xFF5F) | 64;
+			sr |= 64;
 		}
 		else if (sp - 1 == pc) { // Stack Overflow
-			sr = (sr & 0xFF7F) | 96;
+			sr |= 96;
 		}
 		else if (sp == 256) { // Stack Underflow
-			sr = (sr & 0xFF9F) | 128;
+			sr |= 128;
 		}
 		else if (OP > 0x19) { // Invalid Opcode
-			sr = (sr & 0xFFAF) | 160;
+			sr |= 160;
 		}
 		else if (OP == 0x18 or pc == limit) { // Halt
-			sr = (sr & 0xFF3F) | 32;
+			sr |= 32;
 		}
 		else if (OP == 0x16) { // Read Operations
-			sr = (sr & 0xFFCF) | 192;
+			sr |= 192;
 		}
 		else if (OP == 0x17) { // Write Operation
 			sr |= 224;
 		}
-		//machineDump();
+
+		++clock;
 	}
 }
 
@@ -428,7 +467,6 @@ void VirtualMachine::comprExec()
 	} else {
 		setGreater();
 	}
-
 }
 
 /**
@@ -518,6 +556,7 @@ void VirtualMachine::returnExec()
 void VirtualMachine::readExec()
 {
 	*inFile >> reg[RD];
+	sr = (sr & 0xFCFF) | RD;
 }
 
 /**
@@ -526,4 +565,5 @@ void VirtualMachine::readExec()
 void VirtualMachine::writeExec()
 {
 	*outFile << reg[RD] << endl;
+	sr = (sr & 0xFCFF) | RD;
 }

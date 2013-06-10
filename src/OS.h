@@ -14,7 +14,6 @@
 #include <fstream>
 #include <list>
 #include <queue>
-
 using namespace std;
 
 class PCB {
@@ -24,7 +23,7 @@ public:
 private:
 	friend class OS;
 	string name;
-	unsigned char pageTable[32];
+	PageTable* pageTable;
 
 	// Program execution information
 	short reg[VirtualMachine::regSize];
@@ -54,12 +53,15 @@ private:
 
 class OS {
 public:
-	OS();
+	OS(bool mode);
 	virtual ~OS() {};
 	void load();
 	void schedule();
 	void loadState();
 	void saveState();
+	void pageReplace();
+	void pageTLB();
+	void pageSave();
 	void run();
 	void processFinish();
 
@@ -84,6 +86,7 @@ private:
 	int asLine;
 	short limit;
 	string programAs;
+	bool pageAlgorithm;
 };
 
 #endif

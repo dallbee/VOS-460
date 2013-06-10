@@ -17,9 +17,22 @@
 #include <map>
 using namespace std;
 
+class PageTable {
+public:
+	PageTable();
+	virtual ~PageTable() {};
+
+	short operator [](int pageNo) const;
+	short & operator [](int pageNo);
+
+private:
+	friend class OS;
+	short table[32];
+};
+
 class Memory {
 public:
-	Memory(int memSize, int tlbSize);
+	Memory(int memSize, int tlbSize, short& sp, PageTable* page);
 	virtual ~Memory() {};
 
 	short operator [](int logical) const;
@@ -29,11 +42,13 @@ private:
 	vector<short> mem;
 	map<short, short> buffer;
 	int bufferSize;
+	short stackPointer;
+	PageTable* pageTable;
 };
 
 class VirtualMachine {
 public:
-	static const int tlbSize = 8;
+	static const int tlbSize = 32;
 	static const int regSize = 4;
 	static const int memSize = 256;
 
@@ -48,6 +63,7 @@ protected:
 
 	short reg[regSize];
 	Memory mem;
+	PageTable* pageTable;
 	short frames[32];
 
 	unsigned clock;

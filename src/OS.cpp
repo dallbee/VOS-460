@@ -7,7 +7,6 @@
  * @file os.cpp
  */
 
-
 #include "OS.h"
 #include "sys/assembler/Assembler.h"
 #include "vm/VirtualMachine.h"
@@ -24,7 +23,7 @@ using namespace std;
  * Creates a PCB object
  * Responsible for setting up the main file streams for the entire system
  */
-PCB::PCB(string fileName) : name(fileName), reg(), pc(), sr(), ir(),
+PCB::PCB(string fileName) : name(fileName), pageTable(), reg(), pc(), sr(), ir(),
 	sp(VirtualMachine::memSize - 1), base(), limit(), tempClock(), execTime(),
 	waitTime(), turnTime(), ioTime(), largestStack(VirtualMachine::memSize - 1),
 	oFile(new fstream(string("../io/" + name + "/" + name + ".o").c_str())),
@@ -32,6 +31,7 @@ PCB::PCB(string fileName) : name(fileName), reg(), pc(), sr(), ir(),
 	inFile(new fstream(string("../io/" + name + "/" + name + ".in").c_str())),
 	stFile(new fstream())
 {
+	pageTable = new PageTable;
 }
 
 /**
@@ -43,14 +43,15 @@ PCB::~PCB()
 	delete outFile;
 	delete inFile;
 	delete stFile;
+	delete pageTable;
 }
 
 /**
  * Creates an OS object
  */
-OS::OS() : VM(), progs(), readyQ(), waitQ(), active(), exitCode(), systemTime(),
-	systemCpuUtil(), userCpuUtil(), throughput(), idleTotal(),
-	osOut(), processStack(), asLine(), limit(), programAs()
+OS::OS(bool mode) : VM(), progs(), readyQ(), waitQ(), active(), exitCode(),
+	systemTime(), systemCpuUtil(), userCpuUtil(), throughput(), idleTotal(),
+	osOut(), processStack(), asLine(), limit(), programAs(), pageAlgorithm(mode)
 {
 }
 
@@ -154,6 +155,9 @@ void OS::loadState()
 	}
 
 	active->stFile->close();
+
+	pageReplace();
+	pageTLB();
 }
 
 /*
@@ -179,6 +183,28 @@ void OS::saveState()
 	}
 
 	active->stFile->close();
+
+
+}
+
+void OS::pageReplace()
+{
+	// Branch based on algorithm
+	//
+	// Grab new from disk
+}
+
+void OS::pageTLB()
+{
+	// clear old tlb
+	// copy page to tlb
+}
+
+void OS::pageSave()
+{
+	// Look for dirty bits
+	// Save dirty pages
+	// Clear dirty bits
 }
 
 /*
@@ -209,7 +235,7 @@ void OS::run()
 		VM.run();
 		active->execTime += (VM.clock - active->tempClock);
 
-		switch((active->sr >> 5) & 7) { //Looks only at the 3 VM return status bits
+		switch((active->sr >> 5) & 0x27) { // Status bits + Page Fault
 			// Time slice
 			case 0:
 				saveState();
@@ -266,6 +292,13 @@ void OS::run()
 				saveState();
 				waitQ.push(active);
 				break;
+
+			// Page Fault
+			case 32:
+				active->tempClock = VM.clock + 34;
+				saveState();
+				waitQ.push(active);
+				break;
 		}
 		schedule();
 	}
@@ -306,22 +339,23 @@ void OS::processFinish()
  *
  * @return Failure status
  */
-int main( int argc, char *argv[])
+int main(int argc, char *argv[])
 {
-	string cacheAlg;
+	string pageAlgorithm;
 
 	if (argc == 2) {
-		cacheAlg = argv[1];
+		pageAlgorithm = argv[1];
 	}
 
-	if (cacheAlg != "lru" and cacheAlg != "fifo") {
-		printf ("Please specify a cache algorithm to use: -lru or -fifo");
+	if (pageAlgorithm != "-lru" and pageAlgorithm != "-fifo") {
+		printf ("Please specify a page algorithm to use: -lru or -fifo");
 		return 1;
 	}
 
+	bool mode = (pageAlgorithm == "-fifo") ? 1 : 0;
+
 	try {
-		OS os;
-		// OS os(cacheAlg);
+		OS os(mode);
 		os.load();
 		os.schedule();
 		os.run();
