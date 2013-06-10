@@ -74,7 +74,7 @@ void OS::load()
 		    line.find_last_of(".") - line.find_last_of("/") - 1);
 
 		PCB *pcb = new PCB(name);
-		pcb->pageTable = new PageTable(VM.frames, VM.clock);
+		pcb->pageTable = new PageTable(VM.frames, VM.clock, pageAlgorithm);
 
 		// Assemble opcodes
 		try {
@@ -182,7 +182,13 @@ void OS::pageReplace()
 {
 	//int i = 0;
 	if (pageAlgorithm) {
-		// fifo
+		// ADD FIFO COUNTER
+		// DO FIFO / URL ALGORITHMS
+		// INVERSE PAGING
+		// FIX STACK POINTER
+		// FRAMES SWAP OUT WHEN THEY RUN INTO STACK
+		// READ FROM DISK
+		// WRITE FROM DISK
 	} else {
 		// lru
 

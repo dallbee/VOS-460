@@ -18,8 +18,8 @@ using namespace std;
 /**
  * Construct object and create registers and memory
  */
-PageTable::PageTable(short *frames, unsigned &clk) :
-	table(), frame(frames), clock(clk)
+PageTable::PageTable(unsigned *frames, unsigned &clk, bool mode) :
+	table(), frame(frames), clock(clk), fifo(mode)
 {
 }
 
@@ -29,7 +29,10 @@ short PageTable::operator [](int pageNo) const
 		throw "Page Table Miss";
 	}
 
-	frame[pageNo] = clock;
+	if (! fifo) {
+		frame[pageNo] = clock;
+	}
+
 	return table[pageNo >> 2];
 }
 
