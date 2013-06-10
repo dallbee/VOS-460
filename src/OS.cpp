@@ -33,7 +33,6 @@ PCB::PCB(string fileName) : name(fileName), pageTable(), reg(), pc(), sr(), ir()
 	inFile(new fstream(string("../io/" + name + "/" + name + ".in").c_str())),
 	stFile(new fstream())
 {
-	pageTable = new PageTable;
 }
 
 /**
@@ -75,6 +74,7 @@ void OS::load()
 		    line.find_last_of(".") - line.find_last_of("/") - 1);
 
 		PCB *pcb = new PCB(name);
+		pcb->pageTable = new PageTable(VM.frames, VM.clock);
 
 		// Assemble opcodes
 		try {
@@ -176,24 +176,34 @@ void OS::saveState()
 	}
 
 	active->stFile->close();
-	pageSave();
 }
 
 void OS::pageReplace()
 {
-	// Branch based on algorithm
-	//
+	//int i = 0;
+	if (pageAlgorithm) {
+		// fifo
+	} else {
+		// lru
+
+	}
+
+	string line;
+	active->oFile->open(string("../io/" + active->name + "/" +
+	                      active->name + ".o").c_str(), ios::in);
+
+	while (getline(*(active->oFile), line)) {
+		//stringstream convert(line);
+		//convert >> VM.mem[VM.sp--];
+	}
+
+	active->stFile->close();
 	// Grab new from disk
 	//
-	// // clear old tlb
-	// copy page to tlb
-}
-
-void OS::pageSave()
-{
-	// Look for dirty bits
-	// Save dirty pages
-	// Clear dirty bits
+	//VM.
+	// REVERSE PAGE TABLE LOOKUP
+	//if (active->pageTable[]
+	VM.mem.refresh();
 }
 
 /*
@@ -347,7 +357,7 @@ int main(int argc, char *argv[])
 	}
 
 	if (pageAlgorithm != "-lru" and pageAlgorithm != "-fifo") {
-		printf ("Please specify a page algorithm to use: -lru or -fifo");
+		printf ("Please specify a page algorithm to use: -lru or -fifo\n");
 		return 1;
 	}
 
@@ -355,9 +365,13 @@ int main(int argc, char *argv[])
 
 	try {
 		OS os(mode);
+		printf("initialized\n");
 		os.load();
+		printf("loaded\n");
 		os.schedule();
+		printf("scheduled\n");
 		os.run();
+		printf("finished\n");
 	} catch(const char* error) {
 		printf("[Operating System Error] %s \n", error);
 	}

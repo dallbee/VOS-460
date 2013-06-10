@@ -18,7 +18,8 @@ using namespace std;
 /**
  * Construct object and create registers and memory
  */
-PageTable::PageTable() : table()
+PageTable::PageTable(short *frames, unsigned &clk) :
+	table(), frame(frames), clock(clk)
 {
 }
 
@@ -28,6 +29,7 @@ short PageTable::operator [](int pageNo) const
 		throw "Page Table Miss";
 	}
 
+	frame[pageNo] = clock;
 	return table[pageNo >> 2];
 }
 
@@ -61,7 +63,7 @@ short Memory::operator [](int logical) const
 	}
 
 	++hits;
-	return mem[((it->second >> 2) << 3) | (logical & 0x7)];
+	return mem[((it->first >> 2) << 3) | (logical & 0x7)];
 }
 
 short & Memory::operator [](int logical)
@@ -71,6 +73,15 @@ short & Memory::operator [](int logical)
 	}
 
 	return pageTable->operator[](logical >> 3);
+}
+
+void Memory::refresh()
+{
+	buffer.clear();
+	for (int i = 0; i < 32; ++i)
+	{
+		buffer.insert(pair<short, short> (i, pageTable->table[i]));
+	}
 }
 
 /**
@@ -143,7 +154,7 @@ void VirtualMachine::run()
 			ir = mem[pc];
 
 			CONST = ir & 0xFF;
-			ADDR = (ir & 0xFF) + base;
+			ADDR = (ir & 0xFF);
 			RS = (ir >>= 6) & 0x03;
 			I = (ir >>= 2) & 0x01;
 			RD = (ir >>= 1) & 0x03;

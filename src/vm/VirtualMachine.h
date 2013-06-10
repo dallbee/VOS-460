@@ -19,14 +19,17 @@ using namespace std;
 
 class PageTable {
 public:
-	PageTable();
+	PageTable(short frames[32], unsigned &clk);
 	virtual ~PageTable() {};
 
 	short operator [](int pageNo) const;
 	short & operator [](int pageNo);
 private:
+	friend class Memory;
 	friend class OS;
 	short table[32];
+	mutable short *frame;
+	unsigned clock;
 };
 
 class Memory {
@@ -37,6 +40,7 @@ public:
 	short operator [](int logical) const;
 	short & operator [](int logical);
 
+	void refresh();
 	mutable int hits;
 
 private:
@@ -65,7 +69,7 @@ protected:
 	short reg[regSize];
 	Memory mem;
 	PageTable* pageTable;
-	short frames[32];
+	mutable short frames[32];
 
 	unsigned clock;
 	ofstream* outFile;

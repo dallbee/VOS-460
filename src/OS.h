@@ -62,7 +62,6 @@ public:
 	void loadState();
 	void saveState();
 	void pageReplace();
-	void pageSave();
 	void run();
 	void processFinish();
 
