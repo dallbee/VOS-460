@@ -32,7 +32,7 @@ public:
 protected:
 	friend class OS;
 
-	short tlbKey[tlbSize]
+	short tlbKey[tlbSize];
 	short tlbValue[tlbSize]; //I honestly an not sure I follow the instructions.
 	short reg[regSize];
 	short mem[memSize];
