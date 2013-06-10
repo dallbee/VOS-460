@@ -51,13 +51,8 @@ using namespace std;
 	instructions[0x19] = &VirtualMachine::noopExec;
 }
 
-Memory::Memory(int memSize)
-
+Memory::Memory(int memSize): mem(memSize)
 {
-	for (int i =0; i < memSize; ++i){
-		mem[i]=0;
-	}
-
 }
 
 /**
