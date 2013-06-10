@@ -57,8 +57,8 @@ public:
 	virtual ~Memory() {};
 
 	// [] Operator -> & Designates setter
-	short operator [](int i) const;
-    short & operator [](int i)
+	short operator [](int index) const;
+    short & operator [](int index)
 
 private:
 	short page[32];
