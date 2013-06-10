@@ -17,6 +17,7 @@
 #include <sstream>
 #include <stdio.h>
 #include <string>
+#include <iterator>
 using namespace std;
 
 /**
@@ -82,20 +83,11 @@ void OS::load()
 			printf("[Assembler Error] %s \n", error);
 		}
 
-		// Load object code into memory
-		pcb->base = limit;
-		pcb->pc = limit;
-
-		int programLine = 0;
-	  	*pcb->oFile >> programLine;
-		while(pcb->oFile->good()){
-	 		VM.mem[limit++] = programLine;
-	 		*pcb->oFile >> programLine;
-	 	}
-
-		pcb->limit = limit;
 		progs.push_back(pcb);
-		readyQ.push(pcb);
+
+		if (readyQ.size() <= 5) {
+			readyQ.push(pcb);
+		}
 	}
 	/*
 	for(int i = 0; i < VM.memSize; ++i) {
@@ -333,6 +325,12 @@ void OS::processFinish()
 
 	remove(string("../io/" + active->name + "/" + active->name +".st").c_str());
 	delete active;
+
+	if (readyQ.size() <= 5 and progs.size() >= 5) {
+		list<PCB *>::iterator i = progs.begin();
+		advance(i, 5);
+		readyQ.push(*i);
+	}
 }
 
 /**
