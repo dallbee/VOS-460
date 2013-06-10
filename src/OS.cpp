@@ -306,8 +306,14 @@ void OS::processFinish()
  *
  * @return Failure status
  */
-int main()
+int main( int argc, char *argv[])
 {
+	string cacheAlg = argv[1];
+	if(argc == 1 or cacheAlg.compare("lru") != 0 or cacheAlg.compare("fifo") != 0){
+		printf ("Please specify a cache algorithm to use: -lru or -fifo");
+		return(1);
+	}
+
 	try {
 		OS os;
 		os.load();
