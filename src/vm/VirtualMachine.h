@@ -59,7 +59,7 @@ private:
 	int RS;
 	unsigned char ADDR;
 	signed char CONST;
-	unsigned char *pageTable[32];
+	unsigned char *pageTable;
 
 	typedef void(VirtualMachine::*FunctionPointer)();
 	FunctionPointer instructions[26];

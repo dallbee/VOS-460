@@ -45,12 +45,6 @@ PCB::~PCB()
 	delete stFile;
 }
 
-short operator [](int index) const
-{
-	page[index];
-	return mem[page[index]];
-}
-
 /**
  * Creates an OS object
  */
