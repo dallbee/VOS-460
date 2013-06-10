@@ -24,7 +24,7 @@ public:
 private:
 	friend class OS;
 	string name;
-	unsigned char *pageTable[32];
+	unsigned char pageTable[32];
 
 	// Program execution information
 	short reg[VirtualMachine::regSize];

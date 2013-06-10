@@ -17,6 +17,18 @@
 #include <map>
 using namespace std;
 
+class Memory {
+public:
+	Memory(int memSize);
+	virtual ~Memory() {};
+
+	short operator [](int index) const;
+    short & operator [](int index);
+
+private:
+	vector<short> mem;
+};
+
 class VirtualMachine {
 public:
 	static const int tlbSize = 8;
@@ -35,7 +47,7 @@ protected:
 	short tlbKey[tlbSize];
 	short tlbValue[tlbSize]; //I honestly an not sure I follow the instructions.
 	short reg[regSize];
-	short mem[memSize];
+	Memory mem;
 	short frames[32];
 	map<short, short> buffer;
 
@@ -59,7 +71,6 @@ private:
 	int RS;
 	unsigned char ADDR;
 	signed char CONST;
-	unsigned char *pageTable;
 
 	typedef void(VirtualMachine::*FunctionPointer)();
 	FunctionPointer instructions[26];
