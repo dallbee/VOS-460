@@ -51,6 +51,15 @@ using namespace std;
 	instructions[0x19] = &VirtualMachine::noopExec;
 }
 
+Memory::Memory(int memSize)
+
+{
+	for (int i =0; i < memSize; ++i){
+		mem[i]=0;
+	}
+
+}
+
 /**
  * Dumps the VirtualMachine's contents so they can be read
  */
