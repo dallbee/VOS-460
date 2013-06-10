@@ -15,9 +15,6 @@
 #include <string>
 using namespace std;
 
-/**
- * Construct object and create registers and memory
- */
 PageTable::PageTable(unsigned *frames, unsigned &clk, bool mode) :
 	table(), frame(frames), clock(clk), fifo(mode)
 {
@@ -44,9 +41,6 @@ short & PageTable::operator [](int pageNo)
 	return operator [](pageNo);
 }
 
-/**
- * Construct object and create registers and memory
- */
 Memory::Memory(int memSize, int tlbSize, short &sp, PageTable* page):
 	hits(), mem(memSize), bufferSize(tlbSize), stackPointer(sp), pageTable(page)
 {
