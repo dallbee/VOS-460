@@ -180,35 +180,49 @@ void OS::saveState()
 
 void OS::pageReplace()
 {
-	//int i = 0;
-	if (pageAlgorithm) {
-		// ADD FIFO COUNTER
-		// DO FIFO / URL ALGORITHMS
-		// INVERSE PAGING
-		// FIX STACK POINTER
-		// FRAMES SWAP OUT WHEN THEY RUN INTO STACK
-		// READ FROM DISK
-		// WRITE FROM DISK
-	} else {
-		// lru
+	if ((active->sr >> 5) & 0x27 == 32) {
+		// FIFO
+		if (pageAlgorithm) {
+			// ADD FIFO COUNTER
+			// DO FIFO / URL ALGORITHMS
+		// LRU
+		} else {
+			unsigned temp = -1;
+			unsigned value = 0;
+			for (int i = 0; i < 32; ++i) {
+				if (VM.pageTable.table[i] < temp) {
+					temp = VM.pageTable.table[i];
+					value = i;
+				}
+			}
+		}
 
+		// If dirty bit isn't set, don't bother saving!
+		if (VM.pageTable.table[i] & 2) {
+			// Inverse Page Table -> File Save
+			/*
+			string line;
+			active->oFile->open(string("../io/" + active->name + "/" +
+			                      active->name + ".o").c_str(), ios::in);
+
+			while (getline(*(active->oFile), line)) {
+				//stringstream convert(line);
+				//convert >> VM.mem[VM.sp--];
+			}
+
+			active->stFile->close();*/
+		}
+
+		// Grab new from disk
+		// 
+		
+		// FIFO counter
+		if (pageAlgorithm) {
+			
+		}
+		
 	}
-
-	string line;
-	active->oFile->open(string("../io/" + active->name + "/" +
-	                      active->name + ".o").c_str(), ios::in);
-
-	while (getline(*(active->oFile), line)) {
-		//stringstream convert(line);
-		//convert >> VM.mem[VM.sp--];
-	}
-
-	active->stFile->close();
-	// Grab new from disk
-	//
-	//VM.
-	// REVERSE PAGE TABLE LOOKUP
-	//if (active->pageTable[]
+	
 	VM.mem.refresh();
 }
 

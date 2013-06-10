@@ -2,4 +2,4 @@
 
 
 cd bin
-./os -fifo
+./os -lru
