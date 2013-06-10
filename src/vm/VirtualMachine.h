@@ -24,7 +24,6 @@ public:
 
 	short operator [](int pageNo) const;
 	short & operator [](int pageNo);
-
 private:
 	friend class OS;
 	short table[32];
@@ -37,6 +36,8 @@ public:
 
 	short operator [](int logical) const;
 	short & operator [](int logical);
+
+	mutable int hits;
 
 private:
 	vector<short> mem;

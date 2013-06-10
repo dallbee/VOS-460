@@ -43,6 +43,8 @@ private:
 	unsigned ioTime;
 	unsigned largestStack;
 	float userTotal;
+	int pageFaults;
+	int pageHits;
 
 	// File Streams
 	fstream *oFile;
@@ -60,7 +62,6 @@ public:
 	void loadState();
 	void saveState();
 	void pageReplace();
-	void pageTLB();
 	void pageSave();
 	void run();
 	void processFinish();

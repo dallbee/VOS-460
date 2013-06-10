@@ -26,6 +26,7 @@ using namespace std;
 PCB::PCB(string fileName) : name(fileName), pageTable(), reg(), pc(), sr(), ir(),
 	sp(VirtualMachine::memSize - 1), base(), limit(), tempClock(), execTime(),
 	waitTime(), turnTime(), ioTime(), largestStack(VirtualMachine::memSize - 1),
+	pageFaults(), pageHits(),
 	oFile(new fstream(string("../io/" + name + "/" + name + ".o").c_str())),
 	outFile(new ofstream(string("../io/" + name + "/" + name + ".out").c_str())),
 	inFile(new fstream(string("../io/" + name + "/" + name + ".in").c_str())),
@@ -143,6 +144,7 @@ void OS::loadState()
 	VM.inFile = active->inFile;
 	VM.outFile = active->outFile;
 	VM.largestStack = active->largestStack;
+	VM.mem.hits = 0;
 
 	string line = "";
 
@@ -155,9 +157,7 @@ void OS::loadState()
 	}
 
 	active->stFile->close();
-
 	pageReplace();
-	pageTLB();
 }
 
 /*
@@ -174,6 +174,7 @@ void OS::saveState()
 	active->inFile = VM.inFile;
 	active->outFile = VM.outFile;
 	active->largestStack = VM.largestStack;
+	active->pageHits = VM.mem.hits;
 
 	active->stFile->open(string("../io/" + active->name + "/" + active->name +
 	                      ".st").c_str(), ios::out | ios::trunc);
@@ -183,8 +184,7 @@ void OS::saveState()
 	}
 
 	active->stFile->close();
-
-
+	pageSave();
 }
 
 void OS::pageReplace()
@@ -192,11 +192,8 @@ void OS::pageReplace()
 	// Branch based on algorithm
 	//
 	// Grab new from disk
-}
-
-void OS::pageTLB()
-{
-	// clear old tlb
+	//
+	// // clear old tlb
 	// copy page to tlb
 }
 
@@ -296,6 +293,7 @@ void OS::run()
 			// Page Fault
 			case 32:
 				active->tempClock = VM.clock + 34;
+				active->pageFaults++;
 				saveState();
 				waitQ.push(active);
 				break;
@@ -323,6 +321,9 @@ void OS::processFinish()
 	*active->outFile << "Turnaround Time: " << VM.clock << " ticks" << endl;
 	*active->outFile << "I/O Time: " << active->ioTime << " ticks" << endl;
 	*active->outFile << "Largest Stack Size: " << active->largestStack << endl;
+	*active->outFile << "Page Faults: " << active->pageFaults << endl;
+	*active->outFile << "Hit Ratio: " << (float)active->pageHits /
+		(float)active->pageFaults << endl;
 
 	*active->outFile << endl << "[System Information]" << endl;
 	*active->outFile << "System Time: " << systemTime << " ticks" << endl;

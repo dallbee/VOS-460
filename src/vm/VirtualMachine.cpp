@@ -43,7 +43,7 @@ short & PageTable::operator [](int pageNo)
  * Construct object and create registers and memory
  */
 Memory::Memory(int memSize, int tlbSize, short &sp, PageTable* page):
-	mem(memSize), bufferSize(tlbSize), stackPointer(sp), pageTable(page)
+	hits(), mem(memSize), bufferSize(tlbSize), stackPointer(sp), pageTable(page)
 {
 }
 
@@ -60,6 +60,7 @@ short Memory::operator [](int logical) const
 		throw "TLB Miss";
 	}
 
+	++hits;
 	return mem[((it->second >> 2) << 3) | (logical & 0x7)];
 }
 
