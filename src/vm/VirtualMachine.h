@@ -19,6 +19,7 @@ using namespace std;
 
 class VirtualMachine {
 public:
+	static const int tlbSize = 8;
 	static const int regSize = 4;
 	static const int memSize = 256;
 
@@ -31,6 +32,8 @@ public:
 protected:
 	friend class OS;
 
+	short tlbKey[tlbSize]
+	short tlbValue[tlbSize]; //I honestly an not sure I follow the instructions.
 	short reg[regSize];
 	short mem[memSize];
 	short frames[32];
