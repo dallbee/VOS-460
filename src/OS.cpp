@@ -45,9 +45,10 @@ PCB::~PCB()
 	delete stFile;
 }
 
-Memory::Memory()
+short operator [](int index) const
 {
-
+	page[index];
+	return mem[page[index]];
 }
 
 /**

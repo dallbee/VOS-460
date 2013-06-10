@@ -24,6 +24,7 @@ public:
 private:
 	friend class OS;
 	string name;
+	unsigned char *pageTable[32];
 
 	// Program execution information
 	short reg[VirtualMachine::regSize];
@@ -51,19 +52,6 @@ private:
 	fstream *stFile;
 };
 
-class Memory : public VirtualMachine {
-public:
-	Memory();
-	virtual ~Memory() {};
-
-	// [] Operator -> & Designates setter
-	short operator [](int index) const;
-    short & operator [](int index)
-
-private:
-	short page[32];
-};
-
 class OS {
 public:
 	OS();
@@ -76,7 +64,7 @@ public:
 	void processFinish();
 
 private:
-	Memory VM;
+	VirtualMachine VM;
 	list<PCB *> progs;
 	queue<PCB *> readyQ, waitQ;
 	PCB* active;
