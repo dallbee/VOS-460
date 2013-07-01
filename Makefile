@@ -1,21 +1,20 @@
-CC      = g++
-CFLAGS  = -g -Wall -O3
+CC     = g++
+CFLAGS = -g -O3 -pedantic -ansi -Werror
+WFLAGS = -Wall -Wextra -Wshadow -Wpointer-arith -Wstrict-overflow=5 -Wstrict-aliasing
+FLAGS = $(CFLAGS) $(WFLAGS)
 TARGETDIR = bin
 SRCDIR = src
 
-all: boot
+all: os
 
-boot: os.o VirtualMachine.o Assembler.o
-	$(CC) $(CFLAGS) -o $(TARGETDIR)/boot $(SRCDIR)/boot.cpp $(TARGETDIR)/os.o $(TARGETDIR)/VirtualMachine.o $(TARGETDIR)/Assembler.o
-
-os.o:
-	$(CC) $(CFLAGS) -o $(TARGETDIR)/os.o -c $(SRCDIR)/sys/os.cpp
+os: VirtualMachine.o Assembler.o
+	$(CC) $(FLAGS) -o $(TARGETDIR)/os $(SRCDIR)/OS.cpp $(TARGETDIR)/VirtualMachine.o $(TARGETDIR)/Assembler.o
 
 VirtualMachine.o:
-	$(CC) $(CFLAGS) -o $(TARGETDIR)/VirtualMachine.o -c $(SRCDIR)/vm/VirtualMachine.cpp
+	$(CC) $(FLAGS) -o $(TARGETDIR)/VirtualMachine.o -c $(SRCDIR)/vm/VirtualMachine.cpp
 
 Assembler.o:
-	$(CC) $(CFLAGS) -o $(TARGETDIR)/Assembler.o -c $(SRCDIR)/sys/assembler/Assembler.cpp
+	$(CC) $(FLAGS) -o $(TARGETDIR)/Assembler.o -c $(SRCDIR)/sys/assembler/Assembler.cpp
 
 clean:
 	rm -f $(TARGETDIR)/*
