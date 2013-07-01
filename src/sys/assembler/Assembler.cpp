@@ -2,17 +2,19 @@
  * Implementation of the Assembler class
  *
  * @authors Dylan Allbee, Taylor Sanchez
- * @version 1.2
- * @date 22 April, 2013
+ * @version 1.3
+ * @date 27 April, 2013
+ * @file Assembler.cpp
  */
 
 #include "Assembler.h"
-#include <map>
-#include <string>
-#include <sstream>
-#include <fstream>
-#include <iterator>
 #include <algorithm>
+#include <fstream>
+#include <iostream>
+#include <iterator>
+#include <map>
+#include <sstream>
+#include <string>
 using namespace std;
 
 /**
@@ -21,7 +23,8 @@ using namespace std;
  *
  * @param opListPath The path to the opcode listing to be used for assembly.
  */
-Assembler::Assembler(const string &opListPath)
+Assembler::Assembler(const string &opListPath): line(), lineNumber(), opCodes(),
+	immediates(), rdSet(), loads()
 {
 	string opCode, flags;
 	ifstream opListFile(opListPath.c_str());
@@ -53,7 +56,7 @@ Assembler::Assembler(const string &opListPath)
 
 	// Verify data existence
 	if (opCodes.empty()) {
-		throw "Could not read data in from operation codes file";
+		printf ("Could not read data in from operation codes file\n");
 	}
 }
 
@@ -61,14 +64,18 @@ Assembler::Assembler(const string &opListPath)
  * Load source file line by line and assemble opcode field of object code.
  *
  * @param sourcePath The path to the program that will be assembled
- * @return void
  */
 void Assembler::build(const string &sourcePath)
 {
-	unsigned object = 0;
-	Instruction op = {"", 0};
+	int object = 0, start = 0, end = 0;;
+	string outputFile;
+	start = sourcePath.find_first_not_of("\t ");
+	end   = sourcePath.find_last_of(".");
+	outputFile = sourcePath.substr(start, end - start) + ".o";
+
+	Instruction op = {"", 0, 0, 0, 0, 0, 0};
 	ifstream sourceFile(sourcePath.c_str());
-	ofstream programFile("test.o");
+	ofstream programFile(outputFile.c_str());
 
 	// Parse source file and build assembly file
 	for (lineNumber = 1; getline(sourceFile, line); ++lineNumber) {
@@ -100,9 +107,9 @@ void Assembler::build(const string &sourcePath)
  * Takes in an instruction and formats the instruction into decimal object code
  *
  * @param op The instruction to format
- * @return unsigned
+ * @return The opcode as an integer
  */
-unsigned Assembler::format(Instruction &op)
+int Assembler::format(Instruction &op)
 {
 	// Command does not contain RD argument
 	if (rdSet.find(op.text) == rdSet.end()) {
@@ -141,11 +148,11 @@ unsigned Assembler::format(Instruction &op)
  * Splits an assembly instruction into its command and parameters
  *
  * @param line The source code instruction to be interpereted.
- * @return Assembler::instruction
+ * @return The opcode as an Assembler::instruction
  */
 Assembler::Instruction Assembler::parse(const string &line)
 {
-	Instruction op = {"", 0};
+	Instruction op = {"", 0, 0, 0, 0, 0, 0};
 	int start = 0, end = 0;
 
 	// Get the size of the instruction without comments
@@ -189,7 +196,7 @@ Assembler::Instruction Assembler::parse(const string &line)
  * @param lineNumber The line of which the error occurred
  * @param msg The error message to display
  * @param line The contents of the line in question
- * @return string
+ * @return The error message
  */
 string Assembler::parseError(int lineNumber, string msg, string line)
 {
